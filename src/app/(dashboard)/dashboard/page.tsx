@@ -94,30 +94,10 @@ export default function DashboardPage() {
           </div>
           <div className="divide-y">
             {[
-              {
-                title: "Bank Reconciliation  October",
-                client: "Acme Corp",
-                due: "Today",
-                status: "In Progress",
-              },
-              {
-                title: "Review AP Accruals",
-                client: "TechStart LLC",
-                due: "Tomorrow",
-                status: "Pending",
-              },
-              {
-                title: "Prepare Trial Balance",
-                client: "Green Energy Inc",
-                due: "Nov 5",
-                status: "Not Started",
-              },
-              {
-                title: "PBC Request  Bank Statements",
-                client: "Acme Corp",
-                due: "Nov 4",
-                status: "Waiting on Client",
-              },
+              { title: "Bank Reconciliation — October", client: "Acme Corp", due: "Today", status: "In Progress", href: "/dashboard/bank-rec" },
+              { title: "Review AP Accruals", client: "TechStart LLC", due: "Tomorrow", status: "Pending", href: "/dashboard/close" },
+              { title: "Prepare Trial Balance", client: "Green Energy Inc", due: "Nov 5", status: "Not Started", href: "/dashboard/reporting/statements" },
+              { title: "PBC Request — Bank Statements", client: "Acme Corp", due: "Nov 4", status: "Waiting on Client", href: "/dashboard/audit/pbc" },
             ].map((task) => (
               <div
                 key={task.title}
