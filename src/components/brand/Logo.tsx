@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-/** Finova mark — S-curve + growth bars in ISACA palette */
+/** FinSphere AI mark — growth, clarity, and connected financial insight */
 export function Logo({ className, size = 40 }: { className?: string; size?: number }) {
   return (
     <svg
@@ -64,8 +64,7 @@ export function LogoWordmark({ className, light = false }: { className?: string;
           light ? "text-white" : "text-isaca-dark"
         )}
       >
-        Fino
-        <span className={light ? "text-sky-300" : "text-isaca-medium"}>va</span>
+        FinSphere <span className={light ? "text-sky-300" : "text-isaca-medium"}>AI</span>
       </span>
     </div>
   );
