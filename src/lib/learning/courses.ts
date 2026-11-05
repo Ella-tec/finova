@@ -12,10 +12,10 @@ export type Course = {
 export const COURSES: Course[] = [
   {
     id: "getting-started",
-    title: "Getting Started with Finova",
+    title: "Getting Started with FinSphere AI",
     level: "Beginner",
     duration: "25 min",
-    description: "Learn how to set up your firm, invite clients, and navigate the main workspace.",
+    description: "Learn how to set up your firm, invite clients, and navigate the main FinSphere AI workspace.",
     outcomes: ["Create firm workspace", "Invite users with roles", "Navigate sidebar modules"],
     lessons: [
       { id: "1", title: "Tour of the dashboard", minutes: 4 },
@@ -126,7 +126,7 @@ export const COURSES: Course[] = [
     description: "Understand roles, segregation of duties, audit logs, MFA, and how Finova supports SOC 2.",
     outcomes: ["Role matrix", "File sanitizer workflow", "SoD basics"],
     lessons: [
-      { id: "1", title: "Roles in Finova", minutes: 5 },
+      { id: "1", title: "Roles in FinSphere AI", minutes: 5 },
       { id: "2", title: "Segregation of duties", minutes: 5 },
       { id: "3", title: "File sanitizer & DLP ideas", minutes: 5 },
       { id: "4", title: "Audit trail expectations", minutes: 5 },
