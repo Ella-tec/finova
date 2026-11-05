@@ -8,6 +8,32 @@ export type Course = {
   modules: { title: string; minutes: number }[];
 };
 
+function makeCourse(
+  id: string,
+  title: string,
+  level: string,
+  minutes: number,
+  description: string,
+  outcomes: string[],
+  lessonTitles: [string, number][],
+): Course {
+  return {
+    id,
+    title,
+    level,
+    duration: `${minutes} min`,
+    minutes,
+    lessons: lessonTitles.length,
+    summary: description,
+    description,
+    outcomes,
+    modules: lessonTitles.map(([title, lessonMinutes]) => ({
+      title,
+      minutes: lessonMinutes,
+    })),
+  };
+}
+
 export const COURSES: Course[] = [
   {
     id: "getting-started",
@@ -148,5 +174,7 @@ export const COURSES: Course[] = [
 ];
 
 export function getCourse(id: string) {
-  return COURSES.find((c) => c.id === id);
+  // Support the older URL and the current course identifier.
+  const normalizedId = id === "bank-rec" ? "daily-bank-rec" : id;
+  return COURSES.find((course) => course.id === normalizedId);
 }

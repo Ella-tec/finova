@@ -10,8 +10,8 @@ const siteUrl = process.env.NEXTAUTH_URL || "https://finova.ai";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Finova | Accounting ERP, Audit & Client Portal",
-    template: "%s | Finova",
+    default: "FinSphere AI | Accounting ERP, Audit & Client Portal",
+    template: "%s | FinSphere AI",
   },
   description:
     "Enterprise platform for accounting firms: general ledger, financial statements, month-end close, multi-entity consolidation, audit workpapers, PBC requests, document AI, bank reconciliation, and secure client collaboration.",
@@ -31,19 +31,19 @@ export const metadata: Metadata = {
     "Microsoft Entra ID accounting",
   ],
   authors: [{ name: "Finova" }],
-  creator: "Finova",
+  creator: "FinSphere AI",
   openGraph: {
     type: "website",
     locale: "en_US",
     url: siteUrl,
-    siteName: "Finova",
-    title: "Finova | Complete Accounting, Audit & Collaboration",
+    siteName: "FinSphere AI",
+    title: "FinSphere AI | Complete Accounting, Audit & Collaboration",
     description:
       "Accounting ERP + Audit + Document Gateway + AI Copilot for CPA firms, controllers, and clients.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Finova",
+    title: "FinSphere AI",
     description: "Enterprise accounting, audit, and client collaboration platform.",
   },
   robots: {

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import {
   Users,
   Building2,
@@ -73,6 +74,14 @@ const cards = [
 ];
 
 export default function AdminPage() {
+  const [notice, setNotice] = useState("");
+
+  const summaryCards = [
+    { label: "Workspace", value: "Active", detail: "Open the main workspace", icon: CheckCircle2, href: "/dashboard" },
+    { label: "Access management", value: "User roles", detail: "Review team permissions", icon: Users, href: "/dashboard/admin/users" },
+    { label: "Security", value: "Controls", detail: "Open sanitizer and risk checks", icon: Shield, href: "/dashboard/security" },
+  ];
+
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <div>
