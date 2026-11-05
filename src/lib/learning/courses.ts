@@ -1,4 +1,3 @@
-export type Lesson = { id: string; title: string; minutes: number };
 export type CourseModule = { title: string; minutes: number };
 
 export type Course = {
@@ -7,10 +6,12 @@ export type Course = {
   level: string;
   duration: string;
   minutes: number;
-  lessons: Lesson[];
+  /** Numeric lesson count retained for compatibility with existing course cards. */
+  lessons: number;
   summary: string;
   description: string;
   outcomes: string[];
+  /** Detailed lesson list used by the course overview and lesson navigation. */
   modules: CourseModule[];
 };
 
@@ -23,15 +24,20 @@ function makeCourse(
   outcomes: string[],
   lessonTitles: [string, number][],
 ): Course {
-  const lessons = lessonTitles.map(([title, duration], index) => ({
-    id: String(index + 1),
-    title,
-    minutes: duration,
-  }));
   return {
-    id, title, level, duration: `${minutes} min`, minutes,
-    lessons, summary: description, description, outcomes,
-    modules: lessons.map(({ title, minutes }) => ({ title, minutes })),
+    id,
+    title,
+    level,
+    duration: `${minutes} min`,
+    minutes,
+    lessons: lessonTitles.length,
+    summary: description,
+    description,
+    outcomes,
+    modules: lessonTitles.map(([title, lessonMinutes]) => ({
+      title,
+      minutes: lessonMinutes,
+    })),
   };
 }
 
@@ -40,7 +46,7 @@ export const COURSES: Course[] = [
     "Learn how to set up your firm, invite clients, and navigate the main FinSphere AI workspace.",
     ["Create firm workspace", "Invite users with roles", "Navigate sidebar modules"],
     [["Tour of the dashboard",4],["Invite your team",5],["Client & folder setup",5],["Using global search",3],["AI widget vs AI page",4],["Quick start checklist",4]]),
-  makeCourse("bank-rec", "Daily Accounting & Bank Reconciliation", "Beginner", 40,
+  makeCourse("daily-bank-rec", "Daily Accounting & Bank Reconciliation", "Beginner", 40,
     "Master bank sync, AI matching, exception handling, and daily bookkeeping flows.",
     ["Run AI Auto-Match", "Clear exceptions", "Link to close checklist"],
     [["Import bank feed",5],["AI matching explained",6],["Handling exceptions",6],["Book vs bank views",5],["Daily journal habits",6],["Approvals & audit trail",4],["Sample data practice",5],["Checklist for close",3]]),
@@ -48,7 +54,7 @@ export const COURSES: Course[] = [
     "Run a complete close using guided checklists, accruals, trial balance validation, and approvals.",
     ["Start a close period", "Complete each step", "Final sign-off"],
     [["Close calendar & ownership",5],["Bank rec step",6],["AR / AP reviews",8],["Fixed assets & inventory",8],["Journal entries",7],["Trial balance validation",6],["Controller approval",5],["AI assist on close",4],["Lock period",3],["Practice run",3]]),
-  makeCourse("financial-statements", "Financial Statement Generation", "Intermediate", 35,
+  makeCourse("statements", "Financial Statement Generation", "Intermediate", 35,
     "Import trial balances, generate statements with AI, add notes, and prepare management packages.",
     ["Import TB CSV", "Generate BS / P&L / CF", "Export package"],
     [["Trial balance import",5],["Mapping accounts",5],["Balance sheet",5],["Income statement",5],["Cash flow",5],["Notes outline",5],["Sample library TB practice",5]]),
@@ -71,7 +77,7 @@ export const COURSES: Course[] = [
 ];
 
 export function getCourse(id: string) {
-  // Keep the earlier course URL working after the course was renamed.
-  const normalizedId = id === "daily-bank-rec" ? "bank-rec" : id;
+  // Support the older URL and the current course identifier.
+  const normalizedId = id === "bank-rec" ? "daily-bank-rec" : id;
   return COURSES.find((course) => course.id === normalizedId);
 }
