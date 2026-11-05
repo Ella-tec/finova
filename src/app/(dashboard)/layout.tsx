@@ -30,7 +30,7 @@ const navigation = [
   { name: "Client Portal", href: "/dashboard/clients", icon: Users },
   { name: "AI Assistant", href: "/dashboard/ai", icon: Bot },
   { name: "Users", href: "/dashboard/admin/users", icon: Users },
-  { name: "Learning Center", href: "/learning", icon: GraduationCap },
+  { name: "Learning Center", href: "/dashboard/learning", icon: GraduationCap },
   { name: "Administration", href: "/dashboard/admin", icon: Settings },
 ];
 
