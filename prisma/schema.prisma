@@ -1,0 +1,368 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CLIENT
+  STAFF_ACCOUNTANT
+  SENIOR_ACCOUNTANT
+  CONTROLLER
+  CFO
+  AUDITOR
+  AUDIT_MANAGER
+  PARTNER
+  TAX_MANAGER
+  ADMIN
+}
+
+enum DocumentStatus {
+  DRAFT
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+  ARCHIVED
+}
+
+enum RequestStatus {
+  REQUESTED
+  UPLOADED
+  IN_REVIEW
+  ACCEPTED
+  REJECTED
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  passwordHash  String?
+  role          Role      @default(STAFF_ACCOUNTANT)
+  image         String?
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  firmId        String?
+  firm          Firm?     @relation(fields: [firmId], references: [id])
+  clientId      String?
+  client        Client?   @relation(fields: [clientId], references: [id])
+
+  accounts      Account[]
+  sessions      Session[]
+  documents     Document[]
+  approvals     Approval[]
+  auditLogs     AuditLog[]
+}
+
+// ===== NextAuth required models =====
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Firm {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users       User[]
+  clients     Client[]
+}
+
+model Client {
+  id          String   @id @default(cuid())
+  name        String
+  legalName   String?
+  taxId       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  firmId      String
+  firm        Firm     @relation(fields: [firmId], references: [id])
+
+  users       User[]
+  documents   Document[]
+  requests    PbcRequest[]
+  folders     Folder[]
+}
+
+model Folder {
+  id          String   @id @default(cuid())
+  name        String
+  path        String
+  clientId    String
+  client      Client   @relation(fields: [clientId], references: [id])
+  parentId    String?
+  parent      Folder?  @relation("FolderTree", fields: [parentId], references: [id])
+  children    Folder[] @relation("FolderTree")
+  documents   Document[]
+  createdAt   DateTime @default(now())
+}
+
+model Document {
+  id          String         @id @default(cuid())
+  name        String
+  fileName    String
+  mimeType    String
+  size        Int
+  storageKey  String
+  status      DocumentStatus @default(DRAFT)
+  version     Int            @default(1)
+  ocrText     String?
+  tags        String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  clientId    String
+  client      Client         @relation(fields: [clientId], references: [id])
+  folderId    String?
+  folder      Folder?        @relation(fields: [folderId], references: [id])
+  uploadedById String?
+  uploadedBy  User?          @relation(fields: [uploadedById], references: [id])
+}
+
+model PbcRequest {
+  id          String        @id @default(cuid())
+  title       String
+  description String?
+  priority    String        @default("MEDIUM")
+  dueDate     DateTime?
+  status      RequestStatus @default(REQUESTED)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  clientId    String
+  client      Client        @relation(fields: [clientId], references: [id])
+}
+
+model Approval {
+  id          String   @id @default(cuid())
+  entityType  String
+  entityId    String
+  status      String   @default("PENDING")
+  comment     String?
+  createdAt   DateTime @default(now())
+  decidedAt   DateTime?
+
+  approverId  String
+  approver    User     @relation(fields: [approverId], references: [id])
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  action      String
+  entityType  String?
+  entityId    String?
+  details     String?
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
+}
+
+model TrialBalance {
+  id          String   @id @default(cuid())
+  period      String
+  accountCode String
+  accountName String
+  debit       Float    @default(0)
+  credit      Float    @default(0)
+  createdAt   DateTime @default(now())
+
+  clientId    String
+}
+// ===== Close Period Persistence =====
+model ClosePeriod {
+  id        String   @id @default(cuid())
+  period    String   // YYYY-MM
+  status    String   @default("OPEN") // OPEN | IN_PROGRESS | PENDING_APPROVAL | CLOSED
+  progress  Int      @default(0)
+  startedAt DateTime?
+  closedAt  DateTime?
+  firmId    String?
+  clientId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tasks     CloseTask[]
+
+  @@unique([period, clientId])
+}
+
+model CloseTask {
+  id          String   @id @default(cuid())
+  step        Int
+  title       String
+  description String?
+  category    String
+  status      String   @default("NOT_STARTED")
+  ownerRole   String?
+  aiCanHelp   Boolean  @default(false)
+  completedAt DateTime?
+  completedBy String?
+
+  closePeriodId String
+  closePeriod   ClosePeriod @relation(fields: [closePeriodId], references: [id], onDelete: Cascade)
+}
+
+// ===== Bank Reconciliation =====
+model BankTransaction {
+  id            String   @id @default(cuid())
+  date          DateTime
+  description   String
+  amount        Float
+  type          String   // DEBIT | CREDIT
+  reference     String?
+  matched       Boolean  @default(false)
+  matchConfidence Float?
+  matchedToId   String?  // book entry id or description
+  source        String   @default("BANK") // BANK | BOOK
+  period        String?
+  clientId      String?
+  createdAt     DateTime @default(now())
+}
+
+// ===== Document Analysis =====
+model DocumentAnalysis {
+  id          String   @id @default(cuid())
+  documentId  String   @unique
+  docType     String?  // INVOICE | BANK_STATEMENT | RECEIPT | CONTRACT | OTHER
+  vendor      String?
+  invoiceNumber String?
+  invoiceDate String?
+  dueDate     String?
+  totalAmount Float?
+  currency    String?
+  lineItems   String?  // JSON
+  taxAmount   Float?
+  confidence  Float?
+  rawText     String?
+  summary     String?
+  createdAt   DateTime @default(now())
+}
+
+// ===== Audit Workpapers =====
+model Workpaper {
+  id            String   @id @default(cuid())
+  engagementId  String?
+  accountCode   String?
+  accountName   String
+  title         String
+  period        String?
+  leadBalance   Float?
+  status        String   @default("DRAFT") // DRAFT | IN_PROGRESS | PREPARED | REVIEWED | SIGNED_OFF
+  procedures    String?  // JSON or text
+  findings      String?
+  conclusion    String?
+  preparedById  String?
+  reviewedById  String?
+  signedOffAt   DateTime?
+  clientId      String?
+  firmId        String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  schedules     LeadSchedule[]
+}
+
+model LeadSchedule {
+  id            String   @id @default(cuid())
+  workpaperId   String
+  workpaper     Workpaper @relation(fields: [workpaperId], references: [id], onDelete: Cascade)
+  lineCode      String?
+  description   String
+  priorBalance  Float    @default(0)
+  currentBalance Float   @default(0)
+  adjustments   Float    @default(0)
+  finalBalance  Float    @default(0)
+  reference     String?
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+}
+
+// ===== Email notification log =====
+model EmailLog {
+  id          String   @id @default(cuid())
+  to          String
+  subject     String
+  body        String?
+  template    String?
+  status      String   @default("QUEUED") // QUEUED | SENT | FAILED
+  relatedType String?
+  relatedId   String?
+  error       String?
+  createdAt   DateTime @default(now())
+  sentAt      DateTime?
+}
+
+// ===== Multi-entity consolidation =====
+model Entity {
+  id          String   @id @default(cuid())
+  code        String
+  name        String
+  currency    String   @default("USD")
+  parentId    String?
+  ownershipPct Float   @default(100) // % owned by parent for consolidation
+  firmId      String?
+  isEliminating Boolean @default(false) // elimination entity
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  balances    EntityBalance[]
+
+  @@unique([firmId, code])
+}
+
+model EntityBalance {
+  id          String   @id @default(cuid())
+  entityId    String
+  entity      Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  period      String
+  accountCode String
+  accountName String
+  debit       Float    @default(0)
+  credit      Float    @default(0)
+  type        String?  // ASSET | LIABILITY | EQUITY | REVENUE | EXPENSE
+  createdAt   DateTime @default(now())
+
+  @@index([entityId, period])
+}
