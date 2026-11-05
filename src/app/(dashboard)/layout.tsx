@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { LogoWordmark } from "@/components/brand/Logo";
 import { GlobalSearch } from "@/components/brand/GlobalSearch";
 import { ThemeSwitcher } from "@/components/brand/ThemeSwitcher";
+import { DarkModeToggle } from "@/components/brand/DarkModeToggle";
 
 const navigation = [
   { name: "Home", href: "/dashboard", icon: LayoutDashboard },
@@ -78,10 +79,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <button type="button" aria-label="Open navigation" className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 lg:hidden" onClick={() => setMobileOpen(true)}><Menu className="h-5 w-5" /></button>
           <div className="hidden shrink-0 items-center gap-2 text-sm text-slate-500 sm:flex"><span>Dashboard</span><ChevronRight className="h-4 w-4" /><span className="font-medium capitalize text-slate-900">{pathname.split("/").filter(Boolean).pop() || "Home"}</span></div>
           <div className="min-w-0 flex-1"><GlobalSearch /></div>
-          <div className="hidden md:block"><ThemeSwitcher /></div>
+          <div className="hidden items-center gap-2 md:flex"><ThemeSwitcher /><DarkModeToggle /></div>
           <Link href="/dashboard/ai" className="flex shrink-0 items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-isaca-light/50"><Bot className="h-4 w-4 text-isaca-medium" /><span className="hidden sm:inline">Ask AI</span></Link>
         </header>
-        <div className="border-b bg-white px-4 py-2 md:hidden"><ThemeSwitcher /></div>
+        <div className="flex items-center justify-between border-b bg-white px-4 py-2 md:hidden"><ThemeSwitcher /><DarkModeToggle /></div>
         <main className="min-h-0 flex-1 p-4 lg:p-6">{children}</main>
       </div>
     </div>
