@@ -99,21 +99,21 @@ export default function DashboardPage() {
               { title: "Prepare Trial Balance", client: "Green Energy Inc", due: "Nov 5", status: "Not Started", href: "/dashboard/reporting/statements" },
               { title: "PBC Request — Bank Statements", client: "Acme Corp", due: "Nov 4", status: "Waiting on Client", href: "/dashboard/audit/pbc" },
             ].map((task) => (
-              <div
+              <Link
                 key={task.title}
-                className="px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition"
+                href={task.href}
+                className="flex items-center justify-between px-6 py-4 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-isaca-medium"
               >
                 <div>
                   <p className="font-medium text-slate-900">{task.title}</p>
                   <p className="text-sm text-slate-500">{task.client}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-medium text-slate-700">
-                    {task.due}
-                  </p>
+                  <p className="text-sm font-medium text-slate-700">{task.due}</p>
                   <p className="text-xs text-slate-500">{task.status}</p>
                 </div>
-              </div>
+                <ArrowRight className="ml-3 h-4 w-4 shrink-0 text-slate-400" />
+              </Link>
             ))}
           </div>
         </div>
