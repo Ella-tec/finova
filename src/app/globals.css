@@ -75,6 +75,15 @@
 
 @layer utilities {
   .bg-brand-gradient { background-image: linear-gradient(110deg, var(--brand-medium), var(--brand-blue), var(--brand-teal)); }
+  .bg-isaca-medium { background-color: var(--brand-medium) !important; }
+  .text-isaca-medium { color: var(--brand-medium) !important; }
+  .border-isaca-medium { border-color: var(--brand-medium) !important; }
+  .bg-isaca-light { background-color: color-mix(in srgb, var(--brand-medium) 10%, white) !important; }
+  .text-isaca-dark { color: color-mix(in srgb, var(--brand-medium) 75%, #10213c) !important; }
+  .ring-isaca-medium { --tw-ring-color: var(--brand-medium) !important; }
+  .shadow-brand { box-shadow: 0 10px 40px -10px color-mix(in srgb, var(--brand-medium) 40%, transparent); }
+  .hover\\:bg-isaca-medium:hover { background-color: var(--brand-medium) !important; }
+  .hover\\:text-isaca-medium:hover { color: var(--brand-medium) !important; }
   .text-brand-gradient { background-image: linear-gradient(110deg, var(--brand-medium), var(--brand-teal)); background-clip: text; color: transparent; }
   .surface-hover { transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
   .surface-hover:hover { transform: translateY(-2px); box-shadow: 0 14px 32px -18px color-mix(in srgb, var(--brand-medium) 45%, transparent); }
