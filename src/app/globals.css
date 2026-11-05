@@ -79,3 +79,15 @@
   .surface-hover { transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
   .surface-hover:hover { transform: translateY(-2px); box-shadow: 0 14px 32px -18px color-mix(in srgb, var(--brand-medium) 45%, transparent); }
 }
+
+
+/* Dark mode compatibility for the existing utility-class screens. */
+.dark body { background-color: hsl(var(--background)); color: hsl(var(--foreground)); }
+.dark .bg-white { background-color: hsl(var(--card)); }
+.dark .bg-slate-50, .dark .bg-slate-100 { background-color: hsl(var(--secondary)); }
+.dark .text-slate-900, .dark .text-slate-800, .dark .text-slate-700 { color: hsl(var(--foreground)); }
+.dark .text-slate-600, .dark .text-slate-500 { color: hsl(var(--muted-foreground)); }
+.dark .border-slate-200, .dark .border-slate-100, .dark .border { border-color: hsl(var(--border)); }
+.dark input, .dark select, .dark textarea { background-color: hsl(var(--card)); color: hsl(var(--foreground)); border-color: hsl(var(--border)); }
+.dark .bg-isaca-light { background-color: color-mix(in srgb, var(--brand-medium) 18%, hsl(var(--card))); }
+.dark .hover\\:bg-slate-50:hover { background-color: hsl(var(--secondary)); }
