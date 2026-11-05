@@ -1,153 +1,77 @@
 export type Lesson = { id: string; title: string; minutes: number };
+export type CourseModule = { title: string; minutes: number };
+
 export type Course = {
   id: string;
   title: string;
   level: string;
   duration: string;
+  minutes: number;
   lessons: Lesson[];
+  summary: string;
   description: string;
   outcomes: string[];
+  modules: CourseModule[];
 };
 
+function makeCourse(
+  id: string,
+  title: string,
+  level: string,
+  minutes: number,
+  description: string,
+  outcomes: string[],
+  lessonTitles: [string, number][],
+): Course {
+  const lessons = lessonTitles.map(([title, duration], index) => ({
+    id: String(index + 1),
+    title,
+    minutes: duration,
+  }));
+  return {
+    id, title, level, duration: `${minutes} min`, minutes,
+    lessons, summary: description, description, outcomes,
+    modules: lessons.map(({ title, minutes }) => ({ title, minutes })),
+  };
+}
+
 export const COURSES: Course[] = [
-  {
-    id: "getting-started",
-    title: "Getting Started with FinSphere AI",
-    level: "Beginner",
-    duration: "25 min",
-    description: "Learn how to set up your firm, invite clients, and navigate the main FinSphere AI workspace.",
-    outcomes: ["Create firm workspace", "Invite users with roles", "Navigate sidebar modules"],
-    lessons: [
-      { id: "1", title: "Tour of the dashboard", minutes: 4 },
-      { id: "2", title: "Invite your team", minutes: 5 },
-      { id: "3", title: "Client & folder setup", minutes: 5 },
-      { id: "4", title: "Using global search", minutes: 3 },
-      { id: "5", title: "AI widget vs AI page", minutes: 4 },
-      { id: "6", title: "Quick start checklist", minutes: 4 },
-    ],
-  },
-  {
-    id: "bank-rec",
-    title: "Daily Accounting & Bank Reconciliation",
-    level: "Beginner",
-    duration: "40 min",
-    description: "Master bank sync, AI matching, exception handling, and daily bookkeeping flows.",
-    outcomes: ["Run AI Auto-Match", "Clear exceptions", "Link to close checklist"],
-    lessons: [
-      { id: "1", title: "Import bank feed", minutes: 5 },
-      { id: "2", title: "AI matching explained", minutes: 6 },
-      { id: "3", title: "Handling exceptions", minutes: 6 },
-      { id: "4", title: "Book vs bank views", minutes: 5 },
-      { id: "5", title: "Daily journal habits", minutes: 6 },
-      { id: "6", title: "Approvals & audit trail", minutes: 4 },
-      { id: "7", title: "Sample data practice", minutes: 5 },
-      { id: "8", title: "Checklist for close", minutes: 3 },
-    ],
-  },
-  {
-    id: "month-end-close",
-    title: "Month-End Close Mastery",
-    level: "Intermediate",
-    duration: "55 min",
-    description: "Run a complete close using guided checklists, accruals, trial balance validation, and approvals.",
-    outcomes: ["Start a close period", "Complete each step", "Final sign-off"],
-    lessons: [
-      { id: "1", title: "Close calendar & ownership", minutes: 5 },
-      { id: "2", title: "Bank rec step", minutes: 6 },
-      { id: "3", title: "AR / AP reviews", minutes: 8 },
-      { id: "4", title: "Fixed assets & inventory", minutes: 8 },
-      { id: "5", title: "Journal entries", minutes: 7 },
-      { id: "6", title: "Trial balance validation", minutes: 6 },
-      { id: "7", title: "Controller approval", minutes: 5 },
-      { id: "8", title: "AI assist on close", minutes: 4 },
-      { id: "9", title: "Lock period", minutes: 3 },
-      { id: "10", title: "Practice run", minutes: 3 },
-    ],
-  },
-  {
-    id: "financial-statements",
-    title: "Financial Statement Generation",
-    level: "Intermediate",
-    duration: "35 min",
-    description: "Import trial balances, generate statements with AI, add notes, and prepare management packages.",
-    outcomes: ["Import TB CSV", "Generate BS / P&L / CF", "Export package"],
-    lessons: [
-      { id: "1", title: "Trial balance import", minutes: 5 },
-      { id: "2", title: "Mapping accounts", minutes: 5 },
-      { id: "3", title: "Balance sheet", minutes: 5 },
-      { id: "4", title: "Income statement", minutes: 5 },
-      { id: "5", title: "Cash flow", minutes: 5 },
-      { id: "6", title: "Notes outline", minutes: 5 },
-      { id: "7", title: "Sample library TB practice", minutes: 5 },
-    ],
-  },
-  {
-    id: "audit-pbc",
-    title: "Audit Workspace & PBC Requests",
-    level: "Advanced",
-    duration: "60 min",
-    description: "Plan engagements, assess risk, create workpapers, manage PBC requests, and issue findings.",
-    outcomes: ["Create PBC requests", "Workpaper templates", "Findings register"],
-    lessons: [
-      { id: "1", title: "Engagement setup", minutes: 5 },
-      { id: "2", title: "Materiality & risk", minutes: 6 },
-      { id: "3", title: "PBC request lifecycle", minutes: 6 },
-      { id: "4", title: "Client portal uploads", minutes: 5 },
-      { id: "5", title: "Workpaper templates", minutes: 6 },
-      { id: "6", title: "Sampling worksheets", minutes: 5 },
-      { id: "7", title: "Findings & management letter", minutes: 5 },
-      { id: "8", title: "Evidence & sign-off", minutes: 5 },
-      { id: "9", title: "Sample audit docs", minutes: 6 },
-      { id: "10", title: "Partner review tips", minutes: 4 },
-      { id: "11", title: "Opinion templates", minutes: 4 },
-      { id: "12", title: "Practice engagement", minutes: 3 },
-    ],
-  },
-  {
-    id: "ai-copilot",
-    title: "AI Copilot for Accountants",
-    level: "Intermediate",
-    duration: "30 min",
-    description: "Use natural language to generate entries, statements, close tasks, and audit programs safely.",
-    outcomes: ["Use AI page prompts", "Human approval gate", "Safe data practices"],
-    lessons: [
-      { id: "1", title: "What AI may and may not do", minutes: 5 },
-      { id: "2", title: "Close checklist prompts", minutes: 6 },
-      { id: "3", title: "Statement & analysis prompts", minutes: 6 },
-      { id: "4", title: "Audit program drafts", minutes: 6 },
-      { id: "5", title: "Sanitizer before AI", minutes: 7 },
-    ],
-  },
-  {
-    id: "security",
-    title: "Security, Roles & Compliance",
-    level: "All Levels",
-    duration: "20 min",
-    description: "Understand roles, segregation of duties, audit logs, MFA, and how Finova supports SOC 2.",
-    outcomes: ["Role matrix", "File sanitizer workflow", "SoD basics"],
-    lessons: [
-      { id: "1", title: "Roles in FinSphere AI", minutes: 5 },
-      { id: "2", title: "Segregation of duties", minutes: 5 },
-      { id: "3", title: "File sanitizer & DLP ideas", minutes: 5 },
-      { id: "4", title: "Audit trail expectations", minutes: 5 },
-    ],
-  },
-  {
-    id: "client-portal",
-    title: "Client Portal Best Practices",
-    level: "Beginner",
-    duration: "15 min",
-    description: "Help your clients upload documents, respond to requests, and approve items with zero friction.",
-    outcomes: ["Client login path", "Upload folders", "PBC responses"],
-    lessons: [
-      { id: "1", title: "Client login at /portal", minutes: 3 },
-      { id: "2", title: "Documents & requests", minutes: 4 },
-      { id: "3", title: "Firm-side tracking", minutes: 4 },
-      { id: "4", title: "Communication tips", minutes: 4 },
-    ],
-  },
+  makeCourse("getting-started", "Getting Started with FinSphere AI", "Beginner", 25,
+    "Learn how to set up your firm, invite clients, and navigate the main FinSphere AI workspace.",
+    ["Create firm workspace", "Invite users with roles", "Navigate sidebar modules"],
+    [["Tour of the dashboard",4],["Invite your team",5],["Client & folder setup",5],["Using global search",3],["AI widget vs AI page",4],["Quick start checklist",4]]),
+  makeCourse("bank-rec", "Daily Accounting & Bank Reconciliation", "Beginner", 40,
+    "Master bank sync, AI matching, exception handling, and daily bookkeeping flows.",
+    ["Run AI Auto-Match", "Clear exceptions", "Link to close checklist"],
+    [["Import bank feed",5],["AI matching explained",6],["Handling exceptions",6],["Book vs bank views",5],["Daily journal habits",6],["Approvals & audit trail",4],["Sample data practice",5],["Checklist for close",3]]),
+  makeCourse("month-end-close", "Month-End Close Mastery", "Intermediate", 55,
+    "Run a complete close using guided checklists, accruals, trial balance validation, and approvals.",
+    ["Start a close period", "Complete each step", "Final sign-off"],
+    [["Close calendar & ownership",5],["Bank rec step",6],["AR / AP reviews",8],["Fixed assets & inventory",8],["Journal entries",7],["Trial balance validation",6],["Controller approval",5],["AI assist on close",4],["Lock period",3],["Practice run",3]]),
+  makeCourse("financial-statements", "Financial Statement Generation", "Intermediate", 35,
+    "Import trial balances, generate statements with AI, add notes, and prepare management packages.",
+    ["Import TB CSV", "Generate BS / P&L / CF", "Export package"],
+    [["Trial balance import",5],["Mapping accounts",5],["Balance sheet",5],["Income statement",5],["Cash flow",5],["Notes outline",5],["Sample library TB practice",5]]),
+  makeCourse("audit-pbc", "Audit Workspace & PBC Requests", "Advanced", 60,
+    "Plan engagements, assess risk, create workpapers, manage PBC requests, and issue findings.",
+    ["Create PBC requests", "Workpaper templates", "Findings register"],
+    [["Engagement setup",5],["Materiality & risk",6],["PBC request lifecycle",6],["Client portal uploads",5],["Workpaper templates",6],["Sampling worksheets",5],["Findings & management letter",5],["Evidence & sign-off",5],["Sample audit docs",6],["Partner review tips",4],["Opinion templates",4],["Practice engagement",3]]),
+  makeCourse("ai-copilot", "AI Copilot for Accountants", "Intermediate", 30,
+    "Use natural language to generate entries, statements, close tasks, and audit programs safely.",
+    ["Use AI page prompts", "Human approval gate", "Safe data practices"],
+    [["What AI may and may not do",5],["Close checklist prompts",6],["Statement & analysis prompts",6],["Audit program drafts",6],["Sanitizer before AI",7]]),
+  makeCourse("security", "Security, Roles & Compliance", "All Levels", 20,
+    "Understand roles, segregation of duties, audit logs, MFA, and how FinSphere supports SOC 2.",
+    ["Role matrix", "File sanitizer workflow", "SoD basics"],
+    [["Roles in FinSphere AI",5],["Segregation of duties",5],["File sanitizer & DLP ideas",5],["Audit trail expectations",5]]),
+  makeCourse("client-portal", "Client Portal Best Practices", "Beginner", 15,
+    "Help your clients upload documents, respond to requests, and approve items with zero friction.",
+    ["Client login path", "Upload folders", "PBC responses"],
+    [["Client login at /portal",3],["Documents & requests",4],["Firm-side tracking",4],["Communication tips",4]]),
 ];
 
 export function getCourse(id: string) {
-  return COURSES.find((c) => c.id === id);
+  // Keep the earlier course URL working after the course was renamed.
+  const normalizedId = id === "daily-bank-rec" ? "bank-rec" : id;
+  return COURSES.find((course) => course.id === normalizedId);
 }
