@@ -15,7 +15,7 @@ const links = [
   { href: "/dashboard/audit", title: "Audit Controls", desc: "Review PBC requests, workpapers, and findings.", icon: ScrollText },
   { href: "/dashboard/ai", title: "AI & Assistant Settings", desc: "Open the assistant and review human-approval workflows.", icon: KeyRound },
   { href: "/dashboard/documents", title: "Document Workspace", desc: "Open the document repository and review uploaded files.", icon: Database },
-  { href: "/learning", title: "Learning Center", desc: "Open courses, lessons, and team enablement resources.", icon: Bell },
+  { href: "/dashboard/learning", title: "Learning Center", desc: "Open courses, lessons, and team enablement resources.", icon: Bell },
 ];
 
 export default function AdminPage() {
@@ -33,15 +33,15 @@ export default function AdminPage() {
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {[
-          { label: "Workspace", value: "Active", detail: "Core modules available", icon: CheckCircle2 },
-          { label: "Access management", value: "User roles", detail: "Review team permissions", icon: Users },
-          { label: "Security", value: "Controls", detail: "Sanitizer and audit access", icon: Shield },
-          { label: "Appearance", value: "10 themes", detail: "Choose your workspace style", icon: Palette },
+          { label: "Workspace", value: "Active", detail: "Open the main workspace", icon: CheckCircle2, href: "/dashboard" },
+          { label: "Access management", value: "User roles", detail: "Review team permissions", icon: Users, href: "/dashboard/admin/users" },
+          { label: "Security", value: "Controls", detail: "Open sanitizer and risk checks", icon: Shield, href: "/dashboard/security" },
+          { label: "Appearance", value: "10 themes", detail: "Choose your workspace style", icon: Palette, href: "#appearance" },
         ].map((item) => (
-          <div key={item.label} className="surface-hover rounded-2xl border bg-white p-5 shadow-sm">
+          <Link key={item.label} href={item.href} onClick={item.href === "#appearance" ? (event) => { event.preventDefault(); document.querySelector<HTMLSelectElement>('select[aria-label="Choose FinSphere color theme"]')?.focus(); } : undefined} className="surface-hover group block rounded-2xl border bg-white p-5 shadow-sm hover:border-isaca-medium/60 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-isaca-medium">
             <div className="flex items-center justify-between"><span className="text-sm font-medium text-slate-500">{item.label}</span><item.icon className="h-5 w-5 text-isaca-medium" /></div>
-            <p className="mt-3 text-xl font-bold text-slate-900">{item.value}</p><p className="mt-1 text-sm text-slate-500">{item.detail}</p>
-          </div>
+            <p className="mt-3 text-xl font-bold text-slate-900">{item.value}</p><p className="mt-1 text-sm text-slate-500">{item.detail}</p><span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-isaca-medium">Open <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" /></span>
+          </Link>
         ))}
       </section>
 
