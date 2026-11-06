@@ -34,17 +34,22 @@ export default function DocumentsPage() {
   const [uploading, setUploading] = useState(false);
   const [analyzing, setAnalyzing] = useState<string | null>(null);
   const [analysis, setAnalysis] = useState<Record<string, Analysis>>({});
-  const [clientId] = useState("demo-client-001");
+  const [clientId, setClientId] = useState("");
+  const [loadError, setLoadError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const load = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/documents?clientId=${clientId}`);
+      const res = await fetch("/api/documents");
       const data = await res.json();
-      setDocs(Array.isArray(data) ? data : data.documents || []);
-    } catch {
+      if (!res.ok) throw new Error(data.error || "Could not load documents");
+      setClientId(data.clientId || "");
+      setDocs(data.documents || []);
+      setLoadError(data.clientId ? null : "No client workspace is assigned to this account yet.");
+    } catch (error) {
       setDocs([]);
+      setLoadError(error instanceof Error ? error.message : "Could not load documents");
     }
     setLoading(false);
   };
@@ -55,6 +60,11 @@ export default function DocumentsPage() {
 
   const handleUpload = async (files: FileList | null) => {
     if (!files?.length) return;
+    if (!clientId) {
+      setLoadError("No client workspace is assigned to this account. Ask a workspace administrator to assign one.");
+      return;
+    }
+    setLoadError(null);
     setUploading(true);
     for (const file of Array.from(files)) {
       const fd = new FormData();
@@ -76,9 +86,12 @@ export default function DocumentsPage() {
             setAnalysis((prev) => ({ ...prev, [doc.id]: a }));
           }
           setAnalyzing(null);
+        } else {
+          const problem = await res.json().catch(() => ({}));
+          setLoadError(problem.error || "A file could not be uploaded.");
         }
       } catch (e) {
-        console.error(e);
+        setLoadError(e instanceof Error ? e.message : "A file could not be uploaded.");
       }
     }
     setUploading(false);
@@ -105,6 +118,7 @@ export default function DocumentsPage() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
+      {loadError && <div role="alert" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">{loadError}</div>}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Documents</h1>
