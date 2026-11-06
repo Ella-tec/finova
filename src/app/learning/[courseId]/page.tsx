@@ -70,7 +70,7 @@ export default async function CoursePage({
         <div className="rounded-2xl border border-isaca-medium/20 bg-isaca-light/50 p-5 text-sm text-slate-700">
           <p className="font-medium text-isaca-dark mb-1">Practice in the product</p>
           <p>
-            After each module, open the matching FinSphere screen (Close, Bank Rec, Samples,
+            After each module, open the matching Finova screen (Close, Bank Rec, Samples,
             Audit/PBC, AI) and complete the checklist items listed in the course overview.
           </p>
           <Link
