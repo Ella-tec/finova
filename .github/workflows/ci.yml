@@ -1,0 +1,32 @@
+name: Finova CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, finova-app-review-fixes]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DATABASE_URL: file:./ci.db
+      NEXTAUTH_SECRET: ci-only-not-for-production
+      NEXTAUTH_URL: http://localhost:3000
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install dependencies
+        run: npm install
+      - name: Generate Prisma client
+        run: npx prisma generate
+      - name: Type-check
+        run: npx tsc --noEmit
+      - name: Build
+        run: npm run build
