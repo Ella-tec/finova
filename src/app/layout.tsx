@@ -32,6 +32,11 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Finova" }],
   creator: "FinSphere AI",
+  icons: {
+    icon: [{ url: "/logo.svg", type: "image/svg+xml" }],
+    shortcut: ["/logo.svg"],
+    apple: [{ url: "/logo.svg", type: "image/svg+xml" }],
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
