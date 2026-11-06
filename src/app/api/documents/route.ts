@@ -178,7 +178,16 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json(document, { status: 201 });
+    return NextResponse.json({
+      id: document.id,
+      name: document.name,
+      fileName: document.fileName,
+      mimeType: document.mimeType,
+      size: document.size,
+      status: document.status,
+      createdAt: document.createdAt,
+      folder: document.folder,
+    }, { status: 201 });
   } catch (error) {
     if (savedPath) await unlink(savedPath).catch(() => undefined);
     console.error("Document upload failed:", error);
