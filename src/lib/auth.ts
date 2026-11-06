@@ -8,16 +8,9 @@ import { Role } from "@prisma/client";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as any,
-  session: {
-    strategy: "jwt",
-    maxAge: 8 * 60 * 60, // 8 hours
-  },
-  pages: {
-    signIn: "/login",
-    error: "/login",
-  },
+  session: { strategy: "jwt", maxAge: 8 * 60 * 60 },
+  pages: { signIn: "/login", error: "/login" },
   providers: [
-    // ===== Credentials Provider (Email + Password) =====
     CredentialsProvider({
       id: "credentials",
       name: "Email and Password",
@@ -29,22 +22,12 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Email and password are required");
         }
-
         const user = await prisma.user.findUnique({
           where: { email: credentials.email.toLowerCase().trim() },
         });
-
-        if (!user || !user.passwordHash) {
+        if (!user?.passwordHash || !(await compare(credentials.password, user.passwordHash))) {
           throw new Error("Invalid email or password");
         }
-
-        const isValid = await compare(credentials.password, user.passwordHash);
-
-        if (!isValid) {
-          throw new Error("Invalid email or password");
-        }
-
-        // Log successful login (security audit)
         await prisma.auditLog.create({
           data: {
             action: "USER_LOGIN",
@@ -54,7 +37,6 @@ export const authOptions: NextAuthOptions = {
             userId: user.id,
           },
         });
-
         return {
           id: user.id,
           email: user.email,
@@ -66,24 +48,18 @@ export const authOptions: NextAuthOptions = {
         };
       },
     }),
-
-    // ===== Microsoft Entra ID (Azure AD) Provider =====
     AzureADProvider({
       clientId: process.env.AZURE_AD_CLIENT_ID!,
       clientSecret: process.env.AZURE_AD_CLIENT_SECRET!,
       tenantId: process.env.AZURE_AD_TENANT_ID,
-      authorization: {
-        params: {
-          scope: "openid profile email User.Read",
-        },
-      },
+      authorization: { params: { scope: "openid profile email User.Read" } },
       profile(profile) {
         return {
           id: profile.sub || profile.oid,
           name: profile.name,
           email: profile.email || profile.preferred_username,
           image: null,
-          role: "STAFF_ACCOUNTANT" as Role, // default, can be mapped later
+          role: "STAFF_ACCOUNTANT" as Role,
         };
       },
     }),
@@ -96,13 +72,10 @@ export const authOptions: NextAuthOptions = {
         token.firmId = (user as any).firmId;
         token.clientId = (user as any).clientId;
       }
-
-      // On Entra ID login, try to link or create local user
       if (account?.provider === "azure-ad" && user?.email) {
         const existing = await prisma.user.findUnique({
-          where: { email: user.email.toLowerCase() },
+          where: { email: user.email.toLowerCase().trim() },
         });
-
         if (existing) {
           token.id = existing.id;
           token.role = existing.role;
@@ -110,7 +83,6 @@ export const authOptions: NextAuthOptions = {
           token.clientId = existing.clientId;
         }
       }
-
       return token;
     },
     async session({ session, token }) {
@@ -123,41 +95,24 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async signIn({ user, account }) {
-      // Allow credentials always
       if (account?.provider === "credentials") return true;
+      if (account?.provider !== "azure-ad" || !user.email) return false;
 
-      // For Entra ID  allow if email exists or create basic user
-      if (account?.provider === "azure-ad" && user.email) {
-        const email = user.email.toLowerCase();
-        const existing = await prisma.user.findUnique({ where: { email } });
+      // Entra users must be pre-provisioned by a Finova administrator.
+      // Never create a firm-less staff account during an OAuth sign-in.
+      const email = user.email.toLowerCase().trim();
+      const approvedUser = await prisma.user.findUnique({ where: { email } });
+      if (!approvedUser || !approvedUser.firmId) return false;
 
-        if (!existing) {
-          // Auto-provision with lowest privilege role
-          await prisma.user.create({
-            data: {
-              email,
-              name: user.name || email.split("@")[0],
-              role: "STAFF_ACCOUNTANT",
-              // no passwordHash  Entra ID only
-            },
-          });
-        }
-
-        // Audit log
-        const dbUser = await prisma.user.findUnique({ where: { email } });
-        if (dbUser) {
-          await prisma.auditLog.create({
-            data: {
-              action: "USER_LOGIN",
-              entityType: "User",
-              entityId: dbUser.id,
-              details: JSON.stringify({ method: "azure-ad" }),
-              userId: dbUser.id,
-            },
-          });
-        }
-      }
-
+      await prisma.auditLog.create({
+        data: {
+          action: "USER_LOGIN",
+          entityType: "User",
+          entityId: approvedUser.id,
+          details: JSON.stringify({ method: "azure-ad" }),
+          userId: approvedUser.id,
+        },
+      });
       return true;
     },
   },

@@ -9,7 +9,7 @@ const TASK_STATUSES = ["NOT_STARTED", "IN_PROGRESS", "COMPLETED", "BLOCKED"];
 export async function GET(req: NextRequest) {
   const period = req.nextUrl.searchParams.get("period") || new Date().toISOString().slice(0, 7);
   const clientId = req.nextUrl.searchParams.get("clientId");
-  if (!/^\d{4}-\d{2}$/.test(period) || !clientId) {
+  if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(period) || !clientId) {
     return NextResponse.json({ error: "A valid period and clientId are required" }, { status: 400 });
   }
   const access = await authorizeClientAccess(clientId);
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { period, taskId, status, action, clientId } = body;
-    if (typeof period !== "string" || !/^\d{4}-\d{2}$/.test(period) || typeof clientId !== "string") {
+    if (typeof period !== "string" || !/^\d{4}-(0[1-9]|1[0-2])$/.test(period) || typeof clientId !== "string") {
       return NextResponse.json({ error: "A valid period and clientId are required" }, { status: 400 });
     }
     const access = await authorizeClientAccess(clientId);
@@ -52,6 +52,10 @@ export async function POST(req: NextRequest) {
     });
     if (!close) return NextResponse.json({ error: "Close period not found" }, { status: 404 });
 
+    if (close.status === "CLOSED") {
+      return NextResponse.json({ error: "This accounting period is closed and locked. Use the authorized, audited reopening process." }, { status: 409 });
+    }
+
     if (action === "close") {
       if (!APPROVER_ROLES.includes(access.user.role)) {
         return NextResponse.json({ error: "Only an authorized approver may close a period" }, { status: 403 });
@@ -59,10 +63,23 @@ export async function POST(req: NextRequest) {
       if (close.tasks.length === 0 || close.tasks.some(t => t.status !== "COMPLETED")) {
         return NextResponse.json({ error: "All close tasks must be completed before approval" }, { status: 409 });
       }
+      if (close.tasks.some(t => t.completedBy === access.user.id)) {
+        return NextResponse.json({ error: "The period approver cannot approve a close they personally completed. A separate approver is required." }, { status: 409 });
+      }
+
       const updated = await prisma.closePeriod.update({
         where: { id: close.id },
         data: { status: "CLOSED", closedAt: new Date(), progress: 100 },
         include: { tasks: { orderBy: { step: "asc" } } },
+      });
+      await prisma.auditLog.create({
+        data: {
+          action: "ACCOUNTING_PERIOD_CLOSED",
+          entityType: "ClosePeriod",
+          entityId: close.id,
+          details: JSON.stringify({ period, clientId: access.client.id }),
+          userId: access.user.id,
+        },
       });
       return NextResponse.json({ success: true, close: updated });
     }
@@ -84,7 +101,11 @@ export async function POST(req: NextRequest) {
 
     await prisma.closeTask.update({
       where: { id: task.id },
-      data: { status, completedAt: status === "COMPLETED" ? new Date() : null, completedBy: status === "COMPLETED" ? access.user.id : null },
+      data: {
+        status,
+        completedAt: status === "COMPLETED" ? new Date() : null,
+        completedBy: status === "COMPLETED" ? access.user.id : null,
+      },
     });
     const tasks = await prisma.closeTask.findMany({ where: { closePeriodId: close.id } });
     const progress = calculateProgress(tasks.map(t => ({
