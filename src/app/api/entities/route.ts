@@ -1,81 +1,64 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getSessionUser, hasAnyRole } from "@/lib/access";
 import { z } from "zod";
 
 const entitySchema = z.object({
-  code: z.string().min(1).max(20),
-  name: z.string().min(1),
-  currency: z.string().default("USD"),
+  code: z.string().trim().min(1).max(20),
+  name: z.string().trim().min(1).max(120),
+  currency: z.string().regex(/^[A-Z]{3}$/).default("USD"),
   ownershipPct: z.number().min(0).max(100).default(100),
-  parentId: z.string().optional().nullable(),
+  parentId: z.string().nullable().optional(),
   isEliminating: z.boolean().optional(),
 });
 
-export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const firmId = (session.user as any).firmId;
-  const entities = await prisma.entity.findMany({
-    where: firmId ? { firmId } : {},
-    orderBy: { code: "asc" },
-  });
+export async function GET() {
+  const user = await getSessionUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!user.firmId || user.role === "CLIENT") return NextResponse.json({ error: "Firm access required" }, { status: 403 });
+  const entities = await prisma.entity.findMany({ where: { firmId: user.firmId }, orderBy: { code: "asc" } });
   return NextResponse.json({ entities });
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const user = await getSessionUser();
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!user.firmId || !hasAnyRole(user, ["ADMIN", "PARTNER", "CONTROLLER"])) return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 });
 
     const body = await req.json();
-    const firmId = (session.user as any).firmId;
-
-    // Delete
-    if (body.action === "delete" && body.id) {
-      await prisma.entityBalance.deleteMany({ where: { entityId: body.id } });
-      await prisma.entity.delete({ where: { id: body.id } });
+    if (body.action === "delete" && typeof body.id === "string") {
+      const entity = await prisma.entity.findFirst({ where: { id: body.id, firmId: user.firmId }, select: { id: true } });
+      if (!entity) return NextResponse.json({ error: "Entity not found" }, { status: 404 });
+      await prisma.entityBalance.deleteMany({ where: { entityId: entity.id } });
+      await prisma.entity.delete({ where: { id: entity.id } });
       return NextResponse.json({ success: true });
     }
 
-    // Update
-    if (body.id) {
-      const data = entitySchema.partial().parse(body);
-      const updated = await prisma.entity.update({
-        where: { id: body.id },
-        data: {
-          code: data.code,
-          name: data.name,
-          currency: data.currency,
-          ownershipPct: data.ownershipPct,
-          parentId: data.parentId,
-          isEliminating: data.isEliminating,
-        },
+    if (typeof body.id === "string") {
+      const existing = await prisma.entity.findFirst({ where: { id: body.id, firmId: user.firmId }, select: { id: true } });
+      if (!existing) return NextResponse.json({ error: "Entity not found" }, { status: 404 });
+      const parsed = entitySchema.partial().safeParse(body);
+      if (!parsed.success) return NextResponse.json({ error: "Invalid input", details: parsed.error.flatten() }, { status: 400 });
+      const data = parsed.data;
+      const entity = await prisma.entity.update({
+        where: { id: existing.id },
+        data: { ...data, parentId: data.parentId || null },
       });
-      return NextResponse.json({ success: true, entity: updated });
+      return NextResponse.json({ success: true, entity });
     }
 
-    // Create
-    const data = entitySchema.parse(body);
-    const entity = await prisma.entity.create({
-      data: {
-        code: data.code,
-        name: data.name,
-        currency: data.currency || "USD",
-        ownershipPct: data.ownershipPct ?? 100,
-        parentId: data.parentId || null,
-        isEliminating: data.isEliminating || false,
-        firmId: firmId || null,
-      },
-    });
-    return NextResponse.json({ success: true, entity }, { status: 201 });
-  } catch (err: any) {
-    if (err.name === "ZodError") {
-      return NextResponse.json({ error: "Invalid input", details: err.errors }, { status: 400 });
+    const parsed = entitySchema.safeParse(body);
+    if (!parsed.success) return NextResponse.json({ error: "Invalid input", details: parsed.error.flatten() }, { status: 400 });
+    const data = parsed.data;
+    if (data.parentId) {
+      const parent = await prisma.entity.findFirst({ where: { id: data.parentId, firmId: user.firmId }, select: { id: true } });
+      if (!parent) return NextResponse.json({ error: "Parent entity not found" }, { status: 400 });
     }
-    console.error(err);
-    return NextResponse.json({ error: err.message || "Failed" }, { status: 500 });
+    const entity = await prisma.entity.create({ data: { ...data, parentId: data.parentId || null, firmId: user.firmId } });
+    return NextResponse.json({ success: true, entity }, { status: 201 });
+  } catch (error) {
+    console.error("Entity API error:", error);
+    return NextResponse.json({ error: "Entity operation failed" }, { status: 500 });
   }
 }
