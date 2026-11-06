@@ -108,8 +108,15 @@ export default async function CoursePage({
         </div>
 
         <div className="rounded-2xl border border-isaca-medium/20 bg-isaca-light/50 p-5 text-sm text-slate-700">
+<<<<<<< HEAD
           <p className="mb-1 font-medium text-isaca-dark">
             Practice in the product
+=======
+          <p className="font-medium text-isaca-dark mb-1">Practice in the product</p>
+          <p>
+            After each module, open the matching Finova screen (Close, Bank Rec, Samples,
+            Audit/PBC, AI) and complete the checklist items listed in the course overview.
+>>>>>>> 5f479a955308d8bda680057f2f093418c2b9959d
           </p>
 
           <p>
