@@ -1,0 +1,21 @@
+{
+  "name": "FinSphere AI",
+  "short_name": "FinSphere",
+  "description": "Enterprise accounting, audit, and client collaboration platform.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#12315f",
+  "theme_color": "#12315f",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
