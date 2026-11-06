@@ -35,6 +35,7 @@ export default function BankRecPage() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [notice, setNotice] = useState<{ kind: "success" | "error"; text: string } | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [expandAll, setExpandAll] = useState(false);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"ALL" | "MATCHED" | "UNMATCHED">("ALL");
   const [selectedBankId, setSelectedBankId] = useState("");
@@ -64,6 +65,7 @@ export default function BankRecPage() {
   const matchedCount = bank.filter((t) => t.matched).length;
   const bankExceptions = bank.length - matchedCount;
   const bookExceptions = book.filter((t) => !t.matched).length;
+  const totalExceptions = bankExceptions + bookExceptions;
   const filteredBank = bank.filter((t) => {
     const matchesSearch = !search || `${t.description} ${t.reference || ""} ${t.amount}`.toLowerCase().includes(search.toLowerCase());
     const matchesFilter = filter === "ALL" || (filter === "MATCHED" ? t.matched : !t.matched);
@@ -171,19 +173,18 @@ export default function BankRecPage() {
         </div>
       )}
 
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 md:grid-cols-3">
         {[
-          { label: "Bank transactions", value: bank.length, detail: "All imported bank-feed items", color: "text-slate-950", icon: ArrowDownLeft },
-          { label: "Matched", value: matchedCount, detail: "Bank items linked to ledger entries", color: "text-emerald-700", icon: CheckCircle2 },
-          { label: "Bank exceptions", value: bankExceptions, detail: "Bank items still unmatched", color: "text-amber-700", icon: AlertCircle },
-          { label: "Book exceptions", value: bookExceptions, detail: "Ledger entries not cleared by bank", color: "text-orange-700", icon: FileText },
+          { label: "Bank transactions", value: bank.length, detail: "All imported bank-feed items", color: "text-slate-950", icon: ArrowDownLeft, accent: "bg-sky-50 text-sky-700 ring-sky-100" },
+          { label: "Matched", value: matchedCount, detail: "Bank items linked to ledger entries", color: "text-emerald-700", icon: CheckCircle2, accent: "bg-emerald-50 text-emerald-700 ring-emerald-100" },
+          { label: "Exceptions", value: totalExceptions, detail: bankExceptions + " bank · " + bookExceptions + " book entries need review", color: "text-amber-700", icon: AlertCircle, accent: "bg-amber-50 text-amber-700 ring-amber-100" },
         ].map((card) => (
-          <article key={card.label} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <article key={card.label} className="group rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-teal-200 hover:shadow-md">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-slate-500">{card.label}</p>
-              <card.icon className="h-4 w-4 text-slate-400" />
+              <p className="text-sm font-semibold text-slate-600">{card.label}</p>
+              <span className={cn("flex h-10 w-10 items-center justify-center rounded-xl ring-1", card.accent)}><card.icon className="h-5 w-5" /></span>
             </div>
-            <p className={cn("mt-2 text-3xl font-bold tabular-nums", card.color)}>{loading ? "—" : card.value}</p>
+            <p className={cn("mt-3 text-3xl font-bold tracking-tight tabular-nums", card.color)}>{loading ? "—" : card.value}</p>
             <p className="mt-1 text-xs text-slate-500">{card.detail}</p>
           </article>
         ))}
@@ -204,6 +205,13 @@ export default function BankRecPage() {
         </div>
       </section>
 
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div><h2 className="text-lg font-bold text-slate-900">Statement activity</h2><p className="text-sm text-slate-500">Every bank and ledger entry is listed below, with no hidden scroll-only panel.</p></div>
+        <button type="button" onClick={() => { setExpandAll((value) => !value); setExpandedId(null); }} className="inline-flex items-center gap-2 rounded-xl border border-teal-200 bg-white px-4 py-2.5 text-sm font-semibold text-teal-800 shadow-sm transition hover:bg-teal-50">
+          {expandAll ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          {expandAll ? "Collapse all details" : "Expand all details"}
+        </button>
+      </div>
       <div className="grid items-start gap-5 xl:grid-cols-2">
         <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-slate-50/80 px-4 py-4">
@@ -212,12 +220,12 @@ export default function BankRecPage() {
           </div>
           {loading ? <div className="p-8 text-center text-sm text-slate-500"><Loader2 className="mr-2 inline h-4 w-4 animate-spin" />Loading bank feed…</div> :
             filteredBank.length === 0 ? <div className="p-8 text-center text-sm text-slate-500">No bank transactions match this filter.</div> :
-            <div className="divide-y divide-slate-100">
+            <div className="divide-y divide-slate-100 max-h-none overflow-visible">
               {filteredBank.map((txn) => {
                 const partner = matchedPartner(txn);
-                const expanded = expandedId === txn.id;
+                const expanded = expandAll || expandedId === txn.id;
                 return <article key={txn.id} className={cn(txn.matched ? "bg-emerald-50/30" : "bg-amber-50/30")}>
-                  <button type="button" onClick={() => setExpandedId(expanded ? null : txn.id)} aria-expanded={expanded} className="flex w-full items-center gap-3 px-4 py-4 text-left transition hover:bg-slate-50 sm:px-5">
+                  <button type="button" onClick={() => setExpandedId(expanded ? null : txn.id)} aria-expanded={expanded} className="flex w-full items-center gap-3 px-4 py-4 text-left transition hover:bg-teal-50/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-500 sm:px-5">
                     <span className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-xl", txn.amount >= 0 ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600")}>{txn.amount >= 0 ? <ArrowDownLeft className="h-4 w-4" /> : <ArrowUpRight className="h-4 w-4" />}</span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-sm font-semibold text-slate-900">{txn.description}</span>
@@ -232,8 +240,8 @@ export default function BankRecPage() {
                       <div className="rounded-xl bg-slate-50 p-3"><p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Reconciliation status</p>{partner ? <><p className="mt-2 text-sm font-semibold text-emerald-800">Matched ledger entry</p><p className="mt-1 text-sm text-slate-700">{partner.description}</p><p className="mt-1 text-xs text-slate-500">{dateLabel(partner.date)} · {formatCurrency(partner.amount)}</p></> : <p className="mt-2 text-sm text-amber-800">No ledger entry is currently linked. Select a book entry below to create a manual match.</p>}</div>
                     </div>
                     <div className="mt-3 flex flex-wrap items-center gap-2">
-                      <a href="/dashboard/documents" className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"><FileText className="h-3.5 w-3.5" /> Supporting documents</a>
-                      {txn.matched ? <button onClick={() => void unmatch(txn)} disabled={busyId === txn.id} className="inline-flex items-center gap-2 rounded-lg border border-amber-200 px-3 py-2 text-xs font-semibold text-amber-800 hover:bg-amber-50 disabled:opacity-50"><Unlink className="h-3.5 w-3.5" /> Unmatch</button> : <button onClick={() => { setSelectedBankId(txn.id); setSelectedBookId(""); }} className="inline-flex items-center gap-2 rounded-lg bg-teal-700 px-3 py-2 text-xs font-semibold text-white hover:bg-teal-800"><Link2 className="h-3.5 w-3.5" /> Match to book entry</button>}
+                      <a href="/dashboard/documents" className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-teal-200 hover:bg-teal-50 hover:text-teal-800"><FileText className="h-3.5 w-3.5" /> Supporting documents</a>
+                      {txn.matched ? <button onClick={() => void unmatch(txn)} disabled={busyId === txn.id} className="inline-flex items-center gap-2 rounded-lg border border-amber-200 px-3 py-2 text-xs font-semibold text-amber-800 hover:bg-amber-50 disabled:opacity-50"><Unlink className="h-3.5 w-3.5" /> Unmatch</button> : <button onClick={() => { setSelectedBankId(txn.id); setSelectedBookId(""); }} className="inline-flex items-center gap-2 rounded-xl bg-teal-700 px-3.5 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-teal-800 hover:shadow"><Link2 className="h-3.5 w-3.5" /> Match to book entry</button>}
                     </div>
                     {selectedBankId === txn.id && <div className="mt-3 rounded-xl border border-teal-200 bg-teal-50 p-3">
                       <label className="mb-2 block text-xs font-semibold text-teal-900" htmlFor={`book-${txn.id}`}>Choose an unmatched book entry</label>
