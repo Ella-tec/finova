@@ -21,6 +21,19 @@ function safeFileName(name: string) {
   return path.basename(name).replace(/[^a-zA-Z0-9._ -]/g, "_").slice(0, 180) || "upload";
 }
 
+function matchesFileSignature(extension: string, bytes: Buffer) {
+  if (extension === ".pdf") return bytes.subarray(0, 5).toString("ascii") === "%PDF-";
+  if (extension === ".png") return bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
+  if (extension === ".jpg" || extension === ".jpeg") return bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
+  if (extension === ".docx" || extension === ".xlsx") {
+    return bytes.length >= 4 && bytes[0] === 0x50 && bytes[1] === 0x4b && bytes[2] === 0x03 && bytes[3] === 0x04;
+  }
+  if (extension === ".csv" || extension === ".txt") {
+    return !bytes.includes(0) && !bytes.subarray(0, Math.min(bytes.length, 4096)).toString("utf8").includes("\\ufffd");
+  }
+  return false;
+}
+
 // GET /api/documents?clientId=...&folderId=...
 export async function GET(req: NextRequest) {
   const clientId = req.nextUrl.searchParams.get("clientId");
@@ -102,7 +115,7 @@ export async function POST(req: NextRequest) {
     savedPath = path.join(uploadDir, storageName);
 
     const bytes = Buffer.from(await file.arrayBuffer());
-    await writeFile(savedPath, bytes, { flag: "wx", mode: 0o600 });
+    if (!matchesFileSignature(extension, bytes)) {\n      return NextResponse.json({ error: "The uploaded file content does not match its declared file type." }, { status: 415 });\n    }\n    await writeFile(savedPath, bytes, { flag: "wx", mode: 0o600 });
 
     const document = await prisma.document.create({
       data: {
