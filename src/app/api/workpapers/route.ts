@@ -1,17 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getSessionUser, canAccessClient, hasAnyRole } from "@/lib/access";
 import { WORKOBER_TEMPLATES, createWorkpaperFromTemplate } from "@/lib/workpapers/templates";
 
+const editors = ["ADMIN", "PARTNER", "CONTROLLER", "AUDIT_MANAGER", "AUDITOR", "SENIOR_ACCOUNTANT"];
+const reviewers = ["ADMIN", "PARTNER", "CONTROLLER", "AUDIT_MANAGER"];
+
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const user = await getSessionUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!user.firmId || user.role === "CLIENT") return NextResponse.json({ error: "Firm access required" }, { status: 403 });
 
   const period = req.nextUrl.searchParams.get("period");
-  const where = period ? { period } : {};
+  const clientId = req.nextUrl.searchParams.get("clientId");
+  if (clientId && !(await canAccessClient(user, clientId))) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
   const workpapers = await prisma.workpaper.findMany({
-    where,
+    where: { firmId: user.firmId, ...(period ? { period } : {}), ...(clientId ? { clientId } : {}) },
     include: { schedules: { orderBy: { sortOrder: "asc" } } },
     orderBy: [{ accountCode: "asc" }, { createdAt: "desc" }],
   });
@@ -20,56 +25,61 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
+    const user = await getSessionUser();
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!user.firmId || !hasAnyRole(user, editors)) return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 });
     const body = await req.json();
-    const userId = (session.user as any).id;
 
-    // Update status / fields
-    if (body.id && (body.status || body.conclusion || body.findings)) {
+    if (typeof body.id === "string" && body.status) {
+      const existing = await prisma.workpaper.findFirst({ where: { id: body.id, firmId: user.firmId }, select: { id: true, clientId: true, status: true } });
+      if (!existing) return NextResponse.json({ error: "Workpaper not found" }, { status: 404 });
+      if (existing.clientId && !(await canAccessClient(user, existing.clientId))) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+      const allowedStatuses = ["DRAFT", "IN_PROGRESS", "PREPARED", "REVIEWED", "SIGNED_OFF"];
+      if (!allowedStatuses.includes(body.status)) return NextResponse.json({ error: "Invalid workpaper status" }, { status: 400 });
+      if (["REVIEWED", "SIGNED_OFF"].includes(body.status) && !hasAnyRole(user, reviewers)) {
+        return NextResponse.json({ error: "Reviewer or approver role required" }, { status: 403 });
+      }
+      if (body.status === "SIGNED_OFF" && !["REVIEWED"].includes(existing.status)) {
+        return NextResponse.json({ error: "A workpaper must be reviewed before sign-off" }, { status: 409 });
+      }
       const updated = await prisma.workpaper.update({
-        where: { id: body.id },
+        where: { id: existing.id },
         data: {
           status: body.status,
-          conclusion: body.conclusion,
-          findings: body.findings,
-          reviewedById: body.status === "REVIEWED" || body.status === "SIGNED_OFF" ? userId : undefined,
+          conclusion: typeof body.conclusion === "string" ? body.conclusion.slice(0, 10000) : undefined,
+          findings: typeof body.findings === "string" ? body.findings.slice(0, 10000) : undefined,
+          reviewedById: ["REVIEWED", "SIGNED_OFF"].includes(body.status) ? user.id : undefined,
           signedOffAt: body.status === "SIGNED_OFF" ? new Date() : undefined,
-          preparedById: body.status === "PREPARED" ? userId : undefined,
+          preparedById: body.status === "PREPARED" ? user.id : undefined,
         },
         include: { schedules: true },
       });
+      await prisma.auditLog.create({ data: { action: "WORKPAPER_STATUS_UPDATED", entityType: "Workpaper", entityId: updated.id, details: JSON.stringify({ status: body.status }), userId: user.id } });
       return NextResponse.json({ success: true, workpaper: updated });
     }
 
-    // Create from template
-    if (body.templateAccountCode) {
-      const template = WORKOBER_TEMPLATES.find((t) => t.accountCode === body.templateAccountCode);
-      if (!template) return NextResponse.json({ error: "Template not found" }, { status: 404 });
+    if (typeof body.templateAccountCode !== "string") return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+    const clientId = typeof body.clientId === "string" ? body.clientId : null;
+    if (clientId && !(await canAccessClient(user, clientId))) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    const template = WORKOBER_TEMPLATES.find((item) => item.accountCode === body.templateAccountCode);
+    if (!template) return NextResponse.json({ error: "Template not found" }, { status: 404 });
 
-      const draft = createWorkpaperFromTemplate(template, body.period || new Date().toISOString().slice(0, 7), body.leadBalance);
-      const wp = await prisma.workpaper.create({
-        data: {
-          accountCode: draft.accountCode,
-          accountName: draft.accountName,
-          title: draft.title,
-          period: draft.period,
-          leadBalance: draft.leadBalance,
-          status: "DRAFT",
-          procedures: draft.procedures,
-          preparedById: userId,
-          clientId: body.clientId || "demo-client-001",
-          schedules: { create: draft.schedules },
-        },
-        include: { schedules: true },
-      });
-      return NextResponse.json({ success: true, workpaper: wp }, { status: 201 });
-    }
-
-    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
-  } catch (err) {
-    console.error(err);
-    return NextResponse.json({ error: "Failed" }, { status: 500 });
+    const leadBalance = typeof body.leadBalance === "number" && Number.isFinite(body.leadBalance) ? body.leadBalance : 0;
+    const draft = createWorkpaperFromTemplate(template, body.period || new Date().toISOString().slice(0, 7), leadBalance);
+    const workpaper = await prisma.workpaper.create({
+      data: {
+        accountCode: draft.accountCode, accountName: draft.accountName, title: draft.title,
+        period: draft.period, leadBalance: draft.leadBalance, status: "DRAFT",
+        procedures: draft.procedures, preparedById: user.id,
+        clientId, firmId: user.firmId, schedules: { create: draft.schedules },
+      },
+      include: { schedules: true },
+    });
+    await prisma.auditLog.create({ data: { action: "WORKPAPER_CREATED", entityType: "Workpaper", entityId: workpaper.id, userId: user.id } });
+    return NextResponse.json({ success: true, workpaper }, { status: 201 });
+  } catch (error) {
+    console.error("Workpaper API error:", error);
+    return NextResponse.json({ error: "Workpaper operation failed" }, { status: 500 });
   }
 }
