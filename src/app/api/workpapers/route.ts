@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { authorizeClientAccess } from "@/lib/authz";
-import { WORKOBER_TEMPLATES, createWorkpaperFromTemplate } from "@/lib/workpapers/templates";
+import { WORKPAPER_TEMPLATES, createWorkpaperFromTemplate } from "@/lib/workpapers/templates";
 
 const REVIEW_ROLES = ["SENIOR_ACCOUNTANT", "CONTROLLER", "AUDITOR", "AUDIT_MANAGER", "PARTNER", "ADMIN"];
 const SIGNOFF_ROLES = ["AUDIT_MANAGER", "PARTNER", "ADMIN"];
@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
     include: { schedules: { orderBy: { sortOrder: "asc" } } },
     orderBy: [{ accountCode: "asc" }, { createdAt: "desc" }],
   });
-  return NextResponse.json({ workpapers, templates: WORKOBER_TEMPLATES });
+  return NextResponse.json({ workpapers, templates: WORKPAPER_TEMPLATES });
 }
 
 export async function POST(req: NextRequest) {
@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (typeof body.templateAccountCode !== "string") return NextResponse.json({ error: "Invalid request" }, { status: 400 });
-    const template = WORKOBER_TEMPLATES.find(t => t.accountCode === body.templateAccountCode);
+    const template = WORKPAPER_TEMPLATES.find(t => t.accountCode === body.templateAccountCode);
     if (!template) return NextResponse.json({ error: "Template not found" }, { status: 404 });
     const draft = createWorkpaperFromTemplate(template, body.period || new Date().toISOString().slice(0, 7), Number(body.leadBalance) || 0);
     const wp = await prisma.workpaper.create({
