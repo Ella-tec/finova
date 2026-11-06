@@ -191,7 +191,7 @@ export default function DocumentsPage() {
                       <p className="text-isaca-dark mt-0.5">{analysis[d.id].summary}</p>
                       {analysis[d.id].totalAmount != null && (
                         <p className="text-fin-900 font-semibold mt-1">
-                          Amount: ${analysis[d.id].totalAmount.toFixed(2)}
+                          Amount: ${analysis[d.id].totalAmount?.toFixed(2) ?? "—"}
                         </p>
                       )}
                     </div>
