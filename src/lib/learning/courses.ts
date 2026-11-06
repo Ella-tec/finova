@@ -5,6 +5,9 @@ export type Course = {
   minutes: number;
   lessons: number;
   summary: string;
+  duration?: string;
+  description?: string;
+  outcomes?: string[];
   modules: { title: string; minutes: number }[];
 };
 
@@ -37,7 +40,7 @@ function makeCourse(
 export const COURSES: Course[] = [
   {
     id: "getting-started",
-    title: "Getting Started with FinSphere AI",
+    title: "Getting Started with Finova",
     level: "Beginner",
     minutes: 25,
     lessons: 6,
