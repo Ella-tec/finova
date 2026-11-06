@@ -237,11 +237,13 @@ export default function DocumentsPage() {
                 <div className="flex min-h-[55vh] items-center justify-center"><img src={`/api/documents/${encodeURIComponent(previewDoc.id)}`} alt={previewDoc.fileName} className="max-h-[72vh] max-w-full rounded-lg object-contain" /></div>
               ) : previewDoc.mimeType === "text/plain" || previewDoc.mimeType === "text/csv" || previewDoc.mimeType === "application/vnd.ms-excel" ? (
                 <iframe title="Text document preview" src={`/api/documents/${encodeURIComponent(previewDoc.id)}`} className="h-[72vh] w-full rounded-lg border bg-white" />
+              ) : previewDoc.mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || previewDoc.mimeType === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ? (
+                <iframe title="Office document preview" sandbox="" src={`/api/documents/${encodeURIComponent(previewDoc.id)}?preview=1`} className="h-[72vh] w-full rounded-lg border bg-white" />
               ) : (
                 <div className="mx-auto flex min-h-[55vh] max-w-xl flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center">
                   <FileText className="h-10 w-10 text-slate-400" />
                   <h3 className="mt-3 font-semibold text-slate-900">Use a compatible viewer for this file</h3>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">PDFs, images, and text files preview inside Finova. Word and Excel files can be opened with the download control and a compatible app.</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">This file type is not supported by the in-app viewer. You can still open it with a compatible app.</p>
                   <a href={`/api/documents/${encodeURIComponent(previewDoc.id)}?download=1`} className="mt-4 rounded-lg bg-[#087f68] px-4 py-2 text-sm font-semibold text-white">Open file</a>
                 </div>
               )}
