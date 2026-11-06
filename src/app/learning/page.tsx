@@ -61,7 +61,7 @@ export default function LearningPage() {
               </h2>
               <p className="mt-2 text-sm text-slate-600 flex-1">{c.description}</p>
               <div className="mt-4 flex items-center justify-between text-sm">
-                <span className="text-slate-500">{c.lessons.length} lessons</span>
+                <span className="text-slate-500">{c.lessons} lessons</span>
                 <span className="text-isaca-medium font-medium flex items-center gap-1">
                   <PlayCircle className="h-4 w-4" />
                   Start
