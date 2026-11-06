@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { authorizeClientAccess } from "@/lib/authz";
 import { analyzeDocumentText, simulateOcr } from "@/lib/documents/analyzer";
 import { analyzeWithAzure } from "@/lib/azure/document-intelligence";
 import { readFile } from "fs/promises";
@@ -25,6 +26,8 @@ export async function POST(req: NextRequest) {
     if (!doc) {
       return NextResponse.json({ error: "Document not found" }, { status: 404 });
     }
+    const access = await authorizeClientAccess(doc.clientId);
+    if (!access.ok) return access.response;
 
     // Try to read stored file for text (limited  binary files will fall back to simulation)
     let rawText = textHint || "";

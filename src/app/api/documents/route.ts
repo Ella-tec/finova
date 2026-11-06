@@ -3,6 +3,8 @@ import { writeFile, mkdir, unlink } from "fs/promises";
 import path from "path";
 import { randomUUID } from "crypto";
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { authorizeClientAccess } from "@/lib/authz";
 
 const MAX_FILE_SIZE = 25 * 1024 * 1024;
@@ -36,12 +38,33 @@ function matchesFileSignature(extension: string, bytes: Buffer) {
 
 // GET /api/documents?clientId=...&folderId=...
 export async function GET(req: NextRequest) {
-  const clientId = req.nextUrl.searchParams.get("clientId");
+  const session = await getServerSession(authOptions);
+  const userId = (session?.user as { id?: string } | undefined)?.id;
+  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, role: true, firmId: true, clientId: true },
+  });
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const requestedClientId = req.nextUrl.searchParams.get("clientId");
   const folderId = req.nextUrl.searchParams.get("folderId");
+  let clientId = requestedClientId;
 
   if (!clientId) {
-    return NextResponse.json({ error: "clientId is required" }, { status: 400 });
+    if (user.role === "CLIENT") clientId = user.clientId;
+    else if (user.firmId) {
+      const firstClient = await prisma.client.findFirst({
+        where: { firmId: user.firmId },
+        orderBy: { name: "asc" },
+        select: { id: true },
+      });
+      clientId = firstClient?.id ?? null;
+    }
   }
+
+  if (!clientId) return NextResponse.json({ clientId: null, documents: [] });
 
   const access = await authorizeClientAccess(clientId);
   if (!access.ok) return access.response;
@@ -51,21 +74,27 @@ export async function GET(req: NextRequest) {
       where: { id: folderId, clientId: access.client.id },
       select: { id: true },
     });
-    if (!folder) {
-      return NextResponse.json({ error: "Folder not found" }, { status: 404 });
-    }
+    if (!folder) return NextResponse.json({ error: "Folder not found" }, { status: 404 });
   }
 
   const documents = await prisma.document.findMany({
     where: { clientId: access.client.id, ...(folderId ? { folderId } : {}) },
     orderBy: { createdAt: "desc" },
-    include: {
-      uploadedBy: { select: { id: true, name: true, email: true } },
+    select: {
+      id: true,
+      name: true,
+      fileName: true,
+      mimeType: true,
+      size: true,
+      status: true,
+      tags: true,
+      ocrText: true,
+      createdAt: true,
       folder: { select: { id: true, name: true } },
     },
   });
 
-  return NextResponse.json(documents);
+  return NextResponse.json({ clientId: access.client.id, documents });
 }
 
 // POST /api/documents
@@ -149,7 +178,16 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json(document, { status: 201 });
+    return NextResponse.json({
+      id: document.id,
+      name: document.name,
+      fileName: document.fileName,
+      mimeType: document.mimeType,
+      size: document.size,
+      status: document.status,
+      createdAt: document.createdAt,
+      folder: document.folder,
+    }, { status: 201 });
   } catch (error) {
     if (savedPath) await unlink(savedPath).catch(() => undefined);
     console.error("Document upload failed:", error);

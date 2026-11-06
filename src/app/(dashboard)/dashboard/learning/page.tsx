@@ -12,9 +12,9 @@ export default function DashboardLearningPage() {
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {COURSES.map((course) => (
           <Link key={course.id} href={`/learning/${course.id}`} className="surface-hover group flex min-h-[220px] flex-col rounded-2xl border bg-white p-5 shadow-sm hover:border-isaca-medium/50">
-            <div className="flex items-center justify-between gap-2"><span className="rounded-full bg-isaca-light px-3 py-1 text-xs font-semibold text-isaca-dark">{course.level}</span><span className="flex items-center gap-1 text-xs text-slate-500"><Clock className="h-3.5 w-3.5" />{course.duration}</span></div>
-            <h2 className="mt-4 text-lg font-semibold text-slate-900 group-hover:text-isaca-medium">{course.title}</h2><p className="mt-2 flex-1 text-sm leading-6 text-slate-600">{course.description}</p>
-            <div className="mt-5 flex items-center justify-between border-t pt-4 text-sm"><span className="text-slate-500">{course.lessons.length} lessons</span><span className="flex items-center gap-1 font-semibold text-isaca-medium">Start course <PlayCircle className="h-4 w-4" /><ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" /></span></div>
+            <div className="flex items-center justify-between gap-2"><span className="rounded-full bg-isaca-light px-3 py-1 text-xs font-semibold text-isaca-dark">{course.level}</span><span className="flex items-center gap-1 text-xs text-slate-500"><Clock className="h-3.5 w-3.5" />{course.duration ?? `${course.minutes} min`}</span></div>
+            <h2 className="mt-4 text-lg font-semibold text-slate-900 group-hover:text-isaca-medium">{course.title}</h2><p className="mt-2 flex-1 text-sm leading-6 text-slate-600">{course.summary}</p>
+            <div className="mt-5 flex items-center justify-between border-t pt-4 text-sm"><span className="text-slate-500">{course.lessons} lessons</span><span className="flex items-center gap-1 font-semibold text-isaca-medium">Start course <PlayCircle className="h-4 w-4" /><ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" /></span></div>
           </Link>
         ))}
       </div>
