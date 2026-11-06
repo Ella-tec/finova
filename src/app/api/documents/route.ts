@@ -115,7 +115,10 @@ export async function POST(req: NextRequest) {
     savedPath = path.join(uploadDir, storageName);
 
     const bytes = Buffer.from(await file.arrayBuffer());
-    if (!matchesFileSignature(extension, bytes)) {\n      return NextResponse.json({ error: "The uploaded file content does not match its declared file type." }, { status: 415 });\n    }\n    await writeFile(savedPath, bytes, { flag: "wx", mode: 0o600 });
+    if (!matchesFileSignature(extension, bytes)) {
+      return NextResponse.json({ error: "The uploaded file content does not match its declared file type." }, { status: 415 });
+    }
+    await writeFile(savedPath, bytes, { flag: "wx", mode: 0o600 });
 
     const document = await prisma.document.create({
       data: {
