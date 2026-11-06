@@ -18,6 +18,7 @@ export type Course = {
   modules: { title: string; minutes: number }[];
 };
 
+<<<<<<< HEAD
 const makeCourse = (
   course: Omit<Course, "minutes" | "duration" | "modules"> & {
     modules?: { title: string; minutes: number }[];
@@ -39,12 +40,40 @@ const makeCourse = (
     duration: `${totalMinutes} min`,
   };
 };
+=======
+function makeCourse(
+  id: string,
+  title: string,
+  level: string,
+  minutes: number,
+  description: string,
+  outcomes: string[],
+  lessonTitles: [string, number][],
+): Course {
+  return {
+    id,
+    title,
+    level,
+    duration: `${minutes} min`,
+    minutes,
+    lessons: lessonTitles.length,
+    summary: description,
+    description,
+    outcomes,
+    modules: lessonTitles.map(([title, lessonMinutes]) => ({
+      title,
+      minutes: lessonMinutes,
+    })),
+  };
+}
+>>>>>>> 9f6ca7b754c9afa16f54905a4e03c8ece1122810
 
 export const COURSES: Course[] = [
   makeCourse({
     id: "getting-started",
     title: "Getting Started with FinSphere AI",
     level: "Beginner",
+<<<<<<< HEAD
     summary: "Set up your firm, invite clients, and navigate the main workspace.",
     description: "Learn how to set up your firm, invite clients, and navigate the main FinSphere AI workspace.",
     outcomes: ["Create firm workspace", "Invite users with roles", "Navigate sidebar modules"],
@@ -55,6 +84,18 @@ export const COURSES: Course[] = [
       { id: "4", title: "Using global search", minutes: 3 },
       { id: "5", title: "AI widget vs AI page", minutes: 4 },
       { id: "6", title: "Quick start checklist", minutes: 4 },
+=======
+    minutes: 25,
+    lessons: 6,
+    summary: "Set up your firm, invite clients, and navigate the main workspace.",
+    modules: [
+      { title: "Sign in and roles", minutes: 4 },
+      { title: "Dashboard tour", minutes: 5 },
+      { title: "Invite users", minutes: 4 },
+      { title: "Create a client", minutes: 4 },
+      { title: "Document folders", minutes: 4 },
+      { title: "AI assistant basics", minutes: 4 },
+>>>>>>> 9f6ca7b754c9afa16f54905a4e03c8ece1122810
     ],
   }),
   makeCourse({
@@ -153,6 +194,7 @@ export const COURSES: Course[] = [
     id: "security",
     title: "Security, Roles & Compliance",
     level: "All Levels",
+<<<<<<< HEAD
     summary: "Roles, segregation of duties, audit logs, MFA, SOC 2 support.",
     description: "Understand roles, segregation of duties, audit logs, MFA, and how FinSphere AI supports SOC 2.",
     outcomes: ["Role matrix", "File sanitizer workflow", "SoD basics"],
@@ -161,6 +203,16 @@ export const COURSES: Course[] = [
       { id: "2", title: "File sanitizer", minutes: 5 },
       { id: "3", title: "Audit trail", minutes: 5 },
       { id: "4", title: "Client data isolation", minutes: 5 },
+=======
+    minutes: 20,
+    lessons: 4,
+    summary: "Roles, segregation of duties, audit logs, MFA, SOC 2 support.",
+    modules: [
+      { title: "Roles matrix", minutes: 5 },
+      { title: "File sanitizer", minutes: 5 },
+      { title: "Audit trail", minutes: 5 },
+      { title: "Client data isolation", minutes: 5 },
+>>>>>>> 9f6ca7b754c9afa16f54905a4e03c8ece1122810
     ],
   }),
   makeCourse({
@@ -179,6 +231,7 @@ export const COURSES: Course[] = [
   }),
 ];
 
+<<<<<<< HEAD
 export function getCourse(id: string): Course | undefined {
   const aliases: Record<string, string> = {
     "bank-rec": "daily-bank-rec",
@@ -186,5 +239,10 @@ export function getCourse(id: string): Course | undefined {
   };
 
   const normalizedId = aliases[id] ?? id;
+=======
+export function getCourse(id: string) {
+  // Support the older URL and the current course identifier.
+  const normalizedId = id === "bank-rec" ? "daily-bank-rec" : id;
+>>>>>>> 9f6ca7b754c9afa16f54905a4e03c8ece1122810
   return COURSES.find((course) => course.id === normalizedId);
 }

@@ -72,6 +72,7 @@ const links = [
 export default function AdminPage() {
   const [notice, setNotice] = useState("");
 
+<<<<<<< HEAD
   return (
     <div className="mx-auto max-w-7xl space-y-7">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
@@ -182,11 +183,31 @@ export default function AdminPage() {
           <div className="rounded-xl bg-isaca-light p-2 text-isaca-medium">
             <KeyRound className="h-5 w-5" />
           </div>
+=======
+  const summaryCards = [
+    { label: "Workspace", value: "Active", detail: "Open the main workspace", icon: CheckCircle2, href: "/dashboard" },
+    { label: "Access management", value: "User roles", detail: "Review team permissions", icon: Users, href: "/dashboard/admin/users" },
+    { label: "Security", value: "Controls", detail: "Open sanitizer and risk checks", icon: Shield, href: "/dashboard/security" },
+  ];
+
+  return (
+    <div className="max-w-5xl mx-auto space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+          <Settings className="h-7 w-7 text-isaca-medium" />
+          Administration
+        </h1>
+        <p className="text-sm text-slate-500 mt-1">
+          Firm settings, users, security, and system tools
+        </p>
+      </div>
+>>>>>>> 9f6ca7b754c9afa16f54905a4e03c8ece1122810
 
           <div className="min-w-0 flex-1">
             <h2 className="font-semibold text-slate-900">
               Environment & setup guidance
             </h2>
+<<<<<<< HEAD
             <p className="mt-1 text-sm text-slate-600">
               Use environment variables for secrets and database configuration.
               Never store credentials in source control.
@@ -219,6 +240,15 @@ export default function AdminPage() {
           </p>
         )}
       </section>
+=======
+            <p className="text-sm text-slate-500 mt-1">{c.desc}</p>
+            <span className="inline-block mt-3 text-sm font-medium text-isaca-medium">
+              Open →
+            </span>
+          </Link>
+        ))}
+      </div>
+>>>>>>> 9f6ca7b754c9afa16f54905a4e03c8ece1122810
     </div>
   );
 }

@@ -1,4 +1,3 @@
-import { LogoWordmark } from "@/components/brand/Logo";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -11,6 +10,8 @@ import {
   Lock,
   Bot,
   Building2,
+  Download,
+  Star,
 } from "lucide-react";
 
 export default function HomePage() {
@@ -46,6 +47,14 @@ export default function HomePage() {
               </Link>
             </nav>
             <div className="flex items-center gap-3">
+              <a
+                href="https://github.com/Ella-tec/finova/archive/refs/heads/main.zip"
+                className="inline-flex items-center gap-2 rounded-full bg-emerald-400 hover:bg-emerald-300 text-slate-900 px-3.5 py-1.5 text-sm font-semibold shadow-sm transition"
+              >
+                <Download className="h-4 w-4" />
+                Download
+                <Star className="h-3.5 w-3.5" />
+              </a>
               <Link
                 href="/login"
                 className="text-sm font-medium text-slate-700 hover:text-isaca-medium transition"
@@ -73,13 +82,13 @@ export default function HomePage() {
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 max-w-4xl mx-auto leading-tight">
             One platform for every{" "}
-            <span className="text-isaca-medium">accounting process</span>, audit &
+            <span className="text-isaca-medium">accounting process</span>, audit &amp;
             client collaboration
           </h1>
           <p className="mt-6 text-lg text-slate-600 max-w-2xl mx-auto">
             From daily bookkeeping and month-end close to financial statements,
             full audit execution, tax filing, and SharePoint-style document
-            workspaces  powered by AI and built with bank-grade security.
+            workspaces — powered by AI and built with bank-grade security.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
@@ -89,6 +98,14 @@ export default function HomePage() {
               Start Free Trial
               <ArrowRight className="h-5 w-5" />
             </Link>
+            <a
+              href="https://github.com/Ella-tec/finova/archive/refs/heads/main.zip"
+              className="inline-flex items-center gap-2 rounded-full bg-emerald-400 hover:bg-emerald-300 text-slate-900 px-6 py-3.5 text-base font-semibold shadow-md transition"
+            >
+              <Download className="h-5 w-5" />
+              Download for all devices
+              <Star className="h-4 w-4" />
+            </a>
             <a
               href="#features"
               className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-8 py-3.5 text-base font-semibold text-slate-700 hover:bg-slate-50 transition"
@@ -139,7 +156,7 @@ export default function HomePage() {
               {
                 icon: BarChart3,
                 title: "Full Accounting Suite",
-                desc: "GL, AP, AR, Bank Rec, Fixed Assets, Inventory, Payroll  with continuous close agents.",
+                desc: "GL, AP, AR, Bank Rec, Fixed Assets, Inventory, Payroll — with continuous close agents.",
               },
               {
                 icon: FileText,
@@ -159,7 +176,7 @@ export default function HomePage() {
               {
                 icon: Bot,
                 title: "AI Copilot",
-                desc: "Natural language commands: Prepare March close, Generate cash flow, Create audit program.",
+                desc: 'Natural language commands: "Prepare March close", "Generate cash flow", "Create audit program".',
               },
               {
                 icon: Building2,
@@ -194,7 +211,7 @@ export default function HomePage() {
               <h2 className="text-3xl font-bold">Bank-grade security by design</h2>
               <p className="mt-4 text-slate-300 text-lg">
                 Zero Trust architecture, mandatory MFA, immutable audit logs,
-                customer-managed keys, and AI that can only propose  never
+                customer-managed keys, and AI that can only propose — never
                 post without human approval.
               </p>
               <ul className="mt-8 space-y-3">
@@ -207,7 +224,7 @@ export default function HomePage() {
                   "Private Azure OpenAI deployments",
                 ].map((item) => (
                   <li key={item} className="flex items-center gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-fin-400 shrink-0" />
+                    <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0" />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -217,23 +234,23 @@ export default function HomePage() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate-400">Encryption</span>
-                  <span className="font-medium text-fin-400">AES-256</span>
+                  <span className="font-medium text-emerald-400">AES-256</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate-400">Authentication</span>
-                  <span className="font-medium text-fin-400">MFA Required</span>
+                  <span className="font-medium text-emerald-400">MFA Required</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate-400">AI Actions</span>
-                  <span className="font-medium text-fin-400">Human Approval</span>
+                  <span className="font-medium text-emerald-400">Human Approval</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate-400">Audit Trail</span>
-                  <span className="font-medium text-fin-400">Immutable</span>
+                  <span className="font-medium text-emerald-400">Immutable</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate-400">Access Control</span>
-                  <span className="font-medium text-fin-400">Least Privilege</span>
+                  <span className="font-medium text-emerald-400">Least Privilege</span>
                 </div>
               </div>
             </div>
@@ -251,13 +268,23 @@ export default function HomePage() {
             Join the next generation of accounting platforms built for speed,
             security, and AI assistance.
           </p>
-          <Link
-            href="/login"
-            className="mt-8 inline-flex items-center gap-2 rounded-xl bg-isaca-medium px-8 py-3.5 text-base font-semibold text-white shadow-lg hover:bg-isaca-dark transition"
-          >
-            Launch Finova
-            <ArrowRight className="h-5 w-5" />
-          </Link>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+            <Link
+              href="/login"
+              className="inline-flex items-center gap-2 rounded-xl bg-isaca-medium px-8 py-3.5 text-base font-semibold text-white shadow-lg hover:bg-isaca-dark transition"
+            >
+              Launch Finova
+              <ArrowRight className="h-5 w-5" />
+            </Link>
+            <a
+              href="https://github.com/Ella-tec/finova/archive/refs/heads/main.zip"
+              className="inline-flex items-center gap-2 rounded-full bg-emerald-400 hover:bg-emerald-300 text-slate-900 px-6 py-3.5 text-base font-semibold shadow-md transition"
+            >
+              <Download className="h-5 w-5" />
+              Download ZIP
+              <Star className="h-4 w-4" />
+            </a>
+          </div>
         </div>
       </section>
 
@@ -273,7 +300,7 @@ export default function HomePage() {
             </span>
           </div>
           <p className="text-sm text-slate-500">
-            � 2026 Finova. Built for accountants who demand excellence.
+            © 2026 Finova. Built for accountants who demand excellence.
           </p>
         </div>
       </footer>
