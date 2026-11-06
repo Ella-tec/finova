@@ -4,7 +4,6 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 
 const inter = Inter({ subsets: ["latin"], display: "swap" });
-
 const siteUrl = process.env.NEXTAUTH_URL || "https://finova.ai";
 
 export const metadata: Metadata = {
@@ -33,14 +32,8 @@ export const metadata: Metadata = {
   authors: [{ name: "Finova" }],
   creator: "FinSphere AI",
   icons: {
-    icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
-      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-      { url: "/favicon.svg", type: "image/svg+xml" },
-    ],
-    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png"" }],
-    shortcut: ["/favicon.ico"],
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    shortcut: ["/favicon.svg"],
   },
   manifest: "/manifest.webmanifest",
   openGraph: {
@@ -51,13 +44,11 @@ export const metadata: Metadata = {
     title: "FinSphere AI | Complete Accounting, Audit & Collaboration",
     description:
       "Accounting ERP + Audit + Document Gateway + AI Copilot for CPA firms, controllers, and clients.",
-    images: [{ url: "/icon-512.png", width: 512, height: 512, alt: "FinSphere AI" }],
   },
   twitter: {
-    card: "summary_large_image",
+    card: "summary",
     title: "FinSphere AI",
     description: "Enterprise accounting, audit, and client collaboration platform.",
-    images: ["/icon-512.png"],
   },
   robots: {
     index: true,
