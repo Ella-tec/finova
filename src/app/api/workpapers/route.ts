@@ -23,8 +23,6 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const userId = (await import("next-auth")).getServerSession;
-    void userId;
     if (typeof body.clientId !== "string") return NextResponse.json({ error: "clientId is required" }, { status: 400 });
     const access = await authorizeClientAccess(body.clientId);
     if (!access.ok) return access.response;
@@ -47,7 +45,7 @@ export async function POST(req: NextRequest) {
       if (!isReview && !isSignoff && existing.preparedById !== access.user.id) {
         return NextResponse.json({ error: "Only the preparer or an authorized reviewer may edit this workpaper" }, { status: 403 });
       }
-      const data: Record<string, unknown> = {};
+      const data: any = {};
       if (typeof body.findings === "string") data.findings = body.findings.slice(0, 20000);
       if (typeof body.conclusion === "string") data.conclusion = body.conclusion.slice(0, 10000);
       if (isReview) { data.status = "REVIEWED"; data.reviewedById = access.user.id; }
