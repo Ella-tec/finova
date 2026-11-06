@@ -1,204 +1,45 @@
-import {
-  CheckCircle2,
-  Clock,
-  AlertTriangle,
-  FileText,
-  Users,
-  TrendingUp,
-  Bot,
-  ArrowRight,
-} from "lucide-react";
+import { CheckCircle2, Clock3, AlertTriangle, FileText, Users, Bot, ArrowRight, ArrowUpRight, Wallet, CalendarDays, Sparkles } from "lucide-react";
 import Link from "next/link";
+
+const stats = [
+  { label: "Open tasks", value: "12", detail: "Across active engagements", icon: Clock3, tone: "amber", href: "/dashboard/close" },
+  { label: "Pending approvals", value: "5", detail: "Ready for your review", icon: CheckCircle2, tone: "green", href: "/dashboard/close" },
+  { label: "Client requests", value: "8", detail: "Waiting for a response", icon: Users, tone: "blue", href: "/dashboard/audit/pbc" },
+  { label: "Exceptions", value: "3", detail: "Need attention", icon: AlertTriangle, tone: "rose", href: "/dashboard/bank-rec" },
+];
+
+const tasks = [
+  { title: "Bank reconciliation — October", client: "Acme Corp", due: "Today", status: "In progress", href: "/dashboard/bank-rec", tone: "green" },
+  { title: "Review AP accruals", client: "TechStart LLC", due: "Tomorrow", status: "Pending review", href: "/dashboard/close", tone: "amber" },
+  { title: "Prepare trial balance", client: "Green Energy Inc", due: "Nov 5", status: "Not started", href: "/dashboard/reporting/statements", tone: "slate" },
+  { title: "PBC request — bank statements", client: "Acme Corp", due: "Nov 4", status: "Client response", href: "/dashboard/audit/pbc", tone: "blue" },
+];
 
 export default function DashboardPage() {
   return (
-    <div className="space-y-8">
-      {/* Welcome */}
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">
-          Good evening, Accountant
-        </h1>
-        <p className="mt-1 text-slate-600">
-          Here&apos;s what needs your attention today.
-        </p>
-      </div>
+    <div className="mx-auto max-w-[1500px] space-y-7">
+      <section className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div><p className="text-xs font-bold uppercase tracking-[.18em] text-[#087f68]">Your workspace</p><h1 className="mt-2 text-3xl font-semibold tracking-[-.04em] text-[#172b3a]">Good morning, Accountant</h1><p className="mt-2 text-sm text-[#71817e]">Here’s what needs your attention today.</p></div>
+        <div className="inline-flex items-center gap-2 self-start rounded-xl border border-[#e3ebe6] bg-white px-3 py-2 text-sm text-[#61736c] sm:self-auto"><CalendarDays className="h-4 w-4 text-[#087f68]" /> Friday, November 6</div>
+      </section>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          {
-            label: "Open Tasks",
-            value: "12",
-            icon: Clock,
-            color: "text-amber-600 bg-amber-50",
-            href: "/dashboard/close",
-          },
-          {
-            label: "Pending Approvals",
-            value: "5",
-            icon: CheckCircle2,
-            color: "text-emerald-600 bg-emerald-50",
-            href: "/dashboard/close",
-          },
-          {
-            label: "Client Requests",
-            value: "8",
-            icon: Users,
-            color: "text-blue-600 bg-blue-50",
-            href: "/dashboard/audit/pbc",
-          },
-          {
-            label: "Exceptions",
-            value: "3",
-            icon: AlertTriangle,
-            color: "text-rose-600 bg-rose-50",
-            href: "/dashboard/bank-rec",
-          },
-        ].map((stat) => (
-          <Link
-            key={stat.label}
-            href={stat.href}
-            className="rounded-xl border bg-white p-5 shadow-sm hover:border-isaca-teal hover:shadow-md transition block"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-slate-500">
-                  {stat.label}
-                </p>
-                <p className="mt-1 text-3xl font-bold text-slate-900">
-                  {stat.value}
-                </p>
-              </div>
-              <div
-                className={`h-11 w-11 rounded-lg flex items-center justify-center ${stat.color}`}
-              >
-                <stat.icon className="h-5 w-5" />
-              </div>
-            </div>
-          </Link>
-        ))}
-      </div>
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {stats.map(({label,value,detail,icon:Icon,tone,href}) => <Link key={label} href={href} className="group rounded-2xl border border-[#e4ebe6] bg-white p-5 shadow-[0_3px_16px_-12px_rgba(23,43,58,.25)] transition hover:-translate-y-0.5 hover:border-[#b9d9ca] hover:shadow-lg"><div className="flex items-center justify-between"><span className="text-sm font-medium text-[#71817e]">{label}</span><span className={`flex h-10 w-10 items-center justify-center rounded-xl ${tone === "green" ? "bg-[#e9f5ef] text-[#087f68]" : tone === "amber" ? "bg-amber-50 text-amber-700" : tone === "blue" ? "bg-sky-50 text-sky-700" : "bg-rose-50 text-rose-700"}`}><Icon className="h-5 w-5" /></span></div><p className="mt-4 text-3xl font-semibold tracking-tight text-[#172b3a]">{value}</p><div className="mt-2 flex items-center justify-between"><span className="text-xs text-[#91a09b]">{detail}</span><ArrowUpRight className="h-4 w-4 text-[#a2b0aa] transition group-hover:text-[#087f68]" /></div></Link>)}
+      </section>
 
-      {/* Main grid */}
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* My Work */}
-        <div className="lg:col-span-2 rounded-xl border bg-white shadow-sm">
-          <div className="px-6 py-4 border-b flex items-center justify-between">
-            <h2 className="font-semibold text-slate-900">My Work</h2>
-            <Link
-              href="/dashboard/close"
-              className="text-sm font-medium text-isaca-medium hover:text-isaca-dark flex items-center gap-1"
-            >
-              View all <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-          <div className="divide-y">
-            {[
-              { title: "Bank Reconciliation — October", client: "Acme Corp", due: "Today", status: "In Progress", href: "/dashboard/bank-rec" },
-              { title: "Review AP Accruals", client: "TechStart LLC", due: "Tomorrow", status: "Pending", href: "/dashboard/close" },
-              { title: "Prepare Trial Balance", client: "Green Energy Inc", due: "Nov 5", status: "Not Started", href: "/dashboard/reporting/statements" },
-              { title: "PBC Request — Bank Statements", client: "Acme Corp", due: "Nov 4", status: "Waiting on Client", href: "/dashboard/audit/pbc" },
-            ].map((task) => (
-              <Link
-                key={task.title}
-                href={task.href}
-                className="flex items-center justify-between px-6 py-4 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-isaca-medium"
-              >
-                <div>
-                  <p className="font-medium text-slate-900">{task.title}</p>
-                  <p className="text-sm text-slate-500">{task.client}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium text-slate-700">{task.due}</p>
-                  <p className="text-xs text-slate-500">{task.status}</p>
-                </div>
-                <ArrowRight className="ml-3 h-4 w-4 shrink-0 text-slate-400" />
-              </Link>
-            ))}
-          </div>
+      <section className="grid gap-5 xl:grid-cols-[1.55fr_.85fr]">
+        <div className="overflow-hidden rounded-2xl border border-[#e4ebe6] bg-white shadow-sm">
+          <div className="flex items-center justify-between border-b border-[#edf1ee] px-5 py-5 sm:px-6"><div><h2 className="font-semibold text-[#263e4a]">My work</h2><p className="mt-1 text-xs text-[#91a09b]">Your current priorities and deadlines</p></div><Link href="/dashboard/close" className="inline-flex items-center gap-1 text-sm font-semibold text-[#087f68] hover:text-[#066b59]">View all <ArrowRight className="h-4 w-4" /></Link></div>
+          <div className="divide-y divide-[#edf1ee]">{tasks.map(task => <Link key={task.title} href={task.href} className="flex flex-col gap-3 px-5 py-4 transition hover:bg-[#f8fbf9] sm:flex-row sm:items-center sm:justify-between sm:px-6"><div className="min-w-0"><p className="truncate text-sm font-semibold text-[#2b414b]">{task.title}</p><p className="mt-1 text-xs text-[#87958f]">{task.client}</p></div><div className="flex shrink-0 items-center gap-3 sm:justify-end"><span className="text-xs text-[#87958f]">Due {task.due}</span><span className={`rounded-full px-3 py-1 text-[11px] font-semibold ${task.tone === "green" ? "bg-[#e9f5ef] text-[#087f68]" : task.tone === "amber" ? "bg-amber-50 text-amber-700" : task.tone === "blue" ? "bg-sky-50 text-sky-700" : "bg-slate-100 text-slate-600"}`}>{task.status}</span><ArrowRight className="h-4 w-4 text-[#a5b1ab]" /></div></Link>)}</div>
         </div>
 
-        {/* AI & Quick Actions */}
-        <div className="space-y-6">
-          <div className="rounded-xl border bg-gradient-to-br from-isaca-medium to-fin-800 text-white p-6 shadow-sm">
-            <div className="flex items-center gap-2 mb-3">
-              <Bot className="h-5 w-5" />
-              <h2 className="font-semibold">AI Assistant</h2>
-            </div>
-            <p className="text-sky-100 text-sm mb-4">
-              Ask anything or generate statements, close tasks, or audit
-              workpapers.
-            </p>
-            <Link
-              href="/dashboard/ai"
-              className="inline-flex items-center gap-2 rounded-lg bg-white/20 hover:bg-white/30 px-4 py-2 text-sm font-medium transition"
-            >
-              Open AI Chat
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
+        <div className="space-y-5">
+          <div className="overflow-hidden rounded-2xl bg-[#172f3d] p-6 text-white shadow-sm"><div className="flex items-center justify-between"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10"><Bot className="h-5 w-5 text-[#9dd9bf]" /></span><Sparkles className="h-5 w-5 text-[#9dd9bf]" /></div><h2 className="mt-5 text-lg font-semibold">Finova AI Assistant</h2><p className="mt-2 text-sm leading-6 text-[#c1d1cb]">Get help understanding accounting workflows, drafting summaries, and preparing work for your review.</p><Link href="/dashboard/ai" className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#8fd3b6] px-4 py-2.5 text-sm font-semibold text-[#173a35] hover:bg-[#b0e2cb]">Open AI workspace <ArrowRight className="h-4 w-4" /></Link></div>
+          <div className="rounded-2xl border border-[#e4ebe6] bg-white p-5 shadow-sm"><h2 className="font-semibold text-[#263e4a]">Quick actions</h2><p className="mt-1 text-xs text-[#91a09b]">Jump into a common workflow</p><div className="mt-4 space-y-1">{[{label:"Import trial balance",href:"/dashboard/reporting/statements"},{label:"Generate financial statements",href:"/dashboard/reporting/statements"},{label:"Create PBC request",href:"/dashboard/audit/pbc"},{label:"Start month-end close",href:"/dashboard/close"}].map(item=><Link key={item.label} href={item.href} className="flex items-center justify-between rounded-xl px-3 py-3 text-sm font-medium text-[#526760] transition hover:bg-[#f1f7f3] hover:text-[#087f68]">{item.label}<ArrowUpRight className="h-4 w-4 text-[#9aaba3]" /></Link>)}</div></div>
+        </div>
+      </section>
 
-          <div className="rounded-xl border bg-white shadow-sm p-6">
-            <h2 className="font-semibold text-slate-900 mb-4">Quick Actions</h2>
-            <div className="space-y-2">
-              {[
-                { label: "Import Trial Balance", href: "/dashboard/reporting/statements" },
-                { label: "Generate Financial Statements", href: "/dashboard/reporting/statements" },
-                { label: "Create PBC Request", href: "/dashboard/audit/pbc" },
-                { label: "Start Month-End Close", href: "/dashboard/close" },
-              ].map((action) => (
-                <Link
-                  key={action.label}
-                  href={action.href}
-                  className="flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
-                >
-                  {action.label}
-                  <ArrowRight className="h-4 w-4 text-slate-400" />
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Recent activity */}
-      <div className="rounded-xl border bg-white shadow-sm">
-        <div className="px-6 py-4 border-b">
-          <h2 className="font-semibold text-slate-900">Recent Activity</h2>
-        </div>
-        <div className="px-6 py-4 space-y-4">
-          {[
-            {
-              action: "Document uploaded",
-              detail: "October Bank Statement.pdf by Client  Acme Corp",
-              time: "12 minutes ago",
-            },
-            {
-              action: "Journal entry approved",
-              detail: "JE-2026-1042  Accrued Expenses by Controller",
-              time: "1 hour ago",
-            },
-            {
-              action: "AI proposed accruals",
-              detail: "4 entries for October close  awaiting review",
-              time: "2 hours ago",
-            },
-          ].map((item, i) => (
-            <div key={i} className="flex gap-4">
-              <div className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
-                <FileText className="h-4 w-4 text-slate-500" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-slate-900">
-                  {item.action}
-                </p>
-                <p className="text-sm text-slate-500">{item.detail}</p>
-                <p className="text-xs text-slate-400 mt-0.5">{item.time}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <section className="rounded-2xl border border-[#e4ebe6] bg-white p-5 shadow-sm sm:p-6"><div className="flex items-center justify-between"><div><h2 className="font-semibold text-[#263e4a]">Recent activity</h2><p className="mt-1 text-xs text-[#91a09b]">A quick view of recent workspace updates</p></div><Wallet className="h-5 w-5 text-[#087f68]" /></div><div className="mt-5 grid gap-5 md:grid-cols-3">{[{title:"Document uploaded",detail:"October Bank Statement.pdf · Acme Corp",time:"12 minutes ago"},{title:"Journal entry approved",detail:"JE-2026-1042 · Accrued Expenses",time:"1 hour ago"},{title:"AI draft prepared",detail:"Four proposed entries for October close",time:"2 hours ago"}].map(item=><div key={item.title} className="flex gap-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#edf6f0] text-[#087f68]"><FileText className="h-4 w-4" /></span><div><p className="text-sm font-semibold text-[#344b58]">{item.title}</p><p className="mt-1 text-xs leading-5 text-[#82918d]">{item.detail}</p><p className="mt-2 text-[11px] text-[#a0ada7]">{item.time}</p></div></div>)}</div></section>
     </div>
   );
 }
