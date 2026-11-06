@@ -32,7 +32,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ docu
     const safeName = document.fileName.replace(/[\\r\\n"]/g, "_");
 
     if (officePreview && !forceDownload && extension === ".docx") {
-      const converted = await mammoth.convertToHtml({ buffer: bytes });
+      const converted = await mammoth.convertToHtml({ buffer: Buffer.from(bytes) as unknown as Parameters<typeof mammoth.convertToHtml>[0]["buffer"] });
       const html = "<!doctype html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><style>body{font:15px/1.65 system-ui,sans-serif;color:#263746;padding:28px;max-width:960px;margin:auto}h1,h2,h3{color:#173447}table{border-collapse:collapse;width:100%}td,th{border:1px solid #dce5df;padding:8px;text-align:left}img{max-width:100%;height:auto}</style></head><body>" + converted.value + "</body></html>";
       return new NextResponse(html, { headers: { "Content-Type": "text/html; charset=utf-8", "Content-Disposition": "inline", "Cache-Control": "private, no-store, max-age=0", "Content-Security-Policy": "default-src 'none'; img-src data:; style-src 'unsafe-inline'; sandbox", "X-Content-Type-Options": "nosniff" } });
     }
