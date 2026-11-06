@@ -46,44 +46,44 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return (
       <Link key={item.name} href={item.href} onClick={() => mobile && setMobileOpen(false)}
         aria-current={isActive ? "page" : undefined}
-        className={cn("flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition",
-          isActive ? "bg-isaca-medium text-white shadow-sm" : "text-slate-300 hover:bg-slate-800 hover:text-white")}>
+        className={cn("flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-all",
+          isActive ? "bg-[#e8f4ee] text-[#087f68] shadow-sm ring-1 ring-[#d3e9de]" : "text-[#62736f] hover:bg-[#f1f6f3] hover:text-[#203b35]")}>
         <item.icon className="h-5 w-5 shrink-0" />{item.name}
       </Link>
     );
   });
 
   return (
-    <div className="min-h-screen bg-isaca-light/50 flex">
-      <aside className="hidden lg:flex lg:flex-col w-64 shrink-0 bg-slate-900 text-white">
-        <div className="flex items-center gap-2 px-4 h-16 border-b border-slate-800"><LogoWordmark light /></div>
-        <nav aria-label="Main navigation" className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">{navLinks()}</nav>
-        <div className="p-4 border-t border-slate-800">
+    <div className="min-h-screen flex bg-[#f5f7f5]">
+      <aside className="hidden lg:flex lg:flex-col w-[272px] shrink-0 border-r border-[#e4ebe6] bg-white text-[#203b35]">
+        <div className="flex h-[76px] items-center gap-2 border-b border-[#edf1ee] px-5"><LogoWordmark light /></div>
+        <nav aria-label="Main navigation" className="flex-1 space-y-1 overflow-y-auto px-4 py-5">{navLinks()}</nav>
+        <div className="border-t border-[#edf1ee] p-4">
           <div className="flex items-center gap-3 px-2 mb-3">
-            <div className="h-9 w-9 rounded-full bg-isaca-medium flex items-center justify-center text-sm font-semibold">{status === "loading" ? "…" : initials}</div>
-            <div className="flex-1 min-w-0"><p className="text-sm font-medium truncate">{displayName}</p><p className="text-xs text-slate-400 truncate">{(session?.user as { role?: string } | undefined)?.role || "Member"}</p></div>
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e8f4ee] text-sm font-bold text-[#087f68]">{status === "loading" ? "…" : initials}</div>
+            <div className="flex-1 min-w-0"><p className="text-sm font-medium truncate">{displayName}</p><p className="truncate text-xs text-[#87958f]">{(session?.user as { role?: string } | undefined)?.role || "Member"}</p></div>
           </div>
-          <button type="button" onClick={() => signOut({ callbackUrl: "/login" })} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-slate-300 hover:bg-slate-800 hover:text-white"><LogOut className="h-4 w-4" />Sign out</button>
+          <button type="button" onClick={() => signOut({ callbackUrl: "/login" })} className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm text-[#71817b] hover:bg-[#f1f6f3] hover:text-[#203b35]"><LogOut className="h-4 w-4" />Sign out</button>
         </div>
       </aside>
 
-      {mobileOpen && <button aria-label="Close navigation" className="fixed inset-0 z-40 bg-slate-950/55 lg:hidden" onClick={() => setMobileOpen(false)} />}
-      <aside className={cn("fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-slate-900 text-white transition-transform lg:hidden", mobileOpen ? "translate-x-0" : "-translate-x-full")}>
-        <div className="flex h-16 items-center justify-between border-b border-slate-800 px-4"><LogoWordmark light /><button aria-label="Close menu" onClick={() => setMobileOpen(false)}><X /></button></div>
+      {mobileOpen && <button aria-label="Close navigation" className="fixed inset-0 z-40 bg-[#172f3d]/35 backdrop-blur-sm lg:hidden" onClick={() => setMobileOpen(false)} />}
+      <aside className={cn("fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-[#e4ebe6] bg-white text-[#203b35] shadow-2xl transition-transform lg:hidden", mobileOpen ? "translate-x-0" : "-translate-x-full")}>
+        <div className="flex h-16 items-center justify-between border-b border-[#edf1ee] px-4"><LogoWordmark light /><button aria-label="Close menu" onClick={() => setMobileOpen(false)}><X /></button></div>
         <nav aria-label="Mobile navigation" className="flex-1 space-y-1 overflow-y-auto p-3">{navLinks(true)}</nav>
-        <div className="border-t border-slate-800 p-4"><button onClick={() => signOut({ callbackUrl: "/login" })} className="flex items-center gap-2 text-sm text-slate-300"><LogOut className="h-4 w-4" />Sign out</button></div>
+        <div className="border-t border-[#edf1ee] p-4"><button onClick={() => signOut({ callbackUrl: "/login" })} className="flex items-center gap-2 text-sm text-[#71817b]"><LogOut className="h-4 w-4" />Sign out</button></div>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b bg-white/95 px-3 backdrop-blur sm:px-4 lg:px-6">
+        <header className="sticky top-0 z-30 flex h-[76px] items-center gap-3 border-b border-[#e5ebe7] bg-white/90 px-3 backdrop-blur-xl sm:px-4 lg:px-7">
           <button type="button" aria-label="Open navigation" className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 lg:hidden" onClick={() => setMobileOpen(true)}><Menu className="h-5 w-5" /></button>
-          <div className="hidden shrink-0 items-center gap-2 text-sm text-slate-500 sm:flex"><span>Dashboard</span><ChevronRight className="h-4 w-4" /><span className="font-medium capitalize text-slate-900">{pathname.split("/").filter(Boolean).pop() || "Home"}</span></div>
+          <div className="hidden shrink-0 items-center gap-2 text-sm text-[#87958f] sm:flex"><span>Dashboard</span><ChevronRight className="h-4 w-4" /><span className="font-semibold capitalize text-[#263e4a]">{pathname.split("/").filter(Boolean).pop() || "Home"}</span></div>
           <div className="min-w-0 flex-1"><GlobalSearch /></div>
           <div className="hidden items-center gap-2 md:flex"><ThemeSwitcher /><DarkModeToggle /></div>
           <Link href="/dashboard/ai" className="flex shrink-0 items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-isaca-light/50"><Bot className="h-4 w-4 text-isaca-medium" /><span className="hidden sm:inline">Ask AI</span></Link>
         </header>
-        <div className="flex items-center justify-between border-b bg-white px-4 py-2 md:hidden"><ThemeSwitcher /><DarkModeToggle /></div>
-        <main className="min-h-0 flex-1 p-4 lg:p-6">{children}</main>
+        <div className="flex items-center justify-between border-b border-[#e5ebe7] bg-white px-4 py-2 md:hidden"><ThemeSwitcher /><DarkModeToggle /></div>
+        <main className="min-h-0 flex-1 p-4 sm:p-5 lg:p-7">{children}</main>
       </div>
     </div>
   );
