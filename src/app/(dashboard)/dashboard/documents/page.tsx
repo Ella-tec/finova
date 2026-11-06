@@ -85,6 +85,9 @@ export default function DocumentsPage() {
     load();
   };
 
+  const [previewDoc, setPreviewDoc] = useState<Doc | null>(null);
+  const openDocument = (doc: Doc) => setPreviewDoc(doc);
+
   const analyze = async (id: string) => {
     setAnalyzing(id);
     const res = await fetch("/api/documents/analyze", {
@@ -181,6 +184,12 @@ export default function DocumentsPage() {
                   )}
                 </div>
               </div>
+              <button type="button" onClick={() => openDocument(d)} className="rounded-lg border px-3 py-1.5 text-xs font-medium hover:bg-slate-50">
+                Open
+              </button>
+              <a href={`/api/documents/${encodeURIComponent(d.id)}`} target="_blank" rel="noreferrer" className="rounded-lg border px-3 py-1.5 text-xs font-medium hover:bg-slate-50">
+                New tab
+              </a>
               <button
                 onClick={() => analyze(d.id)}
                 disabled={analyzing === d.id}
@@ -197,6 +206,35 @@ export default function DocumentsPage() {
           ))
         )}
       </div>
+      {previewDoc && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-3 sm:p-6" role="dialog" aria-modal="true">
+          <section className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
+            <header className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-3 sm:px-6">
+              <div className="min-w-0"><h2 className="truncate text-sm font-semibold text-slate-900">{previewDoc.fileName}</h2><p className="text-xs text-slate-500">{previewDoc.mimeType} · {(previewDoc.size / 1024).toFixed(1)} KB</p></div>
+              <div className="flex shrink-0 items-center gap-2">
+                <a href={`/api/documents/${encodeURIComponent(previewDoc.id)}?download=1`} className="rounded-lg border px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">Download</a>
+                <button type="button" onClick={() => setPreviewDoc(null)} className="rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white hover:bg-slate-700">Close</button>
+              </div>
+            </header>
+            <div className="min-h-[55vh] flex-1 overflow-auto bg-slate-100 p-2 sm:p-4">
+              {previewDoc.mimeType === "application/pdf" ? (
+                <iframe title="Document preview" src={`/api/documents/${encodeURIComponent(previewDoc.id)}#toolbar=1`} className="h-[72vh] w-full rounded-lg border bg-white" />
+              ) : previewDoc.mimeType.startsWith("image/") ? (
+                <div className="flex min-h-[55vh] items-center justify-center"><img src={`/api/documents/${encodeURIComponent(previewDoc.id)}`} alt={previewDoc.fileName} className="max-h-[72vh] max-w-full rounded-lg object-contain" /></div>
+              ) : previewDoc.mimeType === "text/plain" || previewDoc.mimeType === "text/csv" || previewDoc.mimeType === "application/vnd.ms-excel" ? (
+                <iframe title="Text document preview" src={`/api/documents/${encodeURIComponent(previewDoc.id)}`} className="h-[72vh] w-full rounded-lg border bg-white" />
+              ) : (
+                <div className="mx-auto flex min-h-[55vh] max-w-xl flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center">
+                  <FileText className="h-10 w-10 text-slate-400" />
+                  <h3 className="mt-3 font-semibold text-slate-900">Use a compatible viewer for this file</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">PDFs, images, and text files preview inside Finova. Word and Excel files can be opened with the download control and a compatible app.</p>
+                  <a href={`/api/documents/${encodeURIComponent(previewDoc.id)}?download=1`} className="mt-4 rounded-lg bg-[#087f68] px-4 py-2 text-sm font-semibold text-white">Open file</a>
+                </div>
+              )}
+            </div>
+          </section>
+        </div>
+      )}
     </div>
   );
 }
