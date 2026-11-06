@@ -21,7 +21,7 @@ export default async function CoursePage({
             <LogoWordmark />
           </Link>
           <Link
-            href="/learning"
+            href="/dashboard/learning"
             className="text-sm text-slate-600 hover:text-isaca-dark flex items-center gap-1"
           >
             <ArrowLeft className="h-4 w-4" /> All courses
