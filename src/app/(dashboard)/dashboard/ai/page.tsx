@@ -48,16 +48,20 @@ export default function AIPage() {
     setInput("");
     setLoading(true);
 
-    // Simulated AI response (replace with real Azure OpenAI call later)
-    setTimeout(() => {
-      const reply: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: getSimulatedReply(text),
-      };
-      setMessages((prev) => [...prev, reply]);
+    try {
+      const response = await fetch("/api/ai/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text.trim() }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "The assistant could not respond.");
+      setMessages((prev) => [...prev, { id: (Date.now() + 1).toString(), role: "assistant", content: data.reply || "I could not find a response." }]);
+    } catch (error) {
+      setMessages((prev) => [...prev, { id: (Date.now() + 1).toString(), role: "assistant", content: error instanceof Error ? error.message : "The assistant is temporarily unavailable." }]);
+    } finally {
       setLoading(false);
-    }, 900);
+    }
   };
 
   return (
@@ -68,7 +72,7 @@ export default function AIPage() {
           AI Assistant
         </h1>
         <p className="text-sm text-slate-500 mt-1">
-          Propose only " Human approval required for all posting actions
+          Guided help for Finova workflows · Review outputs before use
         </p>
       </div>
 
@@ -110,7 +114,7 @@ export default function AIPage() {
               <Sparkles className="h-4 w-4 text-isaca-medium animate-pulse" />
             </div>
             <div className="bg-slate-100 rounded-2xl px-4 py-3 text-sm text-slate-500">
-              Thinking&
+              Thinking…
             </div>
           </div>
         )}
@@ -143,7 +147,7 @@ export default function AIPage() {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask anything& e.g. Prepare March close"
+          placeholder="Ask about a Finova workflow…"
           className="flex-1 rounded-xl border border-slate-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-isaca-blue focus:border-transparent"
           disabled={loading}
         />
@@ -159,60 +163,3 @@ export default function AIPage() {
   );
 }
 
-function getSimulatedReply(input: string): string {
-  const lower = input.toLowerCase();
-  if (lower.includes("close") || lower.includes("march")) {
-    return [
-      "I have prepared a March close checklist for you:",
-      "",
-      "1. Bank Reconciliation",
-      "2. AR Aging & Bad Debt Review",
-      "3. AP Accruals",
-      "4. Fixed Asset Depreciation",
-      "5. Inventory Count & Adjustments",
-      "6. Journal Entries (Accruals, Prepaids, Reclasses)",
-      "7. Trial Balance Validation",
-      "8. Controller Approval",
-      "",
-      "Would you like me to create the tasks in your Close module? (You will still need to approve each step.)",
-    ].join("\n");
-  }
-  if (lower.includes("cash flow") || lower.includes("statement")) {
-    return [
-      "I can generate a Cash Flow Statement from the latest Trial Balance and adjustments.",
-      "",
-      "Please confirm the period (e.g. October 2026) and whether you want the direct or indirect method. Once generated, you can review, edit notes, and approve before finalizing.",
-    ].join("\n");
-  }
-  if (lower.includes("audit") || lower.includes("inventory")) {
-    return [
-      "I have drafted an Audit Program for Inventory:",
-      "",
-      "- Risk Assessment (Valuation & Existence)",
-      "- Materiality calculation",
-      "- Sampling plan (statistical)",
-      "- Test of details - existence",
-      "- Test of details - valuation",
-      "- Cut-off testing",
-      "- Lead schedule + workpapers",
-      "",
-      "Shall I create the engagement workpapers so the audit team can begin?",
-    ].join("\n");
-  }
-  if (lower.includes("revenue") || lower.includes("analyze")) {
-    return [
-      "Here is a quick revenue analysis based on available data:",
-      "",
-      "- MoM change: +4.2%",
-      "- YoY change: +12.8%",
-      "- Top variance drivers: Product line A (+18%), Service revenue (-3%)",
-      "",
-      "I can generate a full variance dashboard and draft management commentary. Would you like me to proceed?",
-    ].join("\n");
-  }
-  return [
-    "I understand your request. In the full version I will connect to your live general ledger, documents, and close data to give precise answers and create real tasks or drafts for your approval.",
-    "",
-    "For now this is a simulated response. Tell me more details or try one of the suggested prompts.",
-  ].join("\n");
-}

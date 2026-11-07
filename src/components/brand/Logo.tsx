@@ -1,15 +1,13 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
-/** Official Finova brand mark, shared by the website and application shell. */
 export function Logo({ className, size = 40 }: { className?: string; size?: number }) {
   return (
-    <Image
-      src="/logo.png"
+    <img
+      src="/logo.svg"
       width={size}
       height={size}
       alt="Finova"
-      priority
       className={cn("shrink-0 object-contain", className)}
     />
   );
