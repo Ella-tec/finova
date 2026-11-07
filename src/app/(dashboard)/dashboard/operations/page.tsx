@@ -1,10 +1,10 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
-import { Building2, BookOpen, Users, ReceiptText, ShoppingCart, Landmark, Plus, RefreshCw, Search, CheckCircle2, AlertCircle, ArrowUpRight, FileText, Wallet, BriefcaseBusiness } from "lucide-react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { BookOpen, Users, ShoppingCart, Landmark, Plus, RefreshCw, Search, CheckCircle2, AlertCircle, ArrowUpRight, FileText, UploadCloud, Paperclip, X, Loader2, FileSpreadsheet, Image as ImageIcon } from "lucide-react";
 
 type Area = "ACCOUNTING" | "SALES" | "PURCHASING" | "BANKING";
-type RecordRow = { id: string; area: Area; kind: string; title: string; reference: string | null; counterparty: string | null; status: string; amount: number | null; currency: string; recordDate: string | null; dueDate: string | null; description: string | null; createdAt: string };
+type RecordRow = { id: string; area: Area; kind: string; title: string; reference: string | null; counterparty: string | null; status: string; amount: number | null; currency: string; recordDate: string | null; dueDate: string | null; description: string | null; payload?: string | null; createdAt: string };\ntype AttachedDocument = { id: string; fileName: string; mimeType: string; size: number };
 const groups = [
   { id: "ACCOUNTING" as Area, title: "Accounting", subtitle: "Set up your company, accounts, and the accounting foundation.", icon: BookOpen, accent: "teal", items: [{kind:"COMPANY",label:"Company Setup",hint:"Company profile, tax ID, fiscal year and currency"},{kind:"ACCOUNT",label:"Chart of Accounts",hint:"Cash, receivables, payables, equity, revenue and expenses"},{kind:"JOURNAL",label:"Journal Entry",hint:"Prepare a balanced entry for review"},{kind:"LEDGER",label:"General Ledger",hint:"Review recorded activity by account"}] },
   { id: "SALES" as Area, title: "Sales", subtitle: "Manage customers, invoice records, and incoming payments.", icon: Users, accent: "blue", items: [{kind:"CUSTOMER",label:"Customers",hint:"Customer details, terms and credit limits"},{kind:"INVOICE",label:"New Invoice",hint:"Invoice header, due date and total"},{kind:"RECEIPT",label:"Receive Payment",hint:"Record payment against a customer invoice"}] },
@@ -21,7 +21,7 @@ export default function OperationsPage() {
   const [saving,setSaving] = useState(false);
   const [search,setSearch] = useState("");
   const [active,setActive] = useState<{area:Area;kind:string;label:string}|null>(null);
-  const [notice,setNotice] = useState<{ok:boolean;text:string}|null>(null);
+  const [notice,setNotice] = useState<{ok:boolean;text:string}|null>(null);\n  const [clientId,setClientId] = useState("");\n  const [attachments,setAttachments] = useState<AttachedDocument[]>([]);\n  const [uploadingFiles,setUploadingFiles] = useState(false);\n  const attachmentInput = useRef<HTMLInputElement>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -29,20 +29,20 @@ export default function OperationsPage() {
     catch(e){setNotice({ok:false,text:e instanceof Error?e.message:"Could not load records."});}
     finally{setLoading(false);}
   },[]);
-  useEffect(()=>{void load();},[load]);
+  useEffect(()=>{void load(); void (async()=>{try{const r=await fetch("/api/documents",{cache:"no-store"});const d=await r.json();if(r.ok&&d.clientId)setClientId(d.clientId);}catch(e){console.error("Could not resolve document workspace",e);}})();},[load]);
 
   const filtered = useMemo(()=>records.filter(r=>(r.title+" "+(r.reference||"")+" "+(r.counterparty||"")+" "+r.kind).toLowerCase().includes(search.toLowerCase())),[records,search]);
   const counts = (area:Area)=>records.filter(r=>r.area===area).length;
 
-  async function submit(e:FormEvent<HTMLFormElement>){
+  async function uploadAttachments(files: FileList | null){\n    if(!files?.length)return;\n    if(!clientId){setNotice({ok:false,text:"No client workspace is assigned. Ask an administrator to assign a client before attaching files."});return;}\n    setUploadingFiles(true);setNotice(null);\n    try{\n      const added:AttachedDocument[]=[];\n      for(const file of Array.from(files)){\n        const fd=new FormData();fd.append("file",file);fd.append("clientId",clientId);fd.append("tags","workspace-record");\n        const response=await fetch("/api/documents",{method:"POST",body:fd});\n        const result=await response.json().catch(()=>({}));\n        if(!response.ok||!result.id)throw new Error(result.error||`Could not upload ${file.name}`);\n        added.push({id:result.id,fileName:result.fileName||file.name,mimeType:result.mimeType||file.type,size:result.size||file.size});\n      }\n      setAttachments(previous=>[...previous,...added]);\n      setNotice({ok:true,text:`${added.length} document${added.length===1?"":"s"} uploaded and attached. Save the record to keep the links together.`});\n    }catch(error){setNotice({ok:false,text:error instanceof Error?error.message:"Could not upload attachment."});}\n    finally{setUploadingFiles(false);if(attachmentInput.current)attachmentInput.current.value="";}\n  }\n\n  async function submit(e:FormEvent<HTMLFormElement>){
     e.preventDefault(); if(!active)return;
     const form=new FormData(e.currentTarget);
     const body=Object.fromEntries(form.entries());
     setSaving(true);setNotice(null);
     try{
-      const res=await fetch("/api/workspace-records",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...body,area:active.area,kind:active.kind})});
+      const res=await fetch("/api/workspace-records",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...body,area:active.area,kind:active.kind,details:{attachments}})});
       const data=await res.json();if(!res.ok)throw new Error(data.error||"Save failed.");
-      setNotice({ok:true,text:active.label+" saved as a draft. It is now in your records."});setActive(null);await load();
+      setNotice({ok:true,text:active.label+" saved as a draft with "+attachments.length+" attached document(s)."});setAttachments([]);setActive(null);await load();
     }catch(err){setNotice({ok:false,text:err instanceof Error?err.message:"Could not save this record."});}
     finally{setSaving(false);}
   }
@@ -61,7 +61,7 @@ export default function OperationsPage() {
 
     {groups.map(g=><section key={g.id} id={g.id.toLowerCase()} className="scroll-mt-24 space-y-4">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><div><div className="flex items-center gap-2"><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-50 text-teal-700"><g.icon className="h-5 w-5"/></span><h2 className="text-xl font-semibold text-slate-900">{g.title}</h2></div><p className="mt-2 text-sm text-slate-500">{g.subtitle}</p></div><span className="text-xs font-medium text-slate-400">{counts(g.id)} saved</span></div>
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{g.items.map(item=><article key={item.kind} className="flex flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-teal-200 hover:shadow-md"><div className="flex items-start justify-between gap-3"><div><h3 className="font-semibold text-slate-900">{item.label}</h3><p className="mt-1 text-xs leading-5 text-slate-500">{item.hint}</p></div><span className="rounded-lg bg-slate-50 p-2 text-slate-500"><FileText className="h-4 w-4"/></span></div><button onClick={()=>{setActive({area:g.id,kind:item.kind,label:item.label});setNotice(null);}} className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-teal-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-800"><Plus className="h-4 w-4"/>Create {item.label}</button></article>)}</div>
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{g.items.map(item=><article key={item.kind} className="flex flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-teal-200 hover:shadow-md"><div className="flex items-start justify-between gap-3"><div><h3 className="font-semibold text-slate-900">{item.label}</h3><p className="mt-1 text-xs leading-5 text-slate-500">{item.hint}</p></div><span className="rounded-lg bg-slate-50 p-2 text-slate-500"><FileText className="h-4 w-4"/></span></div><button onClick={()=>{setActive({area:g.id,kind:item.kind,label:item.label});setAttachments([]);setNotice(null);}} className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-teal-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-800"><Plus className="h-4 w-4"/>Create {item.label}</button></article>)}</div>
     </section>)}
 
     <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -79,7 +79,7 @@ export default function OperationsPage() {
         <label className="text-sm font-medium text-slate-700">Currency<select name="currency" defaultValue="USD" className={inputClass+" mt-1"}><option>USD</option><option>EUR</option><option>GBP</option><option>CAD</option></select></label>
         <label className="text-sm font-medium text-slate-700">Record date<input name="recordDate" type="date" className={inputClass+" mt-1"}/></label>
         <label className="text-sm font-medium text-slate-700">Due date<input name="dueDate" type="date" className={inputClass+" mt-1"}/></label>
-        <label className="sm:col-span-2 text-sm font-medium text-slate-700">Notes<textarea name="description" rows={3} className={inputClass+" mt-1"} placeholder="Add context, terms, or supporting details…"/></label>
+        <div className="sm:col-span-2 rounded-2xl border border-dashed border-teal-200 bg-teal-50/40 p-4"><div className="flex flex-wrap items-center justify-between gap-3"><div className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-teal-700 shadow-sm"><Paperclip className="h-5 w-5"/></span><div><p className="text-sm font-semibold text-slate-800">Supporting documents</p><p className="text-xs text-slate-500">Attach invoices, receipts, statements, Excel, CSV, PDFs or images (up to 25 MB each).</p></div></div><button type="button" onClick={()=>attachmentInput.current?.click()} disabled={uploadingFiles||!clientId} className="inline-flex items-center gap-2 rounded-xl border border-teal-200 bg-white px-3.5 py-2.5 text-sm font-semibold text-teal-800 shadow-sm transition hover:border-teal-300 hover:bg-teal-50 disabled:opacity-50">{uploadingFiles?<Loader2 className="h-4 w-4 animate-spin"/>:<UploadCloud className="h-4 w-4"/>}{uploadingFiles?"Uploading…":"Attach files"}</button><input ref={attachmentInput} type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.csv,.txt,.docx,.xlsx" className="hidden" onChange={e=>void uploadAttachments(e.currentTarget.files)}/></div>{!clientId&&<p className="mt-3 text-xs text-amber-700">A client workspace is required before files can be uploaded.</p>}{attachments.length>0&&<ul className="mt-4 grid gap-2 sm:grid-cols-2">{attachments.map(doc=><li key={doc.id} className="flex min-w-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-50 text-teal-700">{doc.mimeType.includes("spreadsheet")||doc.fileName.match(/\.(xlsx|csv)$/i)?<FileSpreadsheet className="h-4 w-4"/>:doc.mimeType.startsWith("image/")?<ImageIcon className="h-4 w-4"/>:<FileText className="h-4 w-4"/>}</span><span className="min-w-0 flex-1 truncate text-xs font-medium text-slate-700" title={doc.fileName}>{doc.fileName}</span><button type="button" aria-label={`Remove ${doc.fileName}`} onClick={()=>setAttachments(current=>current.filter(x=>x.id!==doc.id))} className="rounded-lg p-1 text-slate-400 hover:bg-rose-50 hover:text-rose-600"><X className="h-4 w-4"/></button></li>)}</ul>}</div><label className="sm:col-span-2 text-sm font-medium text-slate-700">Notes<textarea name="description" rows={3} className={inputClass+" mt-1"} placeholder="Add context, terms, or supporting details…"/></label>
         <div className="sm:col-span-2 flex justify-end gap-2 border-t border-slate-100 pt-4"><button type="button" onClick={()=>setActive(null)} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50">Cancel</button><button disabled={saving} className="rounded-xl bg-teal-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-teal-800 disabled:opacity-60">{saving?"Saving…":"Save draft record"}</button></div>
       </form>
     </div></div>}
