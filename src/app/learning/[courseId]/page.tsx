@@ -1,8 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Clock, PlayCircle } from "lucide-react";
+import { ArrowLeft, Clock, PlayCircle, ExternalLink, BookOpen } from "lucide-react";
 import { LogoWordmark } from "@/components/brand/Logo";
 import { getCourse } from "@/lib/learning/courses";
+
+const VIDEO_LIBRARY = "https://quickbooks.intuit.com/learn-support/en-us/quickbooks-online/how-to-videos/";
+
+function videoSearch(title: string, courseTitle: string) {
+  return `https://www.youtube.com/results?search_query=${encodeURIComponent(`accounting tutorial ${title} ${courseTitle}`)}`;
+}
 
 export default async function CoursePage({
   params,
@@ -14,49 +20,63 @@ export default async function CoursePage({
   if (!course) notFound();
 
   const lessons = Array.isArray(course.lessons) ? course.lessons : [];
-  const modules = course.modules ?? lessons.map((lesson) => ({
-    title: lesson.title,
-    minutes: lesson.minutes,
-  }));
 
   return (
-    <div className="min-h-screen bg-isaca-light/40">
-      <header className="border-b bg-white">
-        <div className="mx-auto flex h-14 max-w-3xl items-center justify-between px-4">
-          <Link href="/"><LogoWordmark /></Link>
-          <Link href="/learning" className="flex items-center gap-1 text-sm text-slate-600 hover:text-isaca-dark">
+    <div className="min-h-screen bg-slate-50">
+      <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur">
+        <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6">
+          <div className="flex items-center gap-3">
+            <Link href="/learning" aria-label="Back to all courses" className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:border-teal-200 hover:bg-teal-50 hover:text-teal-800">
+              <ArrowLeft className="h-5 w-5" />
+            </Link>
+            <Link href="/" aria-label="Finova home"><LogoWordmark /></Link>
+          </div>
+          <Link href="/learning" className="hidden items-center gap-2 text-sm font-medium text-slate-600 hover:text-teal-700 sm:flex">
             <ArrowLeft className="h-4 w-4" /> All courses
           </Link>
         </div>
       </header>
-      <main className="mx-auto max-w-3xl space-y-8 px-4 py-10">
-        <div>
-          <div className="mb-2 flex items-center gap-2 text-xs text-slate-500">
-            <span className="rounded-full bg-slate-100 px-2 py-0.5">{course.level}</span>
-            <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" />{course.duration} · {lessons.length} lessons</span>
-          </div>
-          <h1 className="text-3xl font-bold text-isaca-dark">{course.title}</h1>
-          <p className="mt-2 text-slate-600">{course.summary || course.description}</p>
-        </div>
-        <div className="divide-y rounded-2xl border bg-white">
-          {modules.map((module, index) => (
-            <div key={`${index}-${module.title}`} className="flex items-center justify-between gap-4 px-5 py-4 transition hover:bg-isaca-light/40">
-              <div className="flex items-center gap-3">
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-isaca-light text-sm font-semibold text-isaca-dark">{index + 1}</span>
-                <div>
-                  <p className="font-medium text-slate-900">{module.title}</p>
-                  <p className="text-xs text-slate-500">{module.minutes} min</p>
-                </div>
-              </div>
-              <span className="flex items-center gap-1 text-sm font-medium text-isaca-medium"><PlayCircle className="h-4 w-4" /> Lesson</span>
+
+      <main className="mx-auto max-w-5xl space-y-7 px-4 py-8 sm:px-6 sm:py-10">
+        <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+          <div className="bg-gradient-to-r from-slate-950 via-slate-800 to-teal-800 px-6 py-8 text-white sm:px-9 sm:py-10">
+            <div className="mb-4 flex flex-wrap items-center gap-2 text-xs font-medium">
+              <span className="rounded-full bg-white/15 px-3 py-1">{course.level}</span>
+              <span className="flex items-center gap-1 rounded-full bg-white/15 px-3 py-1"><Clock className="h-3.5 w-3.5" /> {course.duration}</span>
+              <span className="rounded-full bg-white/15 px-3 py-1">{lessons.length} lessons</span>
             </div>
-          ))}
-        </div>
-        <div className="rounded-2xl border border-isaca-medium/20 bg-isaca-light/50 p-5 text-sm text-slate-700">
-          <p className="mb-1 font-medium text-isaca-dark">Practice in the product</p>
-          <p>After each module, open the matching Finova screen (Close, Bank Rec, Samples, Audit/PBC, or AI) and complete the checklist items listed in the course overview.</p>
-          <Link href="/dashboard" className="mt-3 inline-block font-semibold text-isaca-medium hover:underline">Go to Dashboard →</Link>
-        </div>
+            <h1 className="max-w-3xl text-3xl font-semibold tracking-tight sm:text-4xl">{course.title}</h1>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-200 sm:text-base">{course.summary || course.description}</p>
+          </div>
+          <div className="flex flex-col gap-3 border-t border-slate-100 px-6 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-9">
+            <div className="flex items-center gap-2 text-sm text-slate-600"><BookOpen className="h-4 w-4 text-teal-700" /> Select a lesson and open a video walkthrough.</div>
+            <a href={VIDEO_LIBRARY} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold text-teal-700 hover:text-teal-900">Official QuickBooks video library <ExternalLink className="h-4 w-4" /></a>
+          </div>
+        </section>
+
+        <section className="space-y-3">
+          <div className="flex items-end justify-between gap-3">
+            <div><h2 className="text-xl font-semibold text-slate-900">Course lessons</h2><p className="mt-1 text-sm text-slate-500">Short, focused modules with related video examples.</p></div>
+            <span className="text-xs font-medium text-slate-400">{lessons.length} lessons</span>
+          </div>
+          <div className="grid gap-3 md:grid-cols-2">
+            {lessons.map((lesson, index) => (
+              <article key={lesson.id} className="group rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-teal-200 hover:shadow-md sm:p-5">
+                <div className="flex items-start gap-3">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-50 text-sm font-bold text-teal-800">{String(index + 1).padStart(2, "0")}</span>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-semibold text-slate-900">{lesson.title}</h3>
+                    <p className="mt-1 flex items-center gap-1 text-xs text-slate-500"><Clock className="h-3.5 w-3.5" /> {lesson.minutes} min lesson</p>
+                  </div>
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <a href={videoSearch(lesson.title, course.title)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-teal-700 px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-teal-800"><PlayCircle className="h-4 w-4" /> Find sample video</a>
+                  <a href={VIDEO_LIBRARY} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 px-3.5 py-2 text-xs font-semibold text-slate-600 transition hover:border-teal-200 hover:bg-teal-50 hover:text-teal-800">Video tutorials <ExternalLink className="h-3.5 w-3.5" /></a>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
       </main>
     </div>
   );
