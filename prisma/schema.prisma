@@ -366,3 +366,32 @@ model EntityBalance {
 
   @@index([entityId, period])
 }
+
+
+// ===== Unified accounting operations workspace =====
+// Flexible, auditable business records for the initial accounting workflow.
+// Domain-specific tables can be introduced incrementally without losing captured records.
+model WorkspaceRecord {
+  id          String   @id @default(cuid())
+  area        String
+  kind        String
+  title       String
+  reference   String?
+  counterparty String?
+  status      String   @default("DRAFT")
+  amount      Float?
+  currency    String   @default("USD")
+  recordDate  DateTime?
+  dueDate     DateTime?
+  description String?
+  payload     String?
+  firmId      String?
+  clientId    String?
+  createdById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([area, kind, status])
+  @@index([firmId, createdAt])
+  @@index([clientId, createdAt])
+}
