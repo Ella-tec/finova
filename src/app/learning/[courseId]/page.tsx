@@ -13,6 +13,12 @@ export default async function CoursePage({
   const course = getCourse(courseId);
   if (!course) notFound();
 
+  const lessons = Array.isArray(course.lessons) ? course.lessons : [];
+  const modules = course.modules ?? lessons.map((lesson) => ({
+    title: lesson.title,
+    minutes: lesson.minutes,
+  }));
+
   return (
     <div className="min-h-screen bg-isaca-light/40">
       <header className="border-b bg-white">
@@ -28,18 +34,14 @@ export default async function CoursePage({
           </Link>
         </div>
       </header>
-
-      <main className="max-w-3xl mx-auto px-4 py-10 space-y-8">
+      <main className="mx-auto max-w-3xl space-y-8 px-4 py-10">
         <div>
-          <div className="flex items-center gap-2 text-xs text-slate-500 mb-2">
+          <div className="mb-2 flex items-center gap-2 text-xs text-slate-500">
             <span className="rounded-full bg-slate-100 px-2 py-0.5">{course.level}</span>
-            <span className="flex items-center gap-1">
-              <Clock className="h-3.5 w-3.5" /> {course.minutes} min · {course.lessons}{" "}
-              lessons
-            </span>
+            <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" />{course.duration} · {lessons.length} lessons</span>
           </div>
           <h1 className="text-3xl font-bold text-isaca-dark">{course.title}</h1>
-          <p className="mt-2 text-slate-600">{course.summary}</p>
+          <p className="mt-2 text-slate-600">{course.summary || course.description}</p>
         </div>
 
         <div className="rounded-2xl border bg-white divide-y">
@@ -72,19 +74,10 @@ export default async function CoursePage({
             </details>
           ))}
         </div>
-
         <div className="rounded-2xl border border-isaca-medium/20 bg-isaca-light/50 p-5 text-sm text-slate-700">
-          <p className="font-medium text-isaca-dark mb-1">Practice in the product</p>
-          <p>
-            After each module, open the matching Finova screen (Close, Bank Rec, Samples,
-            Audit/PBC, AI) and complete the checklist items listed in the course overview.
-          </p>
-          <Link
-            href="/dashboard"
-            className="inline-block mt-3 font-semibold text-isaca-medium hover:underline"
-          >
-            Go to Dashboard →
-          </Link>
+          <p className="mb-1 font-medium text-isaca-dark">Practice in the product</p>
+          <p>After each module, open the matching Finova screen (Close, Bank Rec, Samples, Audit/PBC, or AI) and complete the checklist items listed in the course overview.</p>
+          <Link href="/dashboard" className="mt-3 inline-block font-semibold text-isaca-medium hover:underline">Go to Dashboard →</Link>
         </div>
       </main>
     </div>

@@ -8,12 +8,19 @@ const SIGNOFF_ROLES = ["AUDIT_MANAGER", "PARTNER", "ADMIN"];
 
 export async function GET(req: NextRequest) {
   const clientId = req.nextUrl.searchParams.get("clientId");
-  if (!clientId) return NextResponse.json({ error: "clientId is required" }, { status: 400 });
+  if (!clientId) {
+    return NextResponse.json({ error: "clientId is required" }, { status: 400 });
+  }
+
   const access = await authorizeClientAccess(clientId);
   if (!access.ok) return access.response;
+
   const period = req.nextUrl.searchParams.get("period");
   const workpapers = await prisma.workpaper.findMany({
-    where: { clientId: access.client.id, ...(period ? { period } : {}) },
+    where: {
+      clientId: access.client.id,
+      ...(period ? { period } : {}),
+    },
     include: { schedules: { orderBy: { sortOrder: "asc" } } },
     orderBy: [{ accountCode: "asc" }, { createdAt: "desc" }],
   });
@@ -23,7 +30,10 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    if (typeof body.clientId !== "string") return NextResponse.json({ error: "clientId is required" }, { status: 400 });
+    if (typeof body.clientId !== "string" || !body.clientId) {
+      return NextResponse.json({ error: "clientId is required" }, { status: 400 });
+    }
+
     const access = await authorizeClientAccess(body.clientId);
     if (!access.ok) return access.response;
 
@@ -32,15 +42,12 @@ export async function POST(req: NextRequest) {
         where: { id: body.id, clientId: access.client.id },
       });
       if (!existing) return NextResponse.json({ error: "Workpaper not found" }, { status: 404 });
-
       if (existing.status === "SIGNED_OFF") {
         return NextResponse.json({ error: "Signed-off workpapers are locked. Use the formal amendment workflow." }, { status: 409 });
       }
 
-      const requestedStatus = body.status;
-      const isReview = requestedStatus === "REVIEWED";
-      const isSignoff = requestedStatus === "SIGNED_OFF";
-
+      const isReview = body.status === "REVIEWED";
+      const isSignoff = body.status === "SIGNED_OFF";
       if (isReview) {
         if (!REVIEW_ROLES.includes(access.user.role)) {
           return NextResponse.json({ error: "You are not authorized to review workpapers" }, { status: 403 });
@@ -82,8 +89,11 @@ export async function POST(req: NextRequest) {
       } else {
         if (typeof body.findings === "string") data.findings = body.findings.slice(0, 20000);
         if (typeof body.conclusion === "string") data.conclusion = body.conclusion.slice(0, 10000);
-        if (body.status === "IN_PROGRESS" || body.status === "PREPARED") data.status = body.status;
-        else if (body.status !== undefined) return NextResponse.json({ error: "Invalid workpaper status transition" }, { status: 400 });
+        if (body.status === "IN_PROGRESS" || body.status === "PREPARED") {
+          data.status = body.status;
+        } else if (body.status !== undefined) {
+          return NextResponse.json({ error: "Invalid workpaper status transition" }, { status: 400 });
+        }
       }
 
       const updated = await prisma.workpaper.update({
@@ -97,18 +107,31 @@ export async function POST(req: NextRequest) {
     if (typeof body.templateAccountCode !== "string") return NextResponse.json({ error: "Invalid request" }, { status: 400 });
     const template = WORKPAPER_TEMPLATES.find(t => t.accountCode === body.templateAccountCode);
     if (!template) return NextResponse.json({ error: "Template not found" }, { status: 404 });
-    const draft = createWorkpaperFromTemplate(template, body.period || new Date().toISOString().slice(0, 7), Number(body.leadBalance) || 0);
-    const wp = await prisma.workpaper.create({
+
+    const draft = createWorkpaperFromTemplate(
+      template,
+      typeof body.period === "string" ? body.period : new Date().toISOString().slice(0, 7),
+      Number.isFinite(Number(body.leadBalance)) ? Number(body.leadBalance) : 0
+    );
+
+    const workpaper = await prisma.workpaper.create({
       data: {
-        accountCode: draft.accountCode, accountName: draft.accountName, title: draft.title,
-        period: draft.period, leadBalance: draft.leadBalance, status: "DRAFT",
-        procedures: draft.procedures, preparedById: access.user.id,
-        clientId: access.client.id, firmId: access.client.firmId,
+        accountCode: draft.accountCode,
+        accountName: draft.accountName,
+        title: draft.title,
+        period: draft.period,
+        leadBalance: draft.leadBalance,
+        status: "DRAFT",
+        procedures: draft.procedures,
+        preparedById: access.user.id,
+        clientId: access.client.id,
+        firmId: access.client.firmId,
         schedules: { create: draft.schedules },
       },
       include: { schedules: { orderBy: { sortOrder: "asc" } } },
     });
-    return NextResponse.json({ success: true, workpaper: wp }, { status: 201 });
+
+    return NextResponse.json({ success: true, workpaper }, { status: 201 });
   } catch (error) {
     console.error("Workpaper API error:", error);
     return NextResponse.json({ error: "Failed to process workpaper" }, { status: 500 });

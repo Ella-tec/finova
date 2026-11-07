@@ -1,9 +1,15 @@
+
 "use client";
 
 import Link from "next/link";
-
-import { useEffect, useState, useRef } from "react";
-import { Upload, FileText, Loader2, Sparkles, FolderOpen, CheckCircle2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import {
+  Upload,
+  FileText,
+  Loader2,
+  Sparkles,
+  FolderOpen,
+} from "lucide-react";
 
 type Doc = {
   id: string;
@@ -40,6 +46,7 @@ export default function DocumentsPage() {
 
   const load = async () => {
     setLoading(true);
+
     try {
       const res = await fetch("/api/documents");
       const data = await res.json();
@@ -51,11 +58,10 @@ export default function DocumentsPage() {
       setDocs([]);
       setLoadError(error instanceof Error ? error.message : "Could not load documents");
     }
-    setLoading(false);
   };
 
   useEffect(() => {
-    load();
+    void load();
   }, []);
 
   const handleUpload = async (files: FileList | null) => {
@@ -66,25 +72,60 @@ export default function DocumentsPage() {
     }
     setLoadError(null);
     setUploading(true);
-    for (const file of Array.from(files)) {
-      const fd = new FormData();
-      fd.append("file", file);
-      fd.append("clientId", clientId);
-      try {
-        const res = await fetch("/api/documents", { method: "POST", body: fd });
-        if (res.ok) {
-          const doc = await res.json();
-          // Auto-analyze
-          setAnalyzing(doc.id);
-          const aRes = await fetch("/api/documents/analyze", {
+
+    try {
+      for (const file of Array.from(files)) {
+        const fd = new FormData();
+        fd.append("file", file);
+        fd.append("clientId", clientId);
+
+        try {
+          const res = await fetch("/api/documents", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ documentId: doc.id }),
+            body: fd,
           });
-          if (aRes.ok) {
-            const { analysis: a } = await aRes.json();
-            setAnalysis((prev) => ({ ...prev, [doc.id]: a }));
+
+          if (!res.ok) {
+            console.error(`Upload failed for ${file.name}`);
+            continue;
           }
+
+          const doc = await res.json();
+
+          if (!doc?.id) {
+            console.error("Upload response did not contain a document ID");
+            continue;
+          }
+
+          // Automatically analyze the uploaded document.
+          setAnalyzing(doc.id);
+
+          try {
+            const aRes = await fetch("/api/documents/analyze", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ documentId: doc.id }),
+            });
+
+            if (aRes.ok) {
+              const result = await aRes.json();
+
+              if (result?.analysis) {
+                setAnalysis((prev) => ({
+                  ...prev,
+                  [doc.id]: result.analysis,
+                }));
+              }
+            } else {
+              console.error(`Analysis failed for ${file.name}`);
+            }
+          } finally {
+            setAnalyzing(null);
+          }
+        } catch (error) {
+          console.error(`Error processing ${file.name}:`, error);
           setAnalyzing(null);
         } else {
           const problem = await res.json().catch(() => ({}));
@@ -93,9 +134,10 @@ export default function DocumentsPage() {
       } catch (e) {
         setLoadError(e instanceof Error ? e.message : "A file could not be uploaded.");
       }
+    } finally {
+      setUploading(false);
+      await load();
     }
-    setUploading(false);
-    load();
   };
 
   const [previewDoc, setPreviewDoc] = useState<Doc | null>(null);
@@ -103,17 +145,34 @@ export default function DocumentsPage() {
 
   const analyze = async (id: string) => {
     setAnalyzing(id);
-    const res = await fetch("/api/documents/analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ documentId: id }),
-    });
-    if (res.ok) {
-      const { analysis: a } = await res.json();
-      setAnalysis((prev) => ({ ...prev, [id]: a }));
+
+    try {
+      const res = await fetch("/api/documents/analyze", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ documentId: id }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Document analysis failed");
+      }
+
+      const result = await res.json();
+
+      if (result?.analysis) {
+        setAnalysis((prev) => ({
+          ...prev,
+          [id]: result.analysis,
+        }));
+      }
+    } catch (error) {
+      console.error("Analysis error:", error);
+    } finally {
+      setAnalyzing(null);
+      await load();
     }
-    setAnalyzing(null);
-    load();
   };
 
   return (
@@ -121,52 +180,83 @@ export default function DocumentsPage() {
       {loadError && <div role="alert" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">{loadError}</div>}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Documents</h1>
-          <p className="text-slate-600 mt-1">Upload, OCR & AI file analysis (invoices, statements, receipts)</p>
+          <h1 className="text-2xl font-bold text-slate-900">
+            Documents
+          </h1>
+
+          <p className="text-slate-600 mt-1">
+            Upload, OCR & AI file analysis (invoices, statements, receipts)
+          </p>
+
           <p className="text-sm mt-2">
-            <Link href="/dashboard/security" className="text-isaca-medium font-medium hover:underline">
+            <Link
+              href="/dashboard/security"
+              className="text-isaca-medium font-medium hover:underline"
+            >
               Run File Sanitizer first
             </Link>
             {" "}— malware type check, PII hints, classification before AI
           </p>
         </div>
+
         <button
+          type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="inline-flex items-center gap-2 rounded-lg bg-isaca-medium px-4 py-2 text-sm font-semibold text-white hover:bg-isaca-dark disabled:opacity-60"
+          className="inline-flex items-center justify-center gap-2 rounded-lg bg-isaca-medium px-4 py-2 text-sm font-semibold text-white hover:bg-isaca-dark disabled:opacity-60"
         >
-          {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-          Upload files
+          {uploading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Upload className="h-4 w-4" />
+          )}
+          {uploading ? "Uploading..." : "Upload files"}
         </button>
+
         <input
           ref={inputRef}
           type="file"
           multiple
+          accept=".pdf,.png,.jpg,.jpeg,.csv,.xlsx,.doc,.docx"
           className="hidden"
-          onChange={(e) => handleUpload(e.target.files)}
+          onChange={(e) => {
+            void handleUpload(e.target.files);
+            e.currentTarget.value = "";
+          }}
         />
       </div>
 
-      {/* Drop zone */}
+      {/* Drag and drop zone */}
       <div
         onDragOver={(e) => e.preventDefault()}
         onDrop={(e) => {
           e.preventDefault();
-          handleUpload(e.dataTransfer.files);
+          void handleUpload(e.dataTransfer.files);
         }}
         className="rounded-xl border-2 border-dashed border-slate-300 bg-white p-10 text-center hover:border-fin-400 transition"
       >
         <Upload className="h-10 w-10 text-slate-400 mx-auto mb-3" />
-        <p className="font-medium text-slate-700">Drag & drop files here</p>
-        <p className="text-sm text-slate-500 mt-1">PDF, images, CSV — invoices auto-detected</p>
+
+        <p className="font-medium text-slate-700">
+          Drag & drop files here
+        </p>
+
+        <p className="text-sm text-slate-500 mt-1">
+          PDF, images, CSV — invoices auto-detected
+        </p>
       </div>
 
-      {/* List */}
+      {/* Document list */}
       <div className="rounded-xl border bg-white shadow-sm divide-y">
         {loading ? (
-          <div className="p-8 text-center text-slate-500">Loading…</div>
+          <div className="p-8 text-center text-slate-500">
+            Loading documents...
+          </div>
         ) : docs.length === 0 ? (
-          <div className="p-8 text-center text-slate-500">No documents yet. Upload an invoice or bank statement to test analysis.</div>
+          <div className="p-8 text-center text-slate-500">
+            No documents yet. Upload an invoice or bank statement to test
+            analysis.
+          </div>
         ) : (
           docs.map((d) => (
             <div key={d.id} className="p-4 flex flex-col sm:flex-row sm:items-center gap-4">
@@ -194,9 +284,58 @@ export default function DocumentsPage() {
                           Amount: ${analysis[d.id].totalAmount?.toFixed(2) ?? "—"}
                         </p>
                       )}
-                    </div>
-                  )}
+                    </p>
+
+                    {docAnalysis && (
+                      <div className="mt-2 rounded-lg bg-isaca-light border border-isaca-light px-3 py-2 text-sm">
+                        <p className="font-medium text-isaca-dark flex items-center gap-1">
+                          <Sparkles className="h-3.5 w-3.5" />
+                          {docAnalysis.docType} ·{" "}
+                          {(docAnalysis.confidence * 100).toFixed(0)}%
+                          confidence
+                        </p>
+
+                        <p className="text-isaca-dark mt-0.5">
+                          {docAnalysis.summary}
+                        </p>
+
+                        {docAnalysis.totalAmount != null && (
+                          <p className="text-fin-900 font-semibold mt-1">
+                            Amount: $
+                            {docAnalysis.totalAmount.toFixed(2)}
+                          </p>
+                        )}
+
+                        {docAnalysis.vendor && (
+                          <p className="text-slate-600 mt-1">
+                            Vendor: {docAnalysis.vendor}
+                          </p>
+                        )}
+
+                        {docAnalysis.invoiceNumber && (
+                          <p className="text-slate-600">
+                            Invoice: {docAnalysis.invoiceNumber}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
+
+                <button
+                  type="button"
+                  onClick={() => void analyze(d.id)}
+                  disabled={analyzing === d.id}
+                  className="rounded-lg border px-3 py-1.5 text-xs font-medium hover:bg-slate-50 disabled:opacity-60 inline-flex items-center gap-1"
+                >
+                  {analyzing === d.id ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-3.5 w-3.5 text-isaca-medium" />
+                  )}
+
+                  {analyzing === d.id ? "Analyzing..." : "Analyze"}
+                </button>
               </div>
               <button type="button" onClick={() => openDocument(d)} className="rounded-lg border px-3 py-1.5 text-xs font-medium hover:bg-slate-50">
                 Open
