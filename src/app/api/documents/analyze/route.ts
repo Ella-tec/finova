@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
     let accountingRecord: { id: string; area: string; kind: string; status: string } | null = null;
     let duplicateWarning: string | null = null;
     const usableAmount = typeof analysis.totalAmount === "number" && Number.isFinite(analysis.totalAmount) && analysis.totalAmount >= 0;
-    const confident = analysis.confidence >= 0.65;
+    const confident = analysis.confidence >= 0.65 && (analysis as { provider?: string }).provider === "azure";
     const target = analysis.docType === "INVOICE" ? { area: "PURCHASING", kind: "BILL", title: "Bill " + (analysis.invoiceNumber || doc.fileName) } : analysis.docType === "RECEIPT" ? { area: "PURCHASING", kind: "EXPENSE", title: "Expense " + (analysis.vendor || doc.fileName) } : analysis.docType === "BANK_STATEMENT" ? { area: "BANKING", kind: "BANK_STATEMENT", title: "Bank statement " + doc.fileName } : null;
     if (target && usableAmount && confident) {
       const candidates = await prisma.workspaceRecord.findMany({ where: { clientId: doc.clientId, kind: target.kind }, orderBy: { createdAt: "desc" }, take: 250 });
@@ -126,7 +126,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json({ success: true, analysis, accountingRecord, duplicateWarning, autoRecordSkippedReason: !target ? "Unsupported document category." : !usableAmount ? "No reliable total amount was extracted." : !confident ? "Extraction confidence is too low." : null });
+    return NextResponse.json({ success: true, analysis, accountingRecord, duplicateWarning, autoRecordSkippedReason: !target ? "Unsupported document category." : !usableAmount ? "No reliable total amount was extracted." : !confident ? "Verified OCR is not available or confidence is too low. Configure Azure Document Intelligence and review the document; no accounting record was created." : null });
   } catch (err) {
     console.error("Analyze error:", err);
     return NextResponse.json({ error: "Analysis failed" }, { status: 500 });
