@@ -4,7 +4,8 @@ import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "re
 import { BookOpen, Users, ShoppingCart, Landmark, Plus, RefreshCw, Search, CheckCircle2, AlertCircle, ArrowUpRight, FileText, UploadCloud, Paperclip, X, Loader2, FileSpreadsheet, Image as ImageIcon } from "lucide-react";
 
 type Area = "ACCOUNTING" | "SALES" | "PURCHASING" | "BANKING";
-type RecordRow = { id: string; area: Area; kind: string; title: string; reference: string | null; counterparty: string | null; status: string; amount: number | null; currency: string; recordDate: string | null; dueDate: string | null; description: string | null; payload?: string | null; createdAt: string };\ntype AttachedDocument = { id: string; fileName: string; mimeType: string; size: number };
+type RecordRow = { id: string; area: Area; kind: string; title: string; reference: string | null; counterparty: string | null; status: string; amount: number | null; currency: string; recordDate: string | null; dueDate: string | null; description: string | null; payload?: string | null; createdAt: string };
+type AttachedDocument = { id: string; fileName: string; mimeType: string; size: number };
 const groups = [
   { id: "ACCOUNTING" as Area, title: "Accounting", subtitle: "Set up your company, accounts, and the accounting foundation.", icon: BookOpen, accent: "teal", items: [{kind:"COMPANY",label:"Company Setup",hint:"Company profile, tax ID, fiscal year and currency"},{kind:"ACCOUNT",label:"Chart of Accounts",hint:"Cash, receivables, payables, equity, revenue and expenses"},{kind:"JOURNAL",label:"Journal Entry",hint:"Prepare a balanced entry for review"},{kind:"LEDGER",label:"General Ledger",hint:"Review recorded activity by account"}] },
   { id: "SALES" as Area, title: "Sales", subtitle: "Manage customers, invoice records, and incoming payments.", icon: Users, accent: "blue", items: [{kind:"CUSTOMER",label:"Customers",hint:"Customer details, terms and credit limits"},{kind:"INVOICE",label:"New Invoice",hint:"Invoice header, due date and total"},{kind:"RECEIPT",label:"Receive Payment",hint:"Record payment against a customer invoice"}] },
@@ -21,7 +22,11 @@ export default function OperationsPage() {
   const [saving,setSaving] = useState(false);
   const [search,setSearch] = useState("");
   const [active,setActive] = useState<{area:Area;kind:string;label:string}|null>(null);
-  const [notice,setNotice] = useState<{ok:boolean;text:string}|null>(null);\n  const [clientId,setClientId] = useState("");\n  const [attachments,setAttachments] = useState<AttachedDocument[]>([]);\n  const [uploadingFiles,setUploadingFiles] = useState(false);\n  const attachmentInput = useRef<HTMLInputElement>(null);
+  const [notice,setNotice] = useState<{ok:boolean;text:string}|null>(null);
+  const [clientId,setClientId] = useState("");
+  const [attachments,setAttachments] = useState<AttachedDocument[]>([]);
+  const [uploadingFiles,setUploadingFiles] = useState(false);
+  const attachmentInput = useRef<HTMLInputElement>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -34,7 +39,26 @@ export default function OperationsPage() {
   const filtered = useMemo(()=>records.filter(r=>(r.title+" "+(r.reference||"")+" "+(r.counterparty||"")+" "+r.kind).toLowerCase().includes(search.toLowerCase())),[records,search]);
   const counts = (area:Area)=>records.filter(r=>r.area===area).length;
 
-  async function uploadAttachments(files: FileList | null){\n    if(!files?.length)return;\n    if(!clientId){setNotice({ok:false,text:"No client workspace is assigned. Ask an administrator to assign a client before attaching files."});return;}\n    setUploadingFiles(true);setNotice(null);\n    try{\n      const added:AttachedDocument[]=[];\n      for(const file of Array.from(files)){\n        const fd=new FormData();fd.append("file",file);fd.append("clientId",clientId);fd.append("tags","workspace-record");\n        const response=await fetch("/api/documents",{method:"POST",body:fd});\n        const result=await response.json().catch(()=>({}));\n        if(!response.ok||!result.id)throw new Error(result.error||`Could not upload ${file.name}`);\n        added.push({id:result.id,fileName:result.fileName||file.name,mimeType:result.mimeType||file.type,size:result.size||file.size});\n      }\n      setAttachments(previous=>[...previous,...added]);\n      setNotice({ok:true,text:`${added.length} document${added.length===1?"":"s"} uploaded and attached. Save the record to keep the links together.`});\n    }catch(error){setNotice({ok:false,text:error instanceof Error?error.message:"Could not upload attachment."});}\n    finally{setUploadingFiles(false);if(attachmentInput.current)attachmentInput.current.value="";}\n  }\n\n  async function submit(e:FormEvent<HTMLFormElement>){
+  async function uploadAttachments(files: FileList | null){
+    if(!files?.length)return;
+    if(!clientId){setNotice({ok:false,text:"No client workspace is assigned. Ask an administrator to assign a client before attaching files."});return;}
+    setUploadingFiles(true);setNotice(null);
+    try{
+      const added:AttachedDocument[]=[];
+      for(const file of Array.from(files)){
+        const fd=new FormData();fd.append("file",file);fd.append("clientId",clientId);fd.append("tags","workspace-record");
+        const response=await fetch("/api/documents",{method:"POST",body:fd});
+        const result=await response.json().catch(()=>({}));
+        if(!response.ok||!result.id)throw new Error(result.error||`Could not upload ${file.name}`);
+        added.push({id:result.id,fileName:result.fileName||file.name,mimeType:result.mimeType||file.type,size:result.size||file.size});
+      }
+      setAttachments(previous=>[...previous,...added]);
+      setNotice({ok:true,text:`${added.length} document${added.length===1?"":"s"} uploaded and attached. Save the record to keep the links together.`});
+    }catch(error){setNotice({ok:false,text:error instanceof Error?error.message:"Could not upload attachment."});}
+    finally{setUploadingFiles(false);if(attachmentInput.current)attachmentInput.current.value="";}
+  }
+
+  async function submit(e:FormEvent<HTMLFormElement>){
     e.preventDefault(); if(!active)return;
     const form=new FormData(e.currentTarget);
     const body=Object.fromEntries(form.entries());
