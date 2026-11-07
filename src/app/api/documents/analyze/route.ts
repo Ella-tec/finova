@@ -100,21 +100,33 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    let accountingRecord: { id: string; area: string; kind: string; status: string } | null = null;
+    let duplicateWarning: string | null = null;
+    const usableAmount = typeof analysis.totalAmount === "number" && Number.isFinite(analysis.totalAmount) && analysis.totalAmount >= 0;
+    const confident = analysis.confidence >= 0.65;
+    const target = analysis.docType === "INVOICE" ? { area: "PURCHASING", kind: "BILL", title: "Bill " + (analysis.invoiceNumber || doc.fileName) } : analysis.docType === "RECEIPT" ? { area: "PURCHASING", kind: "EXPENSE", title: "Expense " + (analysis.vendor || doc.fileName) } : analysis.docType === "BANK_STATEMENT" ? { area: "BANKING", kind: "BANK_STATEMENT", title: "Bank statement " + doc.fileName } : null;
+    if (target && usableAmount && confident) {
+      const candidates = await prisma.workspaceRecord.findMany({ where: { clientId: doc.clientId, kind: target.kind }, orderBy: { createdAt: "desc" }, take: 250 });
+      const alreadyLinked = candidates.find((row) => { try { return JSON.parse(row.payload || "{}").documentId === documentId; } catch { return false; } });
+      if (alreadyLinked) accountingRecord = { id: alreadyLinked.id, area: alreadyLinked.area, kind: alreadyLinked.kind, status: alreadyLinked.status };
+      else {
+        const duplicate = candidates.find((row) => Boolean(analysis.invoiceNumber) && row.reference?.toLowerCase() === analysis.invoiceNumber.toLowerCase() && row.amount === analysis.totalAmount && (!analysis.vendor || row.counterparty?.toLowerCase() === analysis.vendor.toLowerCase()));
+        if (duplicate) duplicateWarning = "Possible duplicate of record " + duplicate.id + ". Review before approval.";
+        const row = await prisma.workspaceRecord.create({ data: { area: target.area, kind: target.kind, title: target.title, reference: analysis.invoiceNumber || null, counterparty: analysis.vendor || null, status: "PENDING_REVIEW", amount: analysis.totalAmount, currency: analysis.currency || "USD", recordDate: analysis.invoiceDate && !Number.isNaN(Date.parse(analysis.invoiceDate)) ? new Date(analysis.invoiceDate) : null, dueDate: analysis.dueDate && !Number.isNaN(Date.parse(analysis.dueDate)) ? new Date(analysis.dueDate) : null, description: [analysis.summary, duplicateWarning].filter(Boolean).join(" "), payload: JSON.stringify({ documentId, sourceFileName: doc.fileName, docType: analysis.docType, confidence: analysis.confidence, taxAmount: analysis.taxAmount ?? null, lineItems: analysis.lineItems ?? [], reviewRequired: true }), firmId: access.user.firmId ?? null, clientId: doc.clientId, createdById: access.user.id } });
+        accountingRecord = { id: row.id, area: row.area, kind: row.kind, status: row.status };
+      }
+    }
     await prisma.auditLog.create({
       data: {
         action: "DOCUMENT_ANALYZED",
         entityType: "Document",
         entityId: documentId,
-        details: JSON.stringify({
-          docType: analysis.docType,
-          confidence: analysis.confidence,
-          totalAmount: analysis.totalAmount,
-        }),
+        details: JSON.stringify({ docType: analysis.docType, confidence: analysis.confidence, totalAmount: analysis.totalAmount, accountingRecordId: accountingRecord?.id ?? null, duplicateWarning }),
         userId: (session.user as any).id,
       },
     });
 
-    return NextResponse.json({ success: true, analysis });
+    return NextResponse.json({ success: true, analysis, accountingRecord, duplicateWarning, autoRecordSkippedReason: !target ? "Unsupported document category." : !usableAmount ? "No reliable total amount was extracted." : !confident ? "Extraction confidence is too low." : null });
   } catch (err) {
     console.error("Analyze error:", err);
     return NextResponse.json({ error: "Analysis failed" }, { status: 500 });
