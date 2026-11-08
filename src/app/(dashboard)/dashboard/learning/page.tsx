@@ -10,6 +10,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { COURSES, LEVELS, type LevelFilter } from "@/lib/learning/courses";
+import { VideoLibrary } from "@/components/learning/VideoLibrary";
 
 export default function DashboardLearningPage() {
   const [activeLevel, setActiveLevel] = useState<LevelFilter>("All");
@@ -36,13 +37,14 @@ export default function DashboardLearningPage() {
           </p>
         </div>
         <div className="rounded-xl border bg-white px-4 py-3 text-sm text-slate-600 shadow-sm">
-          <span className="font-semibold text-slate-900">
-            {COURSES.length} courses
-          </span>
+          <span className="font-semibold text-slate-900">{COURSES.length} courses</span>
           <span className="mx-2 text-slate-300">•</span>
           Self-paced learning
         </div>
       </div>
+
+      {/* Free accounting video library — visible on Learning Center */}
+      <VideoLibrary />
 
       <div className="flex flex-wrap gap-2">
         {LEVELS.map((level) => {
@@ -63,11 +65,7 @@ export default function DashboardLearningPage() {
               }`}
             >
               {level}
-              <span
-                className={`ml-1.5 text-xs ${
-                  isActive ? "text-white/80" : "text-slate-400"
-                }`}
-              >
+              <span className={`ml-1.5 text-xs ${isActive ? "text-white/80" : "text-slate-400"}`}>
                 {count}
               </span>
             </button>
@@ -94,16 +92,11 @@ export default function DashboardLearningPage() {
             <h2 className="mt-4 text-lg font-semibold text-slate-900 group-hover:text-isaca-medium">
               {course.title}
             </h2>
-            <p className="mt-2 flex-1 text-sm leading-6 text-slate-600">
-              {course.summary}
-            </p>
+            <p className="mt-2 flex-1 text-sm leading-6 text-slate-600">{course.summary}</p>
             <div className="mt-5 flex items-center justify-between border-t pt-4 text-sm">
-              <span className="text-slate-500">
-                {course.lessons.length} lessons
-              </span>
+              <span className="text-slate-500">{course.lessons.length} lessons</span>
               <span className="flex items-center gap-1 font-semibold text-isaca-medium">
-                Start course{" "}
-                <PlayCircle className="h-4 w-4" />
+                Start course <PlayCircle className="h-4 w-4" />
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </span>
             </div>
@@ -123,9 +116,9 @@ export default function DashboardLearningPage() {
           <h2 className="font-semibold text-slate-900">Quick start path</h2>
         </div>
         <p className="mt-2 text-sm text-slate-600">
-          New to Finova? Start with Getting Started, then take Bank
-          Reconciliation and Month-End Close to follow a typical accounting
-          workflow. After that explore Documents & OCR and the AI Copilot.
+          New to Finova? Start with Getting Started, then take Bank Reconciliation and Month-End
+          Close to follow a typical accounting workflow. After that explore Documents & OCR and the
+          AI Copilot.
         </p>
         <Link
           href="/learning/getting-started"
