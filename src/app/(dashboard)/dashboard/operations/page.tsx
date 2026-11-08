@@ -5,7 +5,9 @@ import Link from "next/link";
 import { ArrowLeft, BookOpen, Users, ShoppingCart, Landmark, Plus, RefreshCw, Search, CheckCircle2, AlertCircle, FileText, Paperclip, UploadCloud } from "lucide-react";
 
 type Area = "ACCOUNTING" | "SALES" | "PURCHASING" | "BANKING";
-type RecordRow = { id: string; area: Area; kind: string; title: string; reference: string | null; counterparty: string | null; status: string; amount: number | null; currency: string; recordDate: string | null; dueDate: string | null; description: string | null; createdAt: string };
+type RecordRow = { id: string; area: Area; kind: string; title: string; reference: string | null; counterparty: string | null; status: string; amount: number | null; currency: string; recordDate: string | null; dueDate: string | null; description: string | null; payload?: string | null; createdAt: string };
+type AttachmentInfo = { documentId: string; fileName: string; mimeType: string; size: number };
+function getAttachment(payload?: string | null): AttachmentInfo | null { try { const value = JSON.parse(payload || "{}"); return value?.attachment?.documentId ? value.attachment as AttachmentInfo : null; } catch { return null; } }
 const groups = [
   { id: "ACCOUNTING" as Area, anchor: "accounting", title: "Accounting", subtitle: "Company profile, chart of accounts, journals and ledger.", icon: BookOpen, items: [{kind:"COMPANY",label:"Company Setup",hint:"Company name, tax ID, fiscal year and currency"},{kind:"ACCOUNT",label:"Chart of Accounts",hint:"Cash, receivables, payables, equity, revenue and expenses"},{kind:"JOURNAL",label:"Journal Entry",hint:"Prepare a balanced entry for review"},{kind:"LEDGER",label:"General Ledger",hint:"Review recorded activity by account"}] },
   { id: "SALES" as Area, anchor: "receivable", title: "Accounts Receivable", subtitle: "Customers, invoices and incoming payments.", icon: Users, items: [{kind:"CUSTOMER",label:"Customers",hint:"Customer details, terms and credit limits"},{kind:"INVOICE",label:"New Invoice",hint:"Invoice header, due date and total"},{kind:"RECEIPT",label:"Receive Payment",hint:"Record payment against a customer invoice"}] },
@@ -40,12 +42,24 @@ export default function OperationsPage() {
   async function submit(e:FormEvent<HTMLFormElement>){
     e.preventDefault(); if(!active)return;
     const form=new FormData(e.currentTarget);
+    const attachment = form.get("attachment");
     const body = Object.fromEntries(
       Array.from(form.entries()).filter(([key]) => key !== "attachment")
     );
     setSaving(true);setNotice(null);
     try{
-      const res=await fetch("/api/workspace-records",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...body,area:active.area,kind:active.kind})});
+      let attachmentInfo: AttachmentInfo | null = null;
+      if (attachment instanceof File && attachment.size > 0) {
+        const upload = new FormData();
+        upload.append("file", attachment);
+        upload.append("clientId", "demo-client-001");
+        upload.append("tags", "workspace:" + active.area.toLowerCase() + ";" + active.kind.toLowerCase());
+        const uploadRes = await fetch("/api/documents", { method: "POST", body: upload });
+        const uploaded = await uploadRes.json();
+        if (!uploadRes.ok || !uploaded?.id) throw new Error(uploaded.error || "The attachment could not be uploaded.");
+        attachmentInfo = { documentId: uploaded.id, fileName: uploaded.fileName || attachment.name, mimeType: uploaded.mimeType || attachment.type, size: uploaded.size || attachment.size };
+      }
+      const res=await fetch("/api/workspace-records",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...body,details:{attachment:attachmentInfo},area:active.area,kind:active.kind})});
       const data=await res.json();if(!res.ok)throw new Error(data.error||"Save failed.");
       setNotice({ok:true,text:active.label+" saved as a draft. It is now in your records."});setActive(null);await load();
     }catch(err){setNotice({ok:false,text:err instanceof Error?err.message:"Could not save this record."});}
@@ -76,7 +90,7 @@ export default function OperationsPage() {
 
     <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div className="flex flex-col gap-3 border-b border-slate-100 p-5 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="font-semibold text-slate-900">Saved workspace records</h2><p className="mt-1 text-xs text-slate-500">Draft records across all four work areas.</p></div><div className="relative w-full sm:max-w-xs"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search records…" className={inputClass+" pl-9"}/></div></div>
-      <div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left text-sm"><thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500"><tr><th className="px-5 py-3">Record</th><th className="px-5 py-3">Area</th><th className="px-5 py-3">Reference</th><th className="px-5 py-3">Counterparty</th><th className="px-5 py-3 text-right">Amount</th><th className="px-5 py-3">Status</th></tr></thead><tbody className="divide-y divide-slate-100">{filtered.map(r=><tr key={r.id} className="hover:bg-slate-50/70"><td className="px-5 py-3.5"><p className="font-semibold text-slate-800">{r.title}</p><p className="mt-0.5 text-xs text-slate-400">{r.kind.replaceAll("_"," ")} · {new Date(r.createdAt).toLocaleDateString()}</p></td><td className="px-5 py-3.5 text-slate-600">{r.area}</td><td className="px-5 py-3.5 text-slate-500">{r.reference||"—"}</td><td className="px-5 py-3.5 text-slate-500">{r.counterparty||"—"}</td><td className="px-5 py-3.5 text-right font-medium tabular-nums text-slate-800">{r.amount==null?"—":money(r.amount,r.currency)}</td><td className="px-5 py-3.5"><span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">{r.status}</span></td></tr>)}{!loading&&filtered.length===0&&<tr><td colSpan={6} className="px-5 py-12 text-center text-sm text-slate-400">No records yet. Create one above to get started.</td></tr>}</tbody></table></div>
+      <div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left text-sm"><thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500"><tr><th className="px-5 py-3">Record</th><th className="px-5 py-3">Area</th><th className="px-5 py-3">Reference</th><th className="px-5 py-3">Counterparty</th><th className="px-5 py-3 text-right">Amount</th><th className="px-5 py-3">Status</th><th className="px-5 py-3">Attachment</th></tr></thead><tbody className="divide-y divide-slate-100">{filtered.map(r=><tr key={r.id} className="hover:bg-slate-50/70"><td className="px-5 py-3.5"><p className="font-semibold text-slate-800">{r.title}</p><p className="mt-0.5 text-xs text-slate-400">{r.kind.replaceAll("_"," ")} · {new Date(r.createdAt).toLocaleDateString()}</p></td><td className="px-5 py-3.5 text-slate-600">{r.area}</td><td className="px-5 py-3.5 text-slate-500">{r.reference||"—"}</td><td className="px-5 py-3.5 text-slate-500">{r.counterparty||"—"}</td><td className="px-5 py-3.5 text-right font-medium tabular-nums text-slate-800">{r.amount==null?"—":money(r.amount,r.currency)}</td><td className="px-5 py-3.5"><span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">{r.status}</span></td><td className="px-5 py-3.5">{(() => { const attachment = getAttachment(r.payload); return attachment ? <a href={"/api/documents/" + attachment.documentId + "/file"} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg border border-teal-200 bg-teal-50 px-3 py-2 text-xs font-semibold text-teal-800 hover:bg-teal-100"><FileText className="h-3.5 w-3.5"/>Open attachment</a> : <span className="text-xs text-slate-400">—</span>; })()}</td></tr>)}{!loading&&filtered.length===0&&<tr><td colSpan={7} className="px-5 py-12 text-center text-sm text-slate-400">No records yet. Create one above to get started.</td></tr>}</tbody></table></div>
       {loading&&<p className="p-5 text-center text-sm text-slate-400">Loading records…</p>}
     </section>
 
@@ -93,7 +107,7 @@ export default function OperationsPage() {
         <label className="sm:col-span-2 block text-sm font-medium text-slate-700">Supporting attachment (optional)
           <span className="mt-1 flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-4 text-sm text-slate-600 transition hover:border-teal-400 hover:bg-teal-50">
             <UploadCloud className="h-5 w-5 shrink-0 text-teal-700"/>
-            <span className="min-w-0 flex-1"><span className="block font-semibold text-slate-800">Choose a file to attach</span><span className="block text-xs text-slate-500">PDF, PNG, JPG, CSV, TXT, DOCX or XLSX · up to 25 MB</span></span>
+            <span className="min-w-0 flex-1"><span className="block font-semibold text-slate-800">Choose a file to attach</span><span className="block text-xs text-slate-500">PDF, PNG, JPG, CSV, TXT, DOCX or XLSX · up to 25 MB</span><span className="mt-1 block text-xs font-medium text-teal-700">Uploaded files will be linked to this record and available to open from the records list.</span></span>
             <Paperclip className="h-4 w-4 shrink-0"/>
             <input name="attachment" type="file" accept=".pdf,.png,.jpg,.jpeg,.csv,.txt,.docx,.xlsx" className="sr-only"/>
           </span>
