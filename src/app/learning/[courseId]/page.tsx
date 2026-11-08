@@ -60,6 +60,8 @@ export default async function CoursePage({
           </p>
         </div>
 
+        <VideoLibrary courseTitle={course.title} />
+
         {course.outcomes && course.outcomes.length > 0 && (
           <div className="rounded-2xl border bg-white p-5">
             <h2 className="font-semibold text-slate-900 mb-3">

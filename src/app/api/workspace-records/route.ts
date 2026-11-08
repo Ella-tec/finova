@@ -82,3 +82,74 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Could not save this record. Check your database setup and try again." }, { status: 500 });
   }
 }
+
+
+async function ownedRecord(recordId: string, owner: { userId: string; firmId: string | null; clientId: string | null }) {
+  return prisma.workspaceRecord.findFirst({
+    where: {
+      id: recordId,
+      ...(owner.firmId ? { firmId: owner.firmId } : owner.clientId ? { clientId: owner.clientId } : { createdById: owner.userId }),
+    },
+  });
+}
+
+export async function PUT(req: NextRequest) {
+  const owner = await context();
+  if (!owner) return NextResponse.json({ error: "Please sign in to edit records." }, { status: 401 });
+  try {
+    const body = await req.json();
+    const id = String(body.id || "");
+    const existing = await ownedRecord(id, owner);
+    if (!existing) return NextResponse.json({ error: "Record not found." }, { status: 404 });
+    if (existing.status === "APPROVED") return NextResponse.json({ error: "Approved records are locked. Create an adjusting entry instead." }, { status: 409 });
+    const title = String(body.title || "").trim();
+    const amount = body.amount === "" || body.amount == null ? null : Number(body.amount);
+    if (!title || title.length > 180 || (amount !== null && (!Number.isFinite(amount) || amount < 0))) {
+      return NextResponse.json({ error: "Enter a valid title and non-negative amount." }, { status: 400 });
+    }
+    const record = await prisma.workspaceRecord.update({
+      where: { id },
+      data: {
+        title,
+        reference: String(body.reference || "").trim().slice(0, 100) || null,
+        counterparty: String(body.counterparty || "").trim().slice(0, 180) || null,
+        amount,
+        currency: String(body.currency || "USD").slice(0, 3).toUpperCase(),
+        recordDate: body.recordDate ? new Date(body.recordDate) : null,
+        dueDate: body.dueDate ? new Date(body.dueDate) : null,
+        description: String(body.description || "").trim().slice(0, 2000) || null,
+        payload: body.details ? JSON.stringify(body.details) : existing.payload,
+      },
+    });
+    await prisma.auditLog.create({ data: { action: "WORKSPACE_RECORD_UPDATED", entityType: existing.kind, entityId: id, details: JSON.stringify({ title }), userId: owner.userId } });
+    return NextResponse.json({ record });
+  } catch (error) {
+    console.error("Workspace record update failed:", error);
+    return NextResponse.json({ error: "Could not update this record." }, { status: 500 });
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  const owner = await context();
+  if (!owner) return NextResponse.json({ error: "Please sign in to approve records." }, { status: 401 });
+  try {
+    const body = await req.json();
+    const id = String(body.id || "");
+    const existing = await ownedRecord(id, owner);
+    if (!existing) return NextResponse.json({ error: "Record not found." }, { status: 404 });
+    if (existing.status !== "DRAFT" && existing.status !== "PENDING_REVIEW") {
+      return NextResponse.json({ error: "Only draft or pending-review records can be approved." }, { status: 409 });
+    }
+    const session = await (await import("next-auth")).getServerSession((await import("@/lib/auth")).authOptions);
+    const userRole = (session?.user as { role?: string } | undefined)?.role;
+    if (!["SENIOR_ACCOUNTANT", "CONTROLLER", "CFO", "PARTNER", "ADMIN"].includes(userRole || "")) {
+      return NextResponse.json({ error: "Approval requires a senior accountant or authorized approver." }, { status: 403 });
+    }
+    const record = await prisma.workspaceRecord.update({ where: { id }, data: { status: "APPROVED" } });
+    await prisma.auditLog.create({ data: { action: "WORKSPACE_RECORD_APPROVED", entityType: existing.kind, entityId: id, details: JSON.stringify({ title: existing.title, previousStatus: existing.status }), userId: owner.userId } });
+    return NextResponse.json({ record });
+  } catch (error) {
+    console.error("Workspace record approval failed:", error);
+    return NextResponse.json({ error: "Could not approve this record." }, { status: 500 });
+  }
+}

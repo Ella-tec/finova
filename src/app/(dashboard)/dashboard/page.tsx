@@ -1,6 +1,12 @@
 import { CheckCircle2, Clock3, AlertTriangle, FileText, Users, Bot, ArrowRight, ArrowUpRight, Wallet, CalendarDays, Sparkles } from "lucide-react";
 import Link from "next/link";
 
+const recentActivity = [
+  { title: "Document uploaded", detail: "October Bank Statement.pdf · Acme Corp", time: "12 minutes ago", href: "/dashboard/documents", action: "Open documents", icon: FileText },
+  { title: "Journal entry approved", detail: "JE-2026-1042 · Accrued Expenses", time: "1 hour ago", href: "/dashboard/operations", action: "Open journal records", icon: CheckCircle2 },
+  { title: "AI draft prepared", detail: "Four proposed entries for October close", time: "2 hours ago", href: "/dashboard/operations", action: "Review accounting drafts", icon: Bot },
+];
+
 const stats = [
   { label: "Open tasks", value: "12", detail: "Across active engagements", icon: Clock3, tone: "amber", href: "/dashboard/close" },
   { label: "Pending approvals", value: "5", detail: "Ready for your review", icon: CheckCircle2, tone: "green", href: "/dashboard/close" },
