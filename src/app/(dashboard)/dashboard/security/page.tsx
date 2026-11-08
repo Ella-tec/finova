@@ -12,6 +12,7 @@ import {
   ListChecks,
   Eye,
   X,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SANITIZER_PLAYBOOK, type SanitizeResult } from "@/lib/security/sanitizer";
@@ -59,8 +60,11 @@ export default function SecuritySanitizerPage() {
   const [preview, setPreview] = useState<StoredDocument | null>(null);
   const [scanningId, setScanningId] = useState<string | null>(null);
   const loadDocuments = async () => {
-    const response = await fetch("/api/documents?clientId=demo-client-001");
-    if (response.ok) { const data = await response.json(); setDocuments(Array.isArray(data) ? data : []); }
+    const response = await fetch("/api/documents", { cache: "no-store" });
+    if (response.ok) {
+      const data = await response.json();
+      setDocuments(Array.isArray(data.documents) ? data.documents : []);
+    }
   };
   useEffect(() => { void loadDocuments(); }, []);
   const scanStored = async (doc: StoredDocument) => {
@@ -153,23 +157,22 @@ export default function SecuritySanitizerPage() {
             <div className="min-w-0"><p className="truncate font-medium text-slate-900">{doc.fileName}</p><p className="text-xs text-slate-500">{(doc.size / 1024).toFixed(1)} KB · {doc.status}{doc.folder ? " · " + doc.folder.name : ""}</p></div>
             <div className="flex flex-wrap gap-2">
               <button onClick={() => setPreview(doc)} className="inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-sm"><Eye className="h-4 w-4"/> Preview</button>
-              <a href={"/api/documents/" + doc.id + "/file?download=1"} className="rounded-lg border px-3 py-2 text-sm">Open / download</a>
-              <button disabled={scanningId === doc.id} onClick={() => void scanStored(doc)} className="rounded-lg bg-isaca-medium px-3 py-2 text-sm font-semibold text-white disabled:opacity-50">{scanningId === doc.id ? "Scanning…" : "Scan file"}</button>
+              <a href={"/api/documents/" + doc.id + "?download=1"} className="rounded-lg border px-3 py-2 text-sm">Open / download</a>
+              <button disabled={scanningId === doc.id} onClick={() => void scanStored(doc)} className="rounded-lg bg-isaca-medium px-3 py-2 text-sm font-semibold text-white disabled:opacity-50">{scanningId === doc.id ? "Scanning…" : "Scan"}</button>
             </div>
           </div>)}</div>}
       </section>
       {preview && <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4" role="dialog" aria-modal="true">
         <div className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
-          <div className="flex items-center justify-between border-b px-5 py-4"><div className="min-w-0"><h3 className="truncate font-semibold">{preview.fileName}</h3><p className="text-xs text-slate-500">{preview.mimeType}</p></div><button onClick={() => setPreview(null)} aria-label="Close preview" className="rounded-lg p-2 hover:bg-slate-100"><X className="h-5 w-5"/></button></div>
+          <div className="flex items-center justify-between border-b px-5 py-4"><div className="min-w-0"><h3 className="truncate font-semibold">{preview.fileName}</h3><p className="text-xs text-slate-500">{preview.mimeType}</p></div><button onClick={() => setPreview(null)} aria-label="Close preview" className="rounded-lg border p-2"><X className="h-4 w-4"/></button></div>
           <div className="min-h-[55vh] flex-1 bg-slate-100 p-3">
-            {preview.mimeType.startsWith("image/") ? <img src={"/api/documents/" + preview.id + "/file"} alt={preview.fileName} className="mx-auto max-h-[70vh] max-w-full object-contain"/> :
-            preview.mimeType === "application/pdf" ? <iframe title={preview.fileName} src={"/api/documents/" + preview.id + "/file"} className="h-[70vh] w-full bg-white"/> :
-            <div className="flex min-h-[50vh] flex-col items-center justify-center gap-3 bg-white p-8 text-center"><FileText className="h-12 w-12 text-cyan-700"/><p className="font-medium">Browser preview is not available for this file type.</p><a className="rounded-lg bg-isaca-medium px-4 py-2 text-white" href={"/api/documents/" + preview.id + "/file?download=1"}>Download original</a></div>}
+            {preview.mimeType.startsWith("image/") ? <img src={"/api/documents/" + preview.id} alt={preview.fileName} className="mx-auto max-h-[70vh] max-w-full object-contain"/> :
+            preview.mimeType === "application/pdf" ? <iframe title={preview.fileName} src={"/api/documents/" + preview.id} className="h-[70vh] w-full bg-white"/> :
+            <div className="flex min-h-[50vh] flex-col items-center justify-center gap-3 bg-white p-8 text-center"><FileText className="h-12 w-12 text-cyan-700"/><p className="font-medium">Preview is not available for this file type.</p><a href={"/api/documents/" + preview.id + "?preview=1"} target="_blank" rel="noreferrer" className="rounded-lg border px-3 py-2 text-sm">Open preview</a></div>}
           </div>
-          <div className="flex justify-end gap-2 border-t px-5 py-3"><button onClick={() => { const doc = preview; setPreview(null); void scanStored(doc); }} className="rounded-lg bg-isaca-medium px-4 py-2 text-sm font-semibold text-white">Scan this document</button><button onClick={() => setPreview(null)} className="rounded-lg border px-4 py-2 text-sm">Close</button></div>
+          <div className="flex justify-end gap-2 border-t px-5 py-3"><button onClick={() => { const doc = preview; setPreview(null); void scanStored(doc); }} className="rounded-lg bg-isaca-medium px-3 py-2 text-sm font-semibold text-white">Scan this document</button></div>
         </div>
       </div>}
-      {/* Simple upload */}
       <div className="rounded-xl border bg-white p-6 shadow-sm space-y-4">
         <div
           onDragOver={(e) => e.preventDefault()}
