@@ -1,6 +1,12 @@
 import { CheckCircle2, Clock3, AlertTriangle, FileText, Users, Bot, ArrowRight, ArrowUpRight, Wallet, CalendarDays, Sparkles } from "lucide-react";
 import Link from "next/link";
 
+const recentActivity = [
+  { title: "Document uploaded", detail: "October Bank Statement.pdf · Acme Corp", time: "12 minutes ago", href: "/dashboard/documents", action: "Open documents", icon: FileText },
+  { title: "Journal entry approved", detail: "JE-2026-1042 · Accrued Expenses", time: "1 hour ago", href: "/dashboard/accounting", action: "Open accounting", icon: CheckCircle2 },
+  { title: "AI draft prepared", detail: "Four proposed entries for October close", time: "2 hours ago", href: "/dashboard/close", action: "Review draft", icon: Bot },
+];
+
 const stats = [
   { label: "Open tasks", value: "12", detail: "Across active engagements", icon: Clock3, tone: "amber", href: "/dashboard/close" },
   { label: "Pending approvals", value: "5", detail: "Ready for your review", icon: CheckCircle2, tone: "green", href: "/dashboard/close" },
@@ -39,7 +45,7 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-[#e4ebe6] bg-white p-5 shadow-sm sm:p-6"><div className="flex items-center justify-between"><div><h2 className="font-semibold text-[#263e4a]">Recent activity</h2><p className="mt-1 text-xs text-[#91a09b]">A quick view of recent workspace updates</p></div><Wallet className="h-5 w-5 text-[#087f68]" /></div><div className="mt-5 grid gap-5 md:grid-cols-3">{[{title:"Document uploaded",detail:"October Bank Statement.pdf · Acme Corp",time:"12 minutes ago"},{title:"Journal entry approved",detail:"JE-2026-1042 · Accrued Expenses",time:"1 hour ago"},{title:"AI draft prepared",detail:"Four proposed entries for October close",time:"2 hours ago"}].map(item=><div key={item.title} className="flex gap-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#edf6f0] text-[#087f68]"><FileText className="h-4 w-4" /></span><div><p className="text-sm font-semibold text-[#344b58]">{item.title}</p><p className="mt-1 text-xs leading-5 text-[#82918d]">{item.detail}</p><p className="mt-2 text-[11px] text-[#a0ada7]">{item.time}</p></div></div>)}</div></section>
+      <section className="rounded-2xl border border-[#e4ebe6] bg-white p-5 shadow-sm sm:p-6"><div className="flex items-center justify-between"><div><h2 className="font-semibold text-[#263e4a]">Recent activity</h2><p className="mt-1 text-xs text-[#91a09b]">Open an activity to view the related workspace item</p></div><Wallet className="h-5 w-5 text-[#087f68]" /></div><div className="mt-5 grid gap-3 md:grid-cols-3">{recentActivity.map((item) => { const Icon = item.icon; return <Link key={item.title} href={item.href} aria-label={`${item.action}: ${item.title}`} className="group flex min-w-0 gap-3 rounded-xl border border-transparent p-3 transition hover:border-[#dcebe2] hover:bg-[#f6faf7] focus:outline-none focus:ring-2 focus:ring-[#087f68]"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#edf6f0] text-[#087f68]"><Icon className="h-4 w-4" /></span><span className="min-w-0 flex-1"><span className="block text-sm font-semibold text-[#344b58]">{item.title}</span><span className="mt-1 block text-xs leading-5 text-[#82918d]">{item.detail}</span><span className="mt-2 block text-[11px] text-[#a0ada7]">{item.time}</span><span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-[#087f68]">{item.action}<ArrowUpRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></span></span></Link>; })}</div><div className="mt-3 flex justify-end"><Link href="/dashboard/documents" className="text-xs font-semibold text-[#087f68] hover:underline">View all documents →</Link></div></section>
     </div>
   );
 }
