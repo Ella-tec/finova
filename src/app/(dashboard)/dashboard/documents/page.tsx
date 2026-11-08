@@ -46,9 +46,12 @@ export default function DocumentsPage() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [previewDoc, setPreviewDoc] = useState<Doc | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [preview, setPreview] = useState<Doc | null>(null);
   const fileUrl = (doc: Doc) => `/api/documents/${doc.id}/file`;
-  const canInlinePreview = (doc: Doc) => doc.mimeType === "application/pdf" || doc.mimeType.startsWith("image/") || doc.mimeType.startsWith("text/") || doc.mimeType === "application/json";
+  const canInlinePreview = (doc: Doc) =>
+    doc.mimeType === "application/pdf" ||
+    doc.mimeType.startsWith("image/") ||
+    doc.mimeType.startsWith("text/") ||
+    doc.mimeType === "application/json";
 
   const load = async () => {
     setLoading(true);
@@ -59,15 +62,11 @@ export default function DocumentsPage() {
       setClientId(data.clientId || "");
       setDocs(data.documents || []);
       setLoadError(
-        data.clientId
-          ? null
-          : "No client workspace is assigned to this account yet."
+        data.clientId ? null : "No client workspace is assigned to this account yet."
       );
     } catch (error) {
       setDocs([]);
-      setLoadError(
-        error instanceof Error ? error.message : "Could not load documents"
-      );
+      setLoadError(error instanceof Error ? error.message : "Could not load documents");
     } finally {
       setLoading(false);
     }
@@ -103,9 +102,7 @@ export default function DocumentsPage() {
           const uploaded = await uploadResponse.json().catch(() => ({}));
 
           if (!uploadResponse.ok || !uploaded?.id) {
-            throw new Error(
-              uploaded.error || `Could not upload ${file.name}`
-            );
+            throw new Error(uploaded.error || `Could not upload ${file.name}`);
           }
 
           setAnalyzing(uploaded.id);
@@ -118,9 +115,7 @@ export default function DocumentsPage() {
             const result = await analysisResponse.json().catch(() => ({}));
 
             if (!analysisResponse.ok) {
-              throw new Error(
-                result.error || `Analysis failed for ${file.name}`
-              );
+              throw new Error(result.error || `Analysis failed for ${file.name}`);
             }
             if (result.analysis) {
               setAnalysis((previous) => ({
@@ -146,18 +141,6 @@ export default function DocumentsPage() {
     }
   };
 
-  const openPreview = async (doc: Doc) => {
-    setPreviewDoc(doc); setPreviewLoading(true); setPreviewError(null);
-    if (previewUrl) URL.revokeObjectURL(previewUrl); setPreviewUrl(null);
-    try {
-      const response = await fetch("/api/documents/" + encodeURIComponent(doc.id) + "/file", { cache: "no-store" });
-      if (!response.ok) throw new Error("The file could not be opened. Check that it is still stored and that you have access.");
-      const blob = await response.blob(); setPreviewUrl(URL.createObjectURL(blob));
-    } catch (error) { setPreviewError(error instanceof Error ? error.message : "Preview failed."); }
-    finally { setPreviewLoading(false); }
-  };
-
-  const closePreview = () => { if (previewUrl) URL.revokeObjectURL(previewUrl); setPreviewUrl(null); setPreviewDoc(null); setPreviewError(null); };
   const analyze = async (id: string) => {
     setAnalyzing(id);
     setLoadError(null);
@@ -176,9 +159,7 @@ export default function DocumentsPage() {
         }));
       }
     } catch (error) {
-      setLoadError(
-        error instanceof Error ? error.message : "Document analysis failed"
-      );
+      setLoadError(error instanceof Error ? error.message : "Document analysis failed");
     } finally {
       setAnalyzing(null);
       await load();
@@ -206,19 +187,14 @@ export default function DocumentsPage() {
           </Link>
           <h1 className="text-2xl font-bold text-slate-900">Document Inbox</h1>
           <p className="mt-1 text-sm text-slate-600">
-            Upload invoices, bills, receipts, and statements. Finova will
-            analyze each file and prepare its details for review.
+            Upload invoices, bills, receipts, and statements. Finova will analyze each file and
+            prepare its details for review.
           </p>
           <p className="mt-2 text-sm">
-            <Link
-              href="/dashboard/security"
-              className="font-medium text-teal-700 hover:underline"
-            >
+            <Link href="/dashboard/security" className="font-medium text-teal-700 hover:underline">
               Run File Sanitizer first
             </Link>{" "}
-            <span className="text-slate-500">
-              — check files before AI analysis.
-            </span>
+            <span className="text-slate-500">— check files before AI analysis.</span>
           </p>
         </div>
 
@@ -228,11 +204,7 @@ export default function DocumentsPage() {
           disabled={uploading}
           className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-teal-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {uploading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Upload className="h-4 w-4" />
-          )}
+          {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
           {uploading ? "Uploading and analyzing…" : "Upload documents"}
         </button>
         <input
@@ -259,15 +231,11 @@ export default function DocumentsPage() {
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-teal-700 shadow-sm">
           <Upload className="h-6 w-6" />
         </div>
-        <h2 className="mt-3 font-semibold text-slate-900">
-          Drop documents here
-        </h2>
-        <p className="mt-1 text-sm text-slate-600">
-          PDF, JPG, PNG, CSV, Excel, and Word files
-        </p>
+        <h2 className="mt-3 font-semibold text-slate-900">Drop documents here</h2>
+        <p className="mt-1 text-sm text-slate-600">PDF, JPG, PNG, CSV, Excel, and Word files</p>
         <p className="mt-2 text-xs text-slate-500">
-          Files are analyzed into suggested records. Review and approve before
-          anything is posted to the ledger.
+          Files are analyzed into suggested records. Review and approve before anything is posted to
+          the ledger.
         </p>
       </section>
 
@@ -315,9 +283,7 @@ export default function DocumentsPage() {
                       <FileText className="h-5 w-5" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="break-words font-semibold text-slate-900">
-                        {doc.fileName}
-                      </p>
+                      <p className="break-words font-semibold text-slate-900">{doc.fileName}</p>
                       <p className="mt-1 text-xs text-slate-500">
                         {(doc.size / 1024).toFixed(1)} KB · {doc.status}
                         {doc.folder && (
@@ -340,15 +306,14 @@ export default function DocumentsPage() {
                           <p className="mt-1 text-slate-700">{result.summary}</p>
                           <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-xs text-slate-600">
                             {result.vendor && <span>Vendor: {result.vendor}</span>}
-                            {result.invoiceNumber && (
-                              <span>Invoice: {result.invoiceNumber}</span>
-                            )}
+                            {result.invoiceNumber && <span>Invoice: {result.invoiceNumber}</span>}
                             {result.totalAmount != null && (
                               <span className="font-semibold text-slate-900">
-                                Total: {result.totalAmount.toLocaleString(
-                                  undefined,
-                                  { style: "currency", currency: "USD" }
-                                )}
+                                Total:{" "}
+                                {result.totalAmount.toLocaleString(undefined, {
+                                  style: "currency",
+                                  currency: "USD",
+                                })}
                               </span>
                             )}
                           </div>
@@ -412,9 +377,7 @@ export default function DocumentsPage() {
           <section className="flex max-h-[94vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
             <header className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-3 sm:px-6">
               <div className="min-w-0">
-                <h2 className="truncate text-sm font-semibold text-slate-900">
-                  {previewDoc.fileName}
-                </h2>
+                <h2 className="truncate text-sm font-semibold text-slate-900">{previewDoc.fileName}</h2>
                 <p className="text-xs text-slate-500">
                   {previewDoc.mimeType} · {(previewDoc.size / 1024).toFixed(1)} KB
                 </p>
@@ -435,7 +398,6 @@ export default function DocumentsPage() {
                 >
                   <X className="h-4 w-4" />
                 </button>
-                </div>
               </div>
             </header>
             <div className="min-h-[55vh] flex-1 overflow-auto bg-slate-100 p-2 sm:p-4">
