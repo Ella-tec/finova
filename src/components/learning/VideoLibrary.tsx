@@ -258,7 +258,7 @@ export function VideoLibrary({ courseTitle }: { courseTitle?: string }) {
           </div>}
         </div>
       </div>
-      {category === "Accounting 1 (ACCT 121)" && <JcccAccountingCourse selected={activeJcccIndex} onSelect={(index) => setActiveJcccIndex(index)} />}
+      <JcccAccountingCourse selected={activeJcccIndex} onSelect={(index) => { setActiveJcccIndex(index); setCategory("Accounting 1 (ACCT 121)"); }} />
       <p className="text-xs leading-5 text-slate-500">
         Videos are hosted by their original publishers on YouTube. Availability, advertising, captions, and playback are controlled by YouTube and each publisher.
       </p>
