@@ -94,7 +94,20 @@ const ENTITY_COLORS: Record<string, string> = {
   "SUB-EU": "border-rose-200 bg-rose-50",
 };
 
-function exportCsv(result: Result, entities: Entity[]) {
+function downloadCsv(filename: string, rows: string[][]) {
+  const csv = rows
+    .map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","))
+    .join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportFullCsv(result: Result, entities: Entity[]) {
   const codes = entities.map((e) => e.code);
   const header = [
     "Account Code",
@@ -117,26 +130,46 @@ function exportCsv(result: Result, entities: Entity[]) {
     ["KPI", "Amount"],
     ["Total Assets", String(result.totalAssets)],
     ["Total Revenue", String(result.totalRevenue)],
-    [
-      "NI to Parent",
-      String(result.netIncomeAttributableToParent ?? result.netIncome),
-    ],
+    ["NI to Parent", String(result.netIncomeAttributableToParent ?? result.netIncome)],
     ["NI to NCI", String(result.netIncomeAttributableToNCI ?? 0)],
     [],
     ["Elimination", "Amount"],
     ...result.eliminationEntries.map((e) => [e.description, String(e.amount)]),
   ];
-  const all = [header, ...rows, ...summary];
-  const csv = all
-    .map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","))
-    .join("\n");
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `consolidation-${result.period || "export"}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
+  downloadCsv(`consolidation-${result.period || "export"}.csv`, [header, ...rows, ...summary]);
+}
+
+/** Export one entity's trial-balance style transactions only. */
+function exportEntityCsv(result: Result, entity: Entity) {
+  const code = entity.code;
+  const header = [
+    "Entity Code",
+    "Entity Name",
+    "Ownership %",
+    "Period",
+    "Account Code",
+    "Account Name",
+    "Amount",
+  ];
+  const rows = result.lines
+    .filter((l) => l.entities[code] != null && l.entities[code] !== 0)
+    .map((l) => [
+      code,
+      entity.name,
+      String(entity.ownershipPct),
+      result.period || "",
+      l.accountCode,
+      l.accountName,
+      String(l.entities[code]),
+    ]);
+
+  const total = rows.reduce((sum, r) => sum + Number(r[6] || 0), 0);
+  const footer = [[], ["", "", "", "", "", "Row count", String(rows.length)], ["", "", "", "", "", "Sum of amounts", String(total)]];
+
+  downloadCsv(
+    `entity-${code}-${result.period || "export"}.csv`,
+    [header, ...rows, ...footer]
+  );
 }
 
 export default function ConsolidationPage() {
@@ -177,16 +210,8 @@ export default function ConsolidationPage() {
 
   const kpis = result
     ? [
-        {
-          key: "assets" as const,
-          label: "Total Assets",
-          value: result.totalAssets,
-        },
-        {
-          key: "revenue" as const,
-          label: "Total Revenue",
-          value: result.totalRevenue,
-        },
+        { key: "assets" as const, label: "Total Assets", value: result.totalAssets },
+        { key: "revenue" as const, label: "Total Revenue", value: result.totalRevenue },
         {
           key: "niParent" as const,
           label: "NI to Parent",
@@ -229,39 +254,61 @@ export default function ConsolidationPage() {
           {result && (
             <button
               type="button"
-              onClick={() => exportCsv(result, entities)}
+              onClick={() => exportFullCsv(result, entities)}
               className="inline-flex items-center gap-1.5 rounded-lg bg-isaca-medium px-3 py-2 text-sm font-semibold text-white hover:brightness-110"
             >
-              <Download className="h-4 w-4" /> Export Excel (CSV)
+              <Download className="h-4 w-4" /> Export full workbook
             </button>
           )}
         </div>
       </div>
 
-      {/* Entity cards — click to focus column */}
+      {/* Entity cards — focus + per-entity export */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {entities.map((e) => {
           const active = focusEntity === e.code;
+          const lineCount =
+            result?.lines.filter((l) => l.entities[e.code] != null && l.entities[e.code] !== 0)
+              .length ?? 0;
           return (
-            <button
+            <div
               key={e.id}
-              type="button"
-              onClick={() => setFocusEntity(active ? null : e.code)}
               className={cn(
-                "flex items-center gap-3 rounded-xl border p-4 text-left shadow-sm transition",
+                "rounded-xl border p-4 shadow-sm transition",
                 ENTITY_COLORS[e.code] || "border-slate-200 bg-white",
                 active && "ring-2 ring-isaca-medium ring-offset-1"
               )}
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/80">
-                <Building2 className="h-5 w-5 text-isaca-medium" />
+              <button
+                type="button"
+                onClick={() => setFocusEntity(active ? null : e.code)}
+                className="flex w-full items-center gap-3 text-left"
+              >
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/80">
+                  <Building2 className="h-5 w-5 text-isaca-medium" />
+                </div>
+                <div className="min-w-0">
+                  <p className="font-semibold text-slate-900">{e.code}</p>
+                  <p className="truncate text-xs text-slate-600">{e.name}</p>
+                  <p className="text-xs font-medium text-isaca-dark">{e.ownershipPct}% owned</p>
+                </div>
+              </button>
+              <div className="mt-3 flex items-center justify-between gap-2 border-t border-black/5 pt-3">
+                <span className="text-xs text-slate-500">{lineCount} accounts</span>
+                <button
+                  type="button"
+                  disabled={!result || lineCount === 0}
+                  onClick={(ev) => {
+                    ev.stopPropagation();
+                    if (result) exportEntityCsv(result, e);
+                  }}
+                  className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  Export {e.code}
+                </button>
               </div>
-              <div className="min-w-0">
-                <p className="font-semibold text-slate-900">{e.code}</p>
-                <p className="truncate text-xs text-slate-600">{e.name}</p>
-                <p className="text-xs font-medium text-isaca-dark">{e.ownershipPct}% owned</p>
-              </div>
-            </button>
+            </div>
           );
         })}
       </div>
@@ -274,7 +321,6 @@ export default function ConsolidationPage() {
         <div className="py-12 text-center text-slate-500">No data for this period</div>
       ) : (
         <>
-          {/* Clickable KPI boxes — each distinct style */}
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             {kpis.map((k) => {
               const meta = KPI_META[k.key];
@@ -315,7 +361,6 @@ export default function ConsolidationPage() {
             </div>
           )}
 
-          {/* Eliminations */}
           {result.eliminationEntries.length > 0 && (
             <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
               <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
@@ -344,7 +389,6 @@ export default function ConsolidationPage() {
             </div>
           )}
 
-          {/* Active filters bar */}
           {(activeKpi || focusEntity || showElimOnly) && (
             <div className="flex flex-wrap items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm">
               <span className="font-medium text-slate-700">Active filters:</span>
@@ -386,7 +430,6 @@ export default function ConsolidationPage() {
             </div>
           )}
 
-          {/* Worksheet — Excel-style */}
           <div className="overflow-x-auto rounded-xl border bg-white shadow-sm">
             <div className="flex items-center justify-between border-b bg-slate-50 px-4 py-3">
               <h2 className="text-sm font-semibold text-slate-900">
@@ -395,7 +438,9 @@ export default function ConsolidationPage() {
                   ({visibleLines.length} of {result.lines.length} accounts)
                 </span>
               </h2>
-              <p className="text-xs text-slate-500">Scroll horizontally to see all entities · Export CSV for Excel</p>
+              <p className="text-xs text-slate-500">
+                Use entity cards to export one company · Full workbook for all columns
+              </p>
             </div>
             <table className="w-full min-w-[900px] text-sm">
               <thead>
@@ -467,9 +512,9 @@ export default function ConsolidationPage() {
           </div>
 
           <p className="text-xs leading-5 text-slate-500">
-            Tip: Click a KPI box (Assets / Revenue / NI Parent / NI NCI) to filter related accounts.
-            Click an entity card to highlight that column. Use <strong>Export Excel (CSV)</strong> to
-            open the full worksheet in Excel.
+            Each entity card has its own <strong>Export PARENT / SUB-A / …</strong> button for that
+            company's accounts only. <strong>Export full workbook</strong> downloads every entity
+            plus eliminations and final balances.
           </p>
         </>
       )}
