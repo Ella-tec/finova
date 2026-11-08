@@ -179,8 +179,6 @@ export function VideoLibrary({ courseTitle }: { courseTitle?: string }) {
         </a>
       </div>
 
-      <JcccAccountingCourse selected={activeJcccIndex} onSelect={(index) => setActiveJcccIndex(index)} />
-
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(280px,.85fr)]">
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-950 shadow-sm">
           <div className="aspect-video w-full">
@@ -262,6 +260,7 @@ export function VideoLibrary({ courseTitle }: { courseTitle?: string }) {
           </div>
         </div>
       </div>
+      <JcccAccountingCourse selected={activeJcccIndex} onSelect={(index) => setActiveJcccIndex(index)} />
       <p className="text-xs leading-5 text-slate-500">
         Videos are hosted by their original publishers on YouTube. Availability, advertising, captions, and playback are controlled by YouTube and each publisher.
       </p>
