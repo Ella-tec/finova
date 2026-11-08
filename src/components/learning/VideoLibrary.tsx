@@ -129,6 +129,7 @@ const CATEGORIES = ["All videos", "Accounting Basics", "Bookkeeping", "Bank Reco
 
 export function VideoLibrary({ courseTitle }: { courseTitle?: string }) {
   const [activeVideo, setActiveVideo] = useState(VIDEOS[0]);
+  const [activeJcccIndex, setActiveJcccIndex] = useState<number | null>(null);
   const [category, setCategory] = useState("All videos");
   const [search, setSearch] = useState("");
 
@@ -152,6 +153,7 @@ export function VideoLibrary({ courseTitle }: { courseTitle?: string }) {
       (video) => nextCategory === "All videos" || video.category === nextCategory
     );
     if (nextVideo) setActiveVideo(nextVideo);
+    setActiveJcccIndex(null);
   };
 
   return (
@@ -177,7 +179,7 @@ export function VideoLibrary({ courseTitle }: { courseTitle?: string }) {
         </a>
       </div>
 
-      <JcccAccountingCourse />
+      <JcccAccountingCourse selected={activeJcccIndex} onSelect={(index) => setActiveJcccIndex(index)} />
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(280px,.85fr)]">
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-950 shadow-sm">
@@ -185,8 +187,8 @@ export function VideoLibrary({ courseTitle }: { courseTitle?: string }) {
             <iframe
               key={activeVideo.id}
               className="h-full w-full"
-              src={`https://www.youtube-nocookie.com/embed/${activeVideo.id}?rel=0`}
-              title={activeVideo.title}
+              src={activeJcccIndex !== null ? `https://www.youtube-nocookie.com/embed/videoseries?list=PL259DBFA47F3B4761&index=${activeJcccIndex}&rel=0` : `https://www.youtube-nocookie.com/embed/${activeVideo.id}?rel=0`}
+              title={activeJcccIndex !== null ? `Accounting 1 Program ${activeJcccIndex + 1}` : activeVideo.title}
               loading="lazy"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               referrerPolicy="strict-origin-when-cross-origin"
@@ -195,16 +197,13 @@ export function VideoLibrary({ courseTitle }: { courseTitle?: string }) {
           </div>
           <div className="space-y-2 bg-white p-4">
             <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
-              <span className="rounded-full bg-isaca-light px-2.5 py-1 font-semibold text-isaca-dark">{activeVideo.category}</span>
-              <span>{activeVideo.level}</span>
-              <span>•</span>
-              <span>{activeVideo.duration}</span>
+              {activeJcccIndex !== null ? <span className="rounded-full bg-isaca-light px-2.5 py-1 font-semibold text-isaca-dark">JCCC · Accounting 1</span> : <><span className="rounded-full bg-isaca-light px-2.5 py-1 font-semibold text-isaca-dark">{activeVideo.category}</span><span>{activeVideo.level}</span><span>•</span><span>{activeVideo.duration}</span></>}
             </div>
-            <h3 className="font-semibold text-slate-900">{activeVideo.title}</h3>
-            <p className="text-sm text-slate-600">{activeVideo.description}</p>
-            <p className="text-xs text-slate-500">Video by {activeVideo.channel}. Opens on YouTube if you choose the source link.</p>
+            <h3 className="font-semibold text-slate-900">{activeJcccIndex !== null ? `Accounting 1 · Lesson ${activeJcccIndex + 1} of 39` : activeVideo.title}</h3>
+            <p className="text-sm text-slate-600">{activeJcccIndex !== null ? "Recorded Fall 2011 by Johnson County Community College. Select a lesson from the course list above." : activeVideo.description}</p>
+            <p className="text-xs text-slate-500">Video by {activeJcccIndex !== null ? "JCCCvideo" : activeVideo.channel}. Playback is provided by the original YouTube publisher.</p>
             <a
-              href={`https://www.youtube.com/watch?v=${activeVideo.id}`}
+              href={activeJcccIndex !== null ? "https://www.youtube.com/playlist?list=PL259DBFA47F3B4761" : `https://www.youtube.com/watch?v=${activeVideo.id}`}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-1 text-xs font-semibold text-isaca-medium hover:underline"
@@ -241,7 +240,7 @@ export function VideoLibrary({ courseTitle }: { courseTitle?: string }) {
               <button
                 key={video.id}
                 type="button"
-                onClick={() => setActiveVideo(video)}
+                onClick={() => { setActiveVideo(video); setActiveJcccIndex(null); }}
                 aria-pressed={activeVideo.id === video.id}
                 className={`flex w-full items-start gap-3 rounded-xl border p-3 text-left transition ${activeVideo.id === video.id ? "border-isaca-medium bg-isaca-light/60 ring-1 ring-isaca-medium/20" : "border-slate-200 bg-white hover:border-isaca-medium/50 hover:bg-slate-50"}`}
               >
