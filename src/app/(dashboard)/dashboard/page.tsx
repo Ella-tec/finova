@@ -39,7 +39,26 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-[#e4ebe6] bg-white p-5 shadow-sm sm:p-6"><div className="flex items-center justify-between"><div><h2 className="font-semibold text-[#263e4a]">Recent activity</h2><p className="mt-1 text-xs text-[#91a09b]">A quick view of recent workspace updates</p></div><Wallet className="h-5 w-5 text-[#087f68]" /></div><div className="mt-5 grid gap-5 md:grid-cols-3">{[{title:"Document uploaded",detail:"October Bank Statement.pdf · Acme Corp",time:"12 minutes ago"},{title:"Journal entry approved",detail:"JE-2026-1042 · Accrued Expenses",time:"1 hour ago"},{title:"AI draft prepared",detail:"Four proposed entries for October close",time:"2 hours ago"}].map(item=><div key={item.title} className="flex gap-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#edf6f0] text-[#087f68]"><FileText className="h-4 w-4" /></span><div><p className="text-sm font-semibold text-[#344b58]">{item.title}</p><p className="mt-1 text-xs leading-5 text-[#82918d]">{item.detail}</p><p className="mt-2 text-[11px] text-[#a0ada7]">{item.time}</p></div></div>)}</div></section>
+      <section className="rounded-2xl border border-[#e4ebe6] bg-white p-5 shadow-sm sm:p-6">
+        <div className="flex items-center justify-between">
+          <div><h2 className="font-semibold text-[#263e4a]">Recent activity</h2><p className="mt-1 text-xs text-[#91a09b]">Open the related workspace to inspect the file or continue the workflow.</p></div>
+          <Wallet className="h-5 w-5 text-[#087f68]" />
+        </div>
+        <div className="mt-5 grid gap-4 md:grid-cols-3">
+          {[
+            {title:"Document uploaded",detail:"October Bank Statement.pdf · Acme Corp",time:"12 minutes ago",action:"Open documents",href:"/dashboard/documents",hint:"Browse uploaded files, preview supported formats, download originals, or run analysis."},
+            {title:"Journal entry approved",detail:"JE-2026-1042 · Accrued Expenses",time:"1 hour ago",action:"Open accounting",href:"/dashboard/operations#accounting",hint:"Go to Accounting records to review journal entries and their saved details."},
+            {title:"AI draft prepared",detail:"Four proposed entries for October close",time:"2 hours ago",action:"Open AI workspace",href:"/dashboard/ai",hint:"Continue in the AI workspace. Review suggestions before using them."}
+          ].map(item=><article key={item.title} className="flex min-w-0 flex-col rounded-xl border border-[#e8efea] bg-[#fbfdfb] p-4 transition hover:border-[#b9d9ca] hover:bg-white hover:shadow-sm">
+            <div className="flex items-start gap-3">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#edf6f0] text-[#087f68]"><FileText className="h-4 w-4" /></span>
+              <div className="min-w-0"><p className="text-sm font-semibold text-[#344b58]">{item.title}</p><p className="mt-1 break-words text-xs leading-5 text-[#82918d]">{item.detail}</p><p className="mt-2 text-[11px] text-[#a0ada7]">{item.time}</p></div>
+            </div>
+            <p className="mt-3 flex-1 text-xs leading-5 text-[#71817e]">{item.hint}</p>
+            <Link href={item.href} aria-label={item.action + ": " + item.title} className="mt-4 inline-flex w-fit items-center gap-2 rounded-lg border border-[#dce9e1] bg-white px-3 py-2 text-xs font-semibold text-[#087f68] transition hover:border-[#087f68] hover:bg-[#edf6f0] focus:outline-none focus:ring-2 focus:ring-[#087f68] focus:ring-offset-2">{item.action}<ArrowUpRight className="h-3.5 w-3.5" /></Link>
+          </article>)}
+        </div>
+      </section>
     </div>
   );
 }
