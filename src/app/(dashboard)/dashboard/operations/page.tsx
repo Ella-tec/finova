@@ -22,7 +22,7 @@ export default function OperationsPage() {
   const [saving,setSaving] = useState(false);
   const [search,setSearch] = useState("");
   const [selected,setSelected] = useState<Area>("ACCOUNTING");
-  const [active,setActive] = useState<{area:Area;kind:string;label:string}|null>(null);
+  const [active,setActive] = useState<{area:Area;kind:string;label:string;id?:string;record?:RecordRow}|null>(null);
   const [notice,setNotice] = useState<{ok:boolean;text:string}|null>(null);
 
   const load = useCallback(async () => {
@@ -43,11 +43,25 @@ export default function OperationsPage() {
     const body=Object.fromEntries(form.entries());
     setSaving(true);setNotice(null);
     try{
-      const res=await fetch("/api/workspace-records",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...body,area:active.area,kind:active.kind})});
+      const res=await fetch("/api/workspace-records",{method:active.id?"PUT":"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...body,id:active.id,area:active.area,kind:active.kind})});
       const data=await res.json();if(!res.ok)throw new Error(data.error||"Save failed.");
-      setNotice({ok:true,text:active.label+" saved as a draft. It is now in your records."});setActive(null);await load();
+      setNotice({ok:true,text:active.id?"Record changes saved successfully.":"Record saved as a draft. It is now in your records."});setActive(null);await load();
     }catch(err){setNotice({ok:false,text:err instanceof Error?err.message:"Could not save this record."});}
     finally{setSaving(false);}
+  }
+
+  async function approveRecord(record:RecordRow) {
+    if (!window.confirm("Approve " + record.title + "? This will lock the record from further editing.")) return;
+    setNotice(null);
+    try {
+      const res = await fetch("/api/workspace-records", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: record.id }) });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Approval failed.");
+      setNotice({ ok: true, text: record.title + " has been approved and locked." });
+      await load();
+    } catch (err) {
+      setNotice({ ok: false, text: err instanceof Error ? err.message : "Could not approve this record." });
+    }
   }
 
   return <div className="mx-auto max-w-[1500px] space-y-6 pb-12">
@@ -74,21 +88,21 @@ export default function OperationsPage() {
 
     <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div className="flex flex-col gap-3 border-b border-slate-100 p-5 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="font-semibold text-slate-900">Saved workspace records</h2><p className="mt-1 text-xs text-slate-500">Draft records across all four work areas.</p></div><div className="relative w-full sm:max-w-xs"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search records…" className={inputClass+" pl-9"}/></div></div>
-      <div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left text-sm"><thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500"><tr><th className="px-5 py-3">Record</th><th className="px-5 py-3">Area</th><th className="px-5 py-3">Reference</th><th className="px-5 py-3">Counterparty</th><th className="px-5 py-3 text-right">Amount</th><th className="px-5 py-3">Status</th></tr></thead><tbody className="divide-y divide-slate-100">{filtered.map(r=><tr key={r.id} className="hover:bg-slate-50/70"><td className="px-5 py-3.5"><p className="font-semibold text-slate-800">{r.title}</p><p className="mt-0.5 text-xs text-slate-400">{r.kind.replaceAll("_"," ")} · {new Date(r.createdAt).toLocaleDateString()}</p></td><td className="px-5 py-3.5 text-slate-600">{r.area}</td><td className="px-5 py-3.5 text-slate-500">{r.reference||"—"}</td><td className="px-5 py-3.5 text-slate-500">{r.counterparty||"—"}</td><td className="px-5 py-3.5 text-right font-medium tabular-nums text-slate-800">{r.amount==null?"—":money(r.amount,r.currency)}</td><td className="px-5 py-3.5"><span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">{r.status}</span></td></tr>)}{!loading&&filtered.length===0&&<tr><td colSpan={6} className="px-5 py-12 text-center text-sm text-slate-400">No records yet. Create one above to get started.</td></tr>}</tbody></table></div>
+      <div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left text-sm"><thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500"><tr><th className="px-5 py-3">Record</th><th className="px-5 py-3">Area</th><th className="px-5 py-3">Reference</th><th className="px-5 py-3">Counterparty</th><th className="px-5 py-3 text-right">Amount</th><th className="px-5 py-3">Status</th><th className="px-5 py-3 text-right">Actions</th></tr></thead><tbody className="divide-y divide-slate-100">{filtered.map(r=><tr key={r.id} className="hover:bg-slate-50/70"><td className="px-5 py-3.5"><p className="font-semibold text-slate-800">{r.title}</p><p className="mt-0.5 text-xs text-slate-400">{r.kind.replaceAll("_"," ")} · {new Date(r.createdAt).toLocaleDateString()}</p></td><td className="px-5 py-3.5 text-slate-600">{r.area}</td><td className="px-5 py-3.5 text-slate-500">{r.reference||"—"}</td><td className="px-5 py-3.5 text-slate-500">{r.counterparty||"—"}</td><td className="px-5 py-3.5 text-right font-medium tabular-nums text-slate-800">{r.amount==null?"—":money(r.amount,r.currency)}</td><td className="px-5 py-3.5"><span className={"rounded-full px-2.5 py-1 text-xs font-semibold "+(r.status==="APPROVED"?"bg-emerald-50 text-emerald-700":"bg-amber-50 text-amber-700")}>{r.status}</span></td><td className="px-5 py-3.5"><div className="flex justify-end gap-2">{r.status!=="APPROVED"&&<><button onClick={()=>setActive({area:r.area,kind:r.kind,label:r.kind.replaceAll("_"," "),id:r.id,record:r})} className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50">Edit</button><button onClick={()=>void approveRecord(r)} className="rounded-lg bg-teal-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-teal-800">Approve</button></>}</div></td></tr>)}{!loading&&filtered.length===0&&<tr><td colSpan={7} className="px-5 py-12 text-center text-sm text-slate-400">No records yet. Create one above to get started.</td></tr>}</tbody></table></div>
       {loading&&<p className="p-5 text-center text-sm text-slate-400">Loading records…</p>}
     </section>
 
-    {active&&<div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="record-modal-title"><div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl"><div className="flex items-start justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-wider text-teal-700">{active.area}</p><h2 id="record-modal-title" className="mt-1 text-xl font-semibold text-slate-900">Create {active.label}</h2><p className="mt-1 text-sm text-slate-500">Enter the available details. You can add supporting documents through Documents.</p></div><button onClick={()=>setActive(null)} className="rounded-lg px-3 py-1 text-slate-500 hover:bg-slate-100">Close</button></div>
+    {active&&<div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="record-modal-title"><div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl"><div className="flex items-start justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-wider text-teal-700">{active.area}</p><h2 id="record-modal-title" className="mt-1 text-xl font-semibold text-slate-900">{active.id?"Edit":"Create"} {active.label}</h2><p className="mt-1 text-sm text-slate-500">Enter the available details. You can add supporting documents through Documents.</p></div><button onClick={()=>setActive(null)} className="rounded-lg px-3 py-1 text-slate-500 hover:bg-slate-100">Close</button></div>
       <form onSubmit={submit} className="mt-6 grid gap-4 sm:grid-cols-2">
-        <label className="sm:col-span-2 text-sm font-medium text-slate-700">Name / description *<input name="title" required maxLength={180} className={inputClass+" mt-1"} placeholder={active.kind==="COMPANY"?"Company legal name":active.kind==="CUSTOMER"?"Customer name":active.kind==="VENDOR"?"Vendor name":"Enter a clear record name"}/></label>
-        <label className="text-sm font-medium text-slate-700">Reference / ID<input name="reference" className={inputClass+" mt-1"} placeholder="Invoice no., account code, EIN…"/></label>
-        <label className="text-sm font-medium text-slate-700">Customer / vendor / bank<input name="counterparty" className={inputClass+" mt-1"} placeholder="Related party or institution"/></label>
-        <label className="text-sm font-medium text-slate-700">Amount<input name="amount" type="number" min="0" step="0.01" className={inputClass+" mt-1"} placeholder="0.00"/></label>
-        <label className="text-sm font-medium text-slate-700">Currency<select name="currency" defaultValue="USD" className={inputClass+" mt-1"}><option>USD</option><option>EUR</option><option>GBP</option><option>CAD</option></select></label>
-        <label className="text-sm font-medium text-slate-700">Record date<input name="recordDate" type="date" className={inputClass+" mt-1"}/></label>
-        <label className="text-sm font-medium text-slate-700">Due date<input name="dueDate" type="date" className={inputClass+" mt-1"}/></label>
-        <label className="sm:col-span-2 text-sm font-medium text-slate-700">Notes<textarea name="description" rows={3} className={inputClass+" mt-1"} placeholder="Add context, terms, or supporting details…"/></label>
-        <div className="sm:col-span-2 flex justify-end gap-2 border-t border-slate-100 pt-4"><button type="button" onClick={()=>setActive(null)} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50">Cancel</button><button disabled={saving} className="rounded-xl bg-teal-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-teal-800 disabled:opacity-60">{saving?"Saving…":"Save draft record"}</button></div>
+        <label className="sm:col-span-2 text-sm font-medium text-slate-700">Name / description *<input name="title" required maxLength={180} defaultValue={active.record?.title||""} className={inputClass+" mt-1"} placeholder={active.kind==="COMPANY"?"Company legal name":active.kind==="CUSTOMER"?"Customer name":active.kind==="VENDOR"?"Vendor name":"Enter a clear record name"}/></label>
+        <label className="text-sm font-medium text-slate-700">Reference / ID<input name="reference" defaultValue={active.record?.reference||""} className={inputClass+" mt-1"} placeholder="Invoice no., account code, EIN…"/></label>
+        <label className="text-sm font-medium text-slate-700">Customer / vendor / bank<input name="counterparty" defaultValue={active.record?.counterparty||""} className={inputClass+" mt-1"} placeholder="Related party or institution"/></label>
+        <label className="text-sm font-medium text-slate-700">Amount<input name="amount" type="number" min="0" step="0.01" defaultValue={active.record?.amount??""} className={inputClass+" mt-1"} placeholder="0.00"/></label>
+        <label className="text-sm font-medium text-slate-700">Currency<select name="currency" defaultValue={active.record?.currency||"USD"} className={inputClass+" mt-1"}><option>USD</option><option>EUR</option><option>GBP</option><option>CAD</option></select></label>
+        <label className="text-sm font-medium text-slate-700">Record date<input name="recordDate" type="date" defaultValue={active.record?.recordDate?active.record.recordDate.slice(0,10):""} className={inputClass+" mt-1"}/></label>
+        <label className="text-sm font-medium text-slate-700">Due date<input name="dueDate" type="date" defaultValue={active.record?.dueDate?active.record.dueDate.slice(0,10):""} className={inputClass+" mt-1"}/></label>
+        <label className="sm:col-span-2 text-sm font-medium text-slate-700">Notes<textarea name="description" rows={3} defaultValue={active.record?.description||""} className={inputClass+" mt-1"} placeholder="Add context, terms, or supporting details…"/></label>
+        <div className="sm:col-span-2 flex justify-end gap-2 border-t border-slate-100 pt-4"><button type="button" onClick={()=>setActive(null)} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50">Cancel</button><button disabled={saving} className="rounded-xl bg-teal-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-teal-800 disabled:opacity-60">{saving?"Saving…":active.id?"Save changes":"Save draft record"}</button></div>
       </form>
     </div></div>}
   </div>;
