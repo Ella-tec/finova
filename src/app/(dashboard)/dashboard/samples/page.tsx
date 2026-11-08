@@ -32,6 +32,29 @@ type Doc = {
   fileName: string;
 };
 
+
+function parseDelimited(content: string) {
+  const lines = content.trim().split(/\r?\n/).filter(Boolean);
+  if (!lines.length) return [];
+  return lines.map((line) => {
+    const cells: string[] = [];
+    let value = "", quoted = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"' && line[i + 1] === '"' && quoted) { value += '"'; i++; }
+      else if (ch === '"') quoted = !quoted;
+      else if (ch === "," && !quoted) { cells.push(value.trim()); value = ""; }
+      else value += ch;
+    }
+    cells.push(value.trim());
+    return cells;
+  });
+}
+function isTabular(content: string) {
+  const first = content.trim().split(/\r?\n/, 1)[0] || "";
+  return first.includes(",") && !/^(INVOICE|BANK STATEMENT|STANDARD BANK CONFIRMATION)/i.test(first);
+}
+
 function SamplesInner() {
   const sp = useSearchParams();
   const router = useRouter();
@@ -314,7 +337,32 @@ function SamplesInner() {
                 Close
               </button>
             </div>
-            <pre className="p-5 text-xs font-mono overflow-auto whitespace-pre-wrap flex-1">{preview.content}</pre>
+            <div className="min-h-0 flex-1 overflow-auto bg-slate-50 p-4 sm:p-6">
+              {isTabular(preview.content) ? (
+                <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 bg-slate-50 px-4 py-3">
+                    <div><p className="text-xs font-semibold uppercase tracking-wider text-teal-700">Accounting workpaper</p><p className="mt-0.5 text-xs text-slate-500">Structured data preview · values shown as provided in the source file</p></div>
+                    <span className="rounded-full bg-teal-50 px-2.5 py-1 text-xs font-semibold text-teal-800">Spreadsheet view</span>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full min-w-[620px] border-collapse text-sm">
+                      <thead className="sticky top-0 bg-slate-100 text-left text-[11px] font-bold uppercase tracking-wide text-slate-600">
+                        <tr>{(parseDelimited(preview.content)[0] || []).map((cell, i) => <th key={i} className="whitespace-nowrap border-b border-r border-slate-200 px-4 py-3 last:border-r-0">{cell || `Column ${i + 1}`}</th>)}</tr>
+                      </thead>
+                      <tbody>{parseDelimited(preview.content).slice(1).map((row, ri) => <tr key={ri} className={/^(total|grand total|net income|difference)$/i.test(row[0] || "") ? "bg-teal-50 font-semibold text-slate-900" : ri % 2 ? "bg-white" : "bg-slate-50/70"}>
+                        {(parseDelimited(preview.content)[0] || []).map((_, ci) => <td key={ci} className="whitespace-nowrap border-b border-r border-slate-100 px-4 py-2.5 text-slate-700 last:border-r-0">{row[ci] || "—"}</td>)}
+                      </tr>)}</tbody>
+                    </table>
+                  </div>
+                  <div className="border-t border-slate-200 bg-white px-4 py-2 text-[11px] text-slate-500">Preview preserves the source columns and figures. Download the original file for Excel analysis and editing.</div>
+                </div>
+              ) : (
+                <div className="mx-auto max-w-3xl rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                  <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-teal-700">Document preview</p>
+                  <pre className="whitespace-pre-wrap break-words font-mono text-sm leading-7 text-slate-700">{preview.content}</pre>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}

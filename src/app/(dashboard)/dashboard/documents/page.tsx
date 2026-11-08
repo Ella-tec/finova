@@ -46,6 +46,9 @@ export default function DocumentsPage() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [previewDoc, setPreviewDoc] = useState<Doc | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [preview, setPreview] = useState<Doc | null>(null);
+  const fileUrl = (doc: Doc) => `/api/documents/${doc.id}/file`;
+  const canInlinePreview = (doc: Doc) => doc.mimeType === "application/pdf" || doc.mimeType.startsWith("image/") || doc.mimeType.startsWith("text/") || doc.mimeType === "application/json";
 
   const load = async () => {
     setLoading(true);

@@ -3,6 +3,13 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Clock, PlayCircle, CheckCircle2 } from "lucide-react";
 import { LogoWordmark } from "@/components/brand/Logo";
 import { getCourse } from "@/lib/learning/courses";
+import { VideoLibrary } from "@/components/learning/VideoLibrary";
+
+const VIDEO_LIBRARY = "https://quickbooks.intuit.com/learn-support/en-us/quickbooks-online/how-to-videos/";
+
+function videoSearch(title: string, courseTitle: string) {
+  return `https://www.youtube.com/results?search_query=${encodeURIComponent(`accounting tutorial ${title} ${courseTitle}`)}`;
+}
 
 export default async function CoursePage({
   params,
