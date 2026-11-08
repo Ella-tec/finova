@@ -140,7 +140,6 @@ export async function PATCH(req: NextRequest) {
     if (existing.status !== "DRAFT" && existing.status !== "PENDING_REVIEW") {
       return NextResponse.json({ error: "Only draft or pending-review records can be approved." }, { status: 409 });
     }
-    const role = (await context()) && (await import("next-auth")).getServerSession;
     const session = await (await import("next-auth")).getServerSession((await import("@/lib/auth")).authOptions);
     const userRole = (session?.user as { role?: string } | undefined)?.role;
     if (!["SENIOR_ACCOUNTANT", "CONTROLLER", "CFO", "PARTNER", "ADMIN"].includes(userRole || "")) {
