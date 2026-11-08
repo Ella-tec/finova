@@ -9,6 +9,9 @@ import {
   Loader2,
   Sparkles,
   FolderOpen,
+  Eye,
+  Download,
+  X,
 } from "lucide-react";
 
 type Doc = {
@@ -41,6 +44,7 @@ export default function DocumentsPage() {
   const [analyzing, setAnalyzing] = useState<string | null>(null);
   const [analysis, setAnalysis] = useState<Record<string, Analysis>>({});
   const [clientId] = useState("demo-client-001");
+  const [previewDoc, setPreviewDoc] = useState<Doc | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const load = async () => {
@@ -321,6 +325,9 @@ export default function DocumentsPage() {
                   </div>
                 </div>
 
+                <div className="flex flex-wrap items-center gap-2">
+                  <button type="button" onClick={() => setPreviewDoc(d)} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50"><Eye className="h-3.5 w-3.5" /> Preview / Open</button>
+                  <a href={`/api/documents/${encodeURIComponent(d.id)}/file?download=1`} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50"><Download className="h-3.5 w-3.5" /> Download</a>
                 <button
                   type="button"
                   onClick={() => void analyze(d.id)}
@@ -335,11 +342,29 @@ export default function DocumentsPage() {
 
                   {analyzing === d.id ? "Analyzing..." : "Analyze"}
                 </button>
+                </div>
               </div>
             );
           })
         )}
       </div>
+
+      {previewDoc && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/60 p-3 sm:p-6" role="dialog" aria-modal="true" aria-label={`Preview ${previewDoc.fileName}`}>
+          <div className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
+            <div className="flex items-center justify-between gap-3 border-b px-5 py-4">
+              <div className="min-w-0"><h2 className="truncate font-semibold text-slate-900">{previewDoc.fileName}</h2><p className="text-xs text-slate-500">{previewDoc.mimeType} · {(previewDoc.size / 1024).toFixed(1)} KB</p></div>
+              <div className="flex shrink-0 items-center gap-2"><a href={`/api/documents/${encodeURIComponent(previewDoc.id)}/file?download=1`} className="rounded-lg border px-3 py-2 text-sm hover:bg-slate-50">Download</a><button onClick={() => setPreviewDoc(null)} aria-label="Close preview" className="rounded-lg p-2 hover:bg-slate-100"><X className="h-5 w-5" /></button></div>
+            </div>
+            <div className="min-h-[55vh] flex-1 overflow-auto bg-slate-100 p-3">
+              {previewDoc.mimeType.startsWith("image/") ? <img src={`/api/documents/${encodeURIComponent(previewDoc.id)}/file`} alt={previewDoc.fileName} className="mx-auto max-h-[72vh] max-w-full object-contain" /> :
+               previewDoc.mimeType === "application/pdf" ? <iframe title={previewDoc.fileName} src={`/api/documents/${encodeURIComponent(previewDoc.id)}/file`} className="h-[72vh] w-full rounded-lg bg-white" /> :
+               previewDoc.mimeType === "text/csv" || previewDoc.mimeType === "text/plain" || previewDoc.fileName.toLowerCase().endsWith(".csv") || previewDoc.fileName.toLowerCase().endsWith(".txt") ? <iframe title={previewDoc.fileName} src={`/api/documents/${encodeURIComponent(previewDoc.id)}/file`} className="h-[72vh] w-full rounded-lg bg-white" /> :
+               <div className="flex min-h-[55vh] flex-col items-center justify-center gap-3 bg-white p-8 text-center"><FileText className="h-12 w-12 text-cyan-700" /><p className="font-medium text-slate-800">Preview is not available in the browser for this format.</p><p className="text-sm text-slate-500">Download the original file to open it in its application.</p><a href={`/api/documents/${encodeURIComponent(previewDoc.id)}/file?download=1`} className="rounded-lg bg-isaca-medium px-4 py-2 text-sm font-semibold text-white">Download original</a></div>}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
