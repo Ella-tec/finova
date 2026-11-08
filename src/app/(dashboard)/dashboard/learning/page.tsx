@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BookOpen, PlayCircle, Clock, GraduationCap, ArrowRight } from "lucide-react";
 import { COURSES } from "@/lib/learning/courses";
+import { VideoLibrary } from "@/components/learning/VideoLibrary";
 
 export default function DashboardLearningPage() {
   return (
@@ -18,6 +19,7 @@ export default function DashboardLearningPage() {
           </Link>
         ))}
       </div>
+      <VideoLibrary />
       <section className="rounded-2xl border bg-gradient-to-br from-white to-isaca-light/60 p-5 shadow-sm sm:p-6"><div className="flex items-center gap-2"><BookOpen className="h-5 w-5 text-isaca-medium" /><h2 className="font-semibold text-slate-900">Quick start path</h2></div><p className="mt-2 text-sm text-slate-600">New to Finova? Start with Getting Started, then take Bank Reconciliation and Month-End Close to follow a typical accounting workflow.</p><Link href="/learning/getting-started" className="mt-4 inline-flex items-center gap-2 rounded-lg bg-isaca-medium px-4 py-2 text-sm font-semibold text-white hover:brightness-110">Begin learning <ArrowRight className="h-4 w-4" /></Link></section>
     </div>
   );
