@@ -2,14 +2,14 @@
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, BookOpen, Users, ShoppingCart, Landmark, Plus, RefreshCw, Search, CheckCircle2, AlertCircle, FileText } from "lucide-react";
+import { ArrowLeft, BookOpen, Users, ShoppingCart, Landmark, Plus, RefreshCw, Search, CheckCircle2, AlertCircle, FileText, Paperclip, UploadCloud } from "lucide-react";
 
 type Area = "ACCOUNTING" | "SALES" | "PURCHASING" | "BANKING";
 type RecordRow = { id: string; area: Area; kind: string; title: string; reference: string | null; counterparty: string | null; status: string; amount: number | null; currency: string; recordDate: string | null; dueDate: string | null; description: string | null; createdAt: string };
 const groups = [
   { id: "ACCOUNTING" as Area, anchor: "accounting", title: "Accounting", subtitle: "Company profile, chart of accounts, journals and ledger.", icon: BookOpen, items: [{kind:"COMPANY",label:"Company Setup",hint:"Company name, tax ID, fiscal year and currency"},{kind:"ACCOUNT",label:"Chart of Accounts",hint:"Cash, receivables, payables, equity, revenue and expenses"},{kind:"JOURNAL",label:"Journal Entry",hint:"Prepare a balanced entry for review"},{kind:"LEDGER",label:"General Ledger",hint:"Review recorded activity by account"}] },
-  { id: "SALES" as Area, anchor: "sales", title: "Sales", subtitle: "Customers, invoices and incoming payments.", icon: Users, items: [{kind:"CUSTOMER",label:"Customers",hint:"Customer details, terms and credit limits"},{kind:"INVOICE",label:"New Invoice",hint:"Invoice header, due date and total"},{kind:"RECEIPT",label:"Receive Payment",hint:"Record payment against a customer invoice"}] },
-  { id: "PURCHASING" as Area, anchor: "purchasing", title: "Purchasing", subtitle: "Vendor records, bills and business expenses.", icon: ShoppingCart, items: [{kind:"VENDOR",label:"Vendors",hint:"Vendor details, terms and 1099 status"},{kind:"BILL",label:"Enter Bill",hint:"Capture vendor invoice and due date"},{kind:"EXPENSE",label:"Record Expense",hint:"Record receipt-backed operating expenses"}] },
+  { id: "SALES" as Area, anchor: "receivable", title: "Accounts Receivable", subtitle: "Customers, invoices and incoming payments.", icon: Users, items: [{kind:"CUSTOMER",label:"Customers",hint:"Customer details, terms and credit limits"},{kind:"INVOICE",label:"New Invoice",hint:"Invoice header, due date and total"},{kind:"RECEIPT",label:"Receive Payment",hint:"Record payment against a customer invoice"}] },
+  { id: "PURCHASING" as Area, anchor: "payable", title: "Accounts Payable", subtitle: "Vendor records, bills and business expenses.", icon: ShoppingCart, items: [{kind:"VENDOR",label:"Vendors",hint:"Vendor details, terms and 1099 status"},{kind:"BILL",label:"Enter Bill",hint:"Capture vendor invoice and due date"},{kind:"EXPENSE",label:"Record Expense",hint:"Record receipt-backed operating expenses"}] },
   { id: "BANKING" as Area, anchor: "banking", title: "Banking & Payroll", subtitle: "Bank accounts, statements, employees and payroll records.", icon: Landmark, items: [{kind:"BANK_ACCOUNT",label:"Bank Accounts",hint:"Bank name, account type and masked number"},{kind:"BANK_STATEMENT",label:"Upload Statement Record",hint:"Track a statement and its source document"},{kind:"EMPLOYEE",label:"Employees",hint:"Employee profile and payroll details"},{kind:"PAYROLL",label:"Payroll Run",hint:"Capture a payroll run for review"}] },
 ] as const;
 
@@ -40,7 +40,7 @@ export default function OperationsPage() {
   async function submit(e:FormEvent<HTMLFormElement>){
     e.preventDefault(); if(!active)return;
     const form=new FormData(e.currentTarget);
-    const body=Object.fromEntries(form.entries());
+    const attachment = form.get("attachment");\n    const body=Object.fromEntries(Array.from(form.entries()).filter(([key])=>key !== "attachment"));
     setSaving(true);setNotice(null);
     try{
       const res=await fetch("/api/workspace-records",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...body,area:active.area,kind:active.kind})});
@@ -78,7 +78,7 @@ export default function OperationsPage() {
       {loading&&<p className="p-5 text-center text-sm text-slate-400">Loading records…</p>}
     </section>
 
-    {active&&<div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="record-modal-title"><div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl"><div className="flex items-start justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-wider text-teal-700">{active.area}</p><h2 id="record-modal-title" className="mt-1 text-xl font-semibold text-slate-900">Create {active.label}</h2><p className="mt-1 text-sm text-slate-500">Enter the available details. You can add supporting documents through Documents.</p></div><button onClick={()=>setActive(null)} className="rounded-lg px-3 py-1 text-slate-500 hover:bg-slate-100">Close</button></div>
+    {active&&<div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="record-modal-title"><div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl"><div className="flex items-start justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-wider text-teal-700">{active.area}</p><h2 id="record-modal-title" className="mt-1 text-xl font-semibold text-slate-900">Create {active.label}</h2><p className="mt-1 text-sm text-slate-500">Enter the record details and optionally attach a supporting PDF, image, spreadsheet, or document.</p></div><button onClick={()=>setActive(null)} className="rounded-lg px-3 py-1 text-slate-500 hover:bg-slate-100">Close</button></div>
       <form onSubmit={submit} className="mt-6 grid gap-4 sm:grid-cols-2">
         <label className="sm:col-span-2 text-sm font-medium text-slate-700">Name / description *<input name="title" required maxLength={180} className={inputClass+" mt-1"} placeholder={active.kind==="COMPANY"?"Company legal name":active.kind==="CUSTOMER"?"Customer name":active.kind==="VENDOR"?"Vendor name":"Enter a clear record name"}/></label>
         <label className="text-sm font-medium text-slate-700">Reference / ID<input name="reference" className={inputClass+" mt-1"} placeholder="Invoice no., account code, EIN…"/></label>
@@ -88,6 +88,14 @@ export default function OperationsPage() {
         <label className="text-sm font-medium text-slate-700">Record date<input name="recordDate" type="date" className={inputClass+" mt-1"}/></label>
         <label className="text-sm font-medium text-slate-700">Due date<input name="dueDate" type="date" className={inputClass+" mt-1"}/></label>
         <label className="sm:col-span-2 text-sm font-medium text-slate-700">Notes<textarea name="description" rows={3} className={inputClass+" mt-1"} placeholder="Add context, terms, or supporting details…"/></label>
+        <label className="sm:col-span-2 block text-sm font-medium text-slate-700">Supporting attachment (optional)
+          <span className="mt-1 flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-4 text-sm text-slate-600 transition hover:border-teal-400 hover:bg-teal-50">
+            <UploadCloud className="h-5 w-5 shrink-0 text-teal-700"/>
+            <span className="min-w-0 flex-1"><span className="block font-semibold text-slate-800">Choose a file to attach</span><span className="block text-xs text-slate-500">PDF, PNG, JPG, CSV, TXT, DOCX or XLSX · up to 25 MB</span></span>
+            <Paperclip className="h-4 w-4 shrink-0"/>
+            <input name="attachment" type="file" accept=".pdf,.png,.jpg,.jpeg,.csv,.txt,.docx,.xlsx" className="sr-only"/>
+          </span>
+        </label>
         <div className="sm:col-span-2 flex justify-end gap-2 border-t border-slate-100 pt-4"><button type="button" onClick={()=>setActive(null)} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50">Cancel</button><button disabled={saving} className="rounded-xl bg-teal-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-teal-800 disabled:opacity-60">{saving?"Saving…":"Save draft record"}</button></div>
       </form>
     </div></div>}
