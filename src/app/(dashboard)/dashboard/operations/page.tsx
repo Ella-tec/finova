@@ -40,7 +40,9 @@ export default function OperationsPage() {
   async function submit(e:FormEvent<HTMLFormElement>){
     e.preventDefault(); if(!active)return;
     const form=new FormData(e.currentTarget);
-    const attachment = form.get("attachment");\n    const body=Object.fromEntries(Array.from(form.entries()).filter(([key])=>key !== "attachment"));
+    const body = Object.fromEntries(
+      Array.from(form.entries()).filter(([key]) => key !== "attachment")
+    );
     setSaving(true);setNotice(null);
     try{
       const res=await fetch("/api/workspace-records",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...body,area:active.area,kind:active.kind})});
