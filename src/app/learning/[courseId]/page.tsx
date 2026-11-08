@@ -60,6 +60,8 @@ export default async function CoursePage({
           </p>
         </div>
 
+        <VideoLibrary courseTitle={course.title} />
+
         {course.outcomes && course.outcomes.length > 0 && (
           <div className="rounded-2xl border bg-white p-5">
             <h2 className="font-semibold text-slate-900 mb-3">
@@ -117,8 +119,6 @@ export default async function CoursePage({
             </details>
           ))}
         </div>
-
-        <VideoLibrary courseTitle={course.title} />
 
         <div className="rounded-2xl border border-isaca-medium/20 bg-isaca-light/50 p-5 text-sm text-slate-700">
           <p className="mb-1 font-medium text-isaca-dark">
