@@ -114,8 +114,7 @@ export default function SecuritySanitizerPage() {
               <a href={"/api/documents/" + doc.id + "/file?download=1"} className="rounded-lg border px-3 py-2 text-sm">Open / download</a>
               <button disabled={scanningId === doc.id} onClick={() => void scanStored(doc)} className="rounded-lg bg-isaca-medium px-3 py-2 text-sm font-semibold text-white disabled:opacity-50">{scanningId === doc.id ? "Scanning…" : "Scan file"}</button>
             </div>
-          </div>)}
-        }
+          </div>)}</div>}
       </section>
       {preview && <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4" role="dialog" aria-modal="true">
         <div className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
