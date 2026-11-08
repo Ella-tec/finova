@@ -4,6 +4,7 @@
  */
 
 import { EXTRA_SAMPLE_DOCUMENTS } from "./extra-docs";
+import { buildCompanySampleDocs } from "./company-generated-docs";
 
 
 export type SampleDocType =
@@ -484,7 +485,7 @@ Difference,CHECK,0
   },
 ];
 
-export const SAMPLE_DOCUMENTS: SampleDocument[] = [..._BASE_SAMPLE_DOCUMENTS, ...EXTRA_SAMPLE_DOCUMENTS];
+export const SAMPLE_DOCUMENTS: SampleDocument[] = [..._BASE_SAMPLE_DOCUMENTS, ...EXTRA_SAMPLE_DOCUMENTS, ...buildCompanySampleDocs(SAMPLE_COMPANIES)];
 
 export function getCompany(id: string) {
   return SAMPLE_COMPANIES.find((c) => c.id === id);
