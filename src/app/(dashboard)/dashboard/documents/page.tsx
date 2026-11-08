@@ -9,6 +9,10 @@ import {
   Loader2,
   Sparkles,
   FolderOpen,
+  Eye,
+  X,
+  Download,
+  ExternalLink,
 } from "lucide-react";
 
 type Doc = {
@@ -42,6 +46,9 @@ export default function DocumentsPage() {
   const [analysis, setAnalysis] = useState<Record<string, Analysis>>({});
   const [clientId] = useState("demo-client-001");
   const inputRef = useRef<HTMLInputElement>(null);
+  const [preview, setPreview] = useState<Doc | null>(null);
+  const fileUrl = (doc: Doc) => `/api/documents/${doc.id}/file`;
+  const canInlinePreview = (doc: Doc) => doc.mimeType === "application/pdf" || doc.mimeType.startsWith("image/") || doc.mimeType.startsWith("text/") || doc.mimeType === "application/json";
 
   const load = async () => {
     setLoading(true);
@@ -321,7 +328,14 @@ export default function DocumentsPage() {
                   </div>
                 </div>
 
-                <button
+                <div className="flex flex-wrap items-center gap-2 sm:shrink-0">
+                  <button type="button" onClick={() => setPreview(d)} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+                    <Eye className="h-4 w-4 text-isaca-medium" /> Preview
+                  </button>
+                  <a href={`${fileUrl(d)}?download=1`} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+                    <Download className="h-4 w-4" /> Download
+                  </a>
+                  <button
                   type="button"
                   onClick={() => void analyze(d.id)}
                   disabled={analyzing === d.id}
@@ -334,12 +348,42 @@ export default function DocumentsPage() {
                   )}
 
                   {analyzing === d.id ? "Analyzing..." : "Analyze"}
-                </button>
+                  </button>
+                </div>
               </div>
             );
           })
         )}
       </div>
+
+      {preview && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-3 sm:p-6" role="dialog" aria-modal="true" aria-label={`Preview ${preview.fileName}`} onClick={() => setPreview(null)}>
+          <section className="flex max-h-[94vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl" onClick={(event) => event.stopPropagation()}>
+            <header className="flex items-center justify-between gap-4 border-b border-slate-200 px-5 py-4">
+              <div className="min-w-0"><h2 className="truncate font-semibold text-slate-900">{preview.fileName}</h2><p className="mt-0.5 text-xs text-slate-500">{preview.mimeType} · {(preview.size / 1024).toFixed(1)} KB</p></div>
+              <div className="flex shrink-0 items-center gap-2">
+                <a href={`${fileUrl(preview)}?download=1`} className="inline-flex items-center gap-1.5 rounded-lg bg-isaca-medium px-3 py-2 text-sm font-semibold text-white hover:bg-isaca-dark"><Download className="h-4 w-4" /> Download</a>
+                <a href={fileUrl(preview)} target="_blank" rel="noreferrer" className="rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-50" aria-label="Open in new tab"><ExternalLink className="h-4 w-4" /></a>
+                <button type="button" onClick={() => setPreview(null)} className="rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-50" aria-label="Close preview"><X className="h-4 w-4" /></button>
+              </div>
+            </header>
+            <div className="min-h-[55vh] flex-1 overflow-auto bg-slate-100 p-3 sm:p-5">
+              {preview.mimeType.startsWith("image/") ? (
+                <div className="flex min-h-[55vh] items-center justify-center"><img src={fileUrl(preview)} alt={preview.fileName} className="max-h-[75vh] max-w-full rounded-lg object-contain shadow-sm" /></div>
+              ) : preview.mimeType === "application/pdf" ? (
+                <iframe title={preview.fileName} src={fileUrl(preview)} className="h-[72vh] w-full rounded-lg border border-slate-200 bg-white" />
+              ) : canInlinePreview(preview) ? (
+                <iframe title={preview.fileName} src={fileUrl(preview)} className="h-[72vh] w-full rounded-lg border border-slate-200 bg-white" />
+              ) : (
+                <div className="flex min-h-[55vh] flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center">
+                  <FileText className="h-12 w-12 text-isaca-medium" /><h3 className="mt-3 font-semibold text-slate-900">Preview is not supported for this file type</h3><p className="mt-1 max-w-md text-sm text-slate-500">You can still open the original file in a compatible desktop application by downloading it.</p><a href={`${fileUrl(preview)}?download=1`} className="mt-4 inline-flex items-center gap-2 rounded-lg bg-isaca-medium px-4 py-2 text-sm font-semibold text-white"><Download className="h-4 w-4" /> Download original</a>
+                </div>
+              )}
+            </div>
+            <footer className="flex items-center justify-between gap-3 border-t border-slate-200 px-5 py-3"><span className="text-xs text-slate-500">Secure document preview · Finova</span><button type="button" onClick={() => setPreview(null)} className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Close preview</button></footer>
+          </section>
+        </div>
+      )}
     </div>
   );
 }
