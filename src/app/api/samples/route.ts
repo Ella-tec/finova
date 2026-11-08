@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
     if (download) {
       return new NextResponse(doc.content, {
         headers: {
-          "Content-Type": "text/csv; charset=utf-8",
+          "Content-Type": doc.fileName.toLowerCase().endsWith(".txt") ? "text/plain; charset=utf-8" : "text/csv; charset=utf-8",
           "Content-Disposition": `attachment; filename="${doc.fileName}"`,
         },
       });

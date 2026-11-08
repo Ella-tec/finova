@@ -146,6 +146,18 @@ export default function DocumentsPage() {
     }
   };
 
+  const openPreview = async (doc: Doc) => {
+    setPreviewDoc(doc); setPreviewLoading(true); setPreviewError(null);
+    if (previewUrl) URL.revokeObjectURL(previewUrl); setPreviewUrl(null);
+    try {
+      const response = await fetch("/api/documents/" + encodeURIComponent(doc.id) + "/file", { cache: "no-store" });
+      if (!response.ok) throw new Error("The file could not be opened. Check that it is still stored and that you have access.");
+      const blob = await response.blob(); setPreviewUrl(URL.createObjectURL(blob));
+    } catch (error) { setPreviewError(error instanceof Error ? error.message : "Preview failed."); }
+    finally { setPreviewLoading(false); }
+  };
+
+  const closePreview = () => { if (previewUrl) URL.revokeObjectURL(previewUrl); setPreviewUrl(null); setPreviewDoc(null); setPreviewError(null); };
   const analyze = async (id: string) => {
     setAnalyzing(id);
     setLoadError(null);
@@ -423,6 +435,7 @@ export default function DocumentsPage() {
                 >
                   <X className="h-4 w-4" />
                 </button>
+                </div>
               </div>
             </header>
             <div className="min-h-[55vh] flex-1 overflow-auto bg-slate-100 p-2 sm:p-4">

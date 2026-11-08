@@ -22,7 +22,7 @@ export default function OperationsPage() {
   const [saving,setSaving] = useState(false);
   const [search,setSearch] = useState("");
   const [selected,setSelected] = useState<Area>("ACCOUNTING");
-  const [active,setActive] = useState<{area:Area;kind:string;label:string}|null>(null);
+  const [active,setActive] = useState<{area:Area;kind:string;label:string;id?:string;record?:RecordRow}|null>(null);
   const [notice,setNotice] = useState<{ok:boolean;text:string}|null>(null);
   const [clientId,setClientId] = useState("");
   const [attachments,setAttachments] = useState<AttachedDocument[]>([]);
@@ -74,6 +74,20 @@ export default function OperationsPage() {
       setNotice({ok:true,text:active.label+" saved as a draft with "+attachments.length+" attached document(s)."});setAttachments([]);setActive(null);await load();
     }catch(err){setNotice({ok:false,text:err instanceof Error?err.message:"Could not save this record."});}
     finally{setSaving(false);}
+  }
+
+  async function approveRecord(record:RecordRow) {
+    if (!window.confirm("Approve " + record.title + "? This will lock the record from further editing.")) return;
+    setNotice(null);
+    try {
+      const res = await fetch("/api/workspace-records", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: record.id }) });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Approval failed.");
+      setNotice({ ok: true, text: record.title + " has been approved and locked." });
+      await load();
+    } catch (err) {
+      setNotice({ ok: false, text: err instanceof Error ? err.message : "Could not approve this record." });
+    }
   }
 
   return <div className="mx-auto max-w-[1500px] space-y-6 pb-12">
