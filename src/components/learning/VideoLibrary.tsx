@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { ExternalLink, PlayCircle, Search, Video } from "lucide-react";
+import { JcccAccountingCourse } from "@/components/learning/JcccAccountingCourse";
 
 type LearningVideo = {
   id: string;
@@ -15,54 +16,127 @@ type LearningVideo = {
 
 const VIDEOS: LearningVideo[] = [
   {
-    id: "yYX4bvQSqbo",
+    id: "VhwZ9t2b3Zk",
     title: "Accounting Basics: A Guide to Almost Everything",
     category: "Accounting Basics",
     level: "Beginner",
     duration: "14 min",
     channel: "Accounting Stuff",
-    description: "A practical introduction to the accounting cycle, journal entries, debits and credits, trial balance, and financial statements.",
+    description: "A visual introduction to the accounting cycle and core bookkeeping concepts.",
   },
   {
-    id: "3ywLcfALZfU",
-    title: "32 Accounting Concepts You Should Know",
+    id: "WDz2DbzImrA",
+    title: "Debit & Credit Normal Balances",
     category: "Accounting Basics",
     level: "Beginner",
-    duration: "15 min",
-    channel: "Accounting Stuff",
-    description: "A broad overview of essential accounting terms and concepts, with links to deeper lessons.",
+    duration: "—",
+    channel: "Ball State University",
+    description: "Review normal debit and credit balances for common account types.",
   },
   {
-    id: "zhmO3DM3YiY",
-    title: "How to Do a Bank Reconciliation",
+    id: "FJVzMWUAabI",
+    title: "T Accounts",
     category: "Bookkeeping",
     level: "Beginner",
-    duration: "14 min",
-    channel: "Accounting Stuff",
-    description: "Work through bank statements, cash books, timing differences, errors, and reconciliation steps.",
+    duration: "—",
+    channel: "Ball State University",
+    description: "See how transactions post to T accounts in the ledger.",
   },
   {
-    id: "wcvyJhRUpno",
-    title: "Income Statement: Explained in Almost 2 Minutes",
+    id: "IEuFvcrlXwc",
+    title: "Adjusting Entries",
+    category: "Month-End Close",
+    level: "Intermediate",
+    duration: "—",
+    channel: "Ball State University",
+    description: "Understand adjustments made before financial statements are prepared.",
+  },
+  {
+    id: "MRqMpYtCFs0",
+    title: "Closing Entries",
+    category: "Month-End Close",
+    level: "Intermediate",
+    duration: "—",
+    channel: "Ball State University",
+    description: "Review the closing process at the end of an accounting period.",
+  },
+  {
+    id: "MF01UfppZng",
+    title: "Bank Reconciliation",
+    category: "Bank Reconciliation",
+    level: "Beginner",
+    duration: "—",
+    channel: "Ball State University",
+    description: "Learn the purpose and basic steps of reconciling bank and book balances.",
+  },
+  {
+    id: "y1_qjoQUdF4",
+    title: "Preparation of Basic Financial Statements",
     category: "Financial Statements",
     level: "Beginner",
-    duration: "6 min",
+    duration: "—",
+    channel: "Ball State University",
+    description: "Follow the preparation of core financial statements from accounting records.",
+  },
+  {
+    id: "zs4Zy6xVhRQ",
+    title: "Cost of Goods Sold",
+    category: "Inventory & Cost Accounting",
+    level: "Beginner",
+    duration: "—",
+    channel: "Ball State University",
+    description: "Understand how inventory costs flow into cost of goods sold.",
+  },
+  {
+    id: "QPXQdt7vLHs",
+    title: "Inventory Costing: LIFO",
+    category: "Inventory & Cost Accounting",
+    level: "Intermediate",
+    duration: "—",
+    channel: "Ball State University",
+    description: "Review the LIFO inventory costing method and its effect on reported costs.",
+  },
+  {
+    id: "d2EXotRArow",
+    title: "Allowance for Doubtful Accounts",
+    category: "Financial Statements",
+    level: "Intermediate",
+    duration: "—",
+    channel: "Ball State University",
+    description: "Explore estimating uncollectible receivables and recording the allowance.",
+  },
+  {
+    id: "3_PfoTzSCQE",
+    title: "The Trial Balance Explained",
+    category: "Financial Statements",
+    level: "Beginner",
+    duration: "—",
     channel: "Accounting Stuff",
-    description: "Understand revenue, expenses, gross profit, operating profit, and net profit.",
+    description: "Learn how a trial balance helps check ledger balances before reporting.",
+  },
+  {
+    id: "hrSUq4wcd0g",
+    title: "The Income Statement for Beginners",
+    category: "Financial Statements",
+    level: "Beginner",
+    duration: "—",
+    channel: "Accounting Stuff",
+    description: "Understand revenue, expenses, and how profit is calculated.",
   },
 ];
 
-const CATEGORIES = ["All videos", "Accounting Basics", "Bookkeeping", "Financial Statements"];
+const CATEGORIES = ["All videos", "Accounting Basics", "Bookkeeping", "Bank Reconciliation", "Month-End Close", "Financial Statements", "Inventory & Cost Accounting", "Accounting 1 (ACCT 121)"];
 
 export function VideoLibrary({ courseTitle }: { courseTitle?: string }) {
   const [activeVideo, setActiveVideo] = useState(VIDEOS[0]);
+  const [activeJcccIndex, setActiveJcccIndex] = useState<number | null>(null);
   const [category, setCategory] = useState("All videos");
   const [search, setSearch] = useState("");
 
   const filteredVideos = useMemo(() => {
     const term = search.trim().toLowerCase();
     return VIDEOS.filter((video) => {
-      const matchesCategory = category === "All videos" || video.category === category;
+      const matchesCategory = category !== "Accounting 1 (ACCT 121)" && (category === "All videos" || video.category === category);
       const matchesSearch =
         !term ||
         [video.title, video.category, video.channel, video.description]
@@ -79,6 +153,7 @@ export function VideoLibrary({ courseTitle }: { courseTitle?: string }) {
       (video) => nextCategory === "All videos" || video.category === nextCategory
     );
     if (nextVideo) setActiveVideo(nextVideo);
+    setActiveJcccIndex(null);
   };
 
   return (
@@ -104,14 +179,23 @@ export function VideoLibrary({ courseTitle }: { courseTitle?: string }) {
         </a>
       </div>
 
+      <div className="flex flex-wrap gap-2" aria-label="Accounting video categories">
+        {CATEGORIES.map((item) => (
+          <button key={item} type="button" onClick={() => chooseCategory(item)} aria-pressed={category === item}
+            className={`rounded-full border px-3.5 py-2 text-xs font-semibold transition ${category === item ? "border-isaca-medium bg-isaca-medium text-white shadow-sm" : "border-slate-200 bg-white text-slate-600 hover:border-isaca-medium hover:text-isaca-medium"}`}>
+            {item}
+          </button>
+        ))}
+      </div>
+
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(280px,.85fr)]">
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-950 shadow-sm">
           <div className="aspect-video w-full">
             <iframe
               key={activeVideo.id}
               className="h-full w-full"
-              src={`https://www.youtube-nocookie.com/embed/${activeVideo.id}?rel=0`}
-              title={activeVideo.title}
+              src={activeJcccIndex !== null ? `https://www.youtube-nocookie.com/embed/videoseries?list=PL259DBFA47F3B4761&index=${activeJcccIndex}&rel=0` : `https://www.youtube-nocookie.com/embed/${activeVideo.id}?rel=0`}
+              title={activeJcccIndex !== null ? `Accounting 1 Program ${activeJcccIndex + 1}` : activeVideo.title}
               loading="lazy"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               referrerPolicy="strict-origin-when-cross-origin"
@@ -120,16 +204,13 @@ export function VideoLibrary({ courseTitle }: { courseTitle?: string }) {
           </div>
           <div className="space-y-2 bg-white p-4">
             <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
-              <span className="rounded-full bg-isaca-light px-2.5 py-1 font-semibold text-isaca-dark">{activeVideo.category}</span>
-              <span>{activeVideo.level}</span>
-              <span>•</span>
-              <span>{activeVideo.duration}</span>
+              {activeJcccIndex !== null ? <span className="rounded-full bg-isaca-light px-2.5 py-1 font-semibold text-isaca-dark">JCCC · Accounting 1</span> : <><span className="rounded-full bg-isaca-light px-2.5 py-1 font-semibold text-isaca-dark">{activeVideo.category}</span><span>{activeVideo.level}</span><span>•</span><span>{activeVideo.duration}</span></>}
             </div>
-            <h3 className="font-semibold text-slate-900">{activeVideo.title}</h3>
-            <p className="text-sm text-slate-600">{activeVideo.description}</p>
-            <p className="text-xs text-slate-500">Video by {activeVideo.channel}. Opens on YouTube if you choose the source link.</p>
+            <h3 className="font-semibold text-slate-900">{activeJcccIndex !== null ? `Accounting 1 · Lesson ${activeJcccIndex + 1} of 39` : activeVideo.title}</h3>
+            <p className="text-sm text-slate-600">{activeJcccIndex !== null ? "Recorded Fall 2011 by Johnson County Community College. Select a lesson from the course list above." : activeVideo.description}</p>
+            <p className="text-xs text-slate-500">Video by {activeJcccIndex !== null ? "JCCCvideo" : activeVideo.channel}. Playback is provided by the original YouTube publisher.</p>
             <a
-              href={`https://www.youtube.com/watch?v=${activeVideo.id}`}
+              href={activeJcccIndex !== null ? "https://www.youtube.com/playlist?list=PL259DBFA47F3B4761" : `https://www.youtube.com/watch?v=${activeVideo.id}`}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-1 text-xs font-semibold text-isaca-medium hover:underline"
@@ -149,24 +230,13 @@ export function VideoLibrary({ courseTitle }: { courseTitle?: string }) {
               className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-sm outline-none transition focus:border-isaca-medium focus:ring-2 focus:ring-isaca-medium/15"
             />
           </label>
-          <div className="flex flex-wrap gap-2">
-            {CATEGORIES.map((item) => (
-              <button
-                key={item}
-                type="button"
-                onClick={() => chooseCategory(item)}
-                className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${category === item ? "border-isaca-medium bg-isaca-medium text-white" : "border-slate-200 bg-white text-slate-600 hover:border-isaca-medium hover:text-isaca-medium"}`}
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-          <div className="max-h-[430px] space-y-2 overflow-y-auto pr-1">
+
+          {category !== "Accounting 1 (ACCT 121)" && <div className="max-h-[430px] space-y-2 overflow-y-auto pr-1">
             {filteredVideos.map((video) => (
               <button
                 key={video.id}
                 type="button"
-                onClick={() => setActiveVideo(video)}
+                onClick={() => { setActiveVideo(video); setActiveJcccIndex(null); }}
                 aria-pressed={activeVideo.id === video.id}
                 className={`flex w-full items-start gap-3 rounded-xl border p-3 text-left transition ${activeVideo.id === video.id ? "border-isaca-medium bg-isaca-light/60 ring-1 ring-isaca-medium/20" : "border-slate-200 bg-white hover:border-isaca-medium/50 hover:bg-slate-50"}`}
               >
@@ -185,9 +255,10 @@ export function VideoLibrary({ courseTitle }: { courseTitle?: string }) {
                 No videos match that search. Try another accounting topic.
               </p>
             )}
-          </div>
+          </div>}
         </div>
       </div>
+      <JcccAccountingCourse selected={activeJcccIndex} onSelect={(index) => { setActiveJcccIndex(index); setCategory("Accounting 1 (ACCT 121)"); }} />
       <p className="text-xs leading-5 text-slate-500">
         Videos are hosted by their original publishers on YouTube. Availability, advertising, captions, and playback are controlled by YouTube and each publisher.
       </p>

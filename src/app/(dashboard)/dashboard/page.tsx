@@ -29,6 +29,10 @@ export default function DashboardPage() {
         <div className="inline-flex items-center gap-2 self-start rounded-xl border border-[#e3ebe6] bg-white px-3 py-2 text-sm text-[#61736c] sm:self-auto"><CalendarDays className="h-4 w-4 text-[#087f68]" /> Friday, November 6</div>
       </section>
 
+      <div className="rounded-xl border border-sky-100 bg-sky-50/70 px-4 py-3 text-xs text-sky-900">
+        Demo workspace snapshot: dashboard counts, task names, and recent activity are illustrative sample content, not live client accounting records.
+      </div>
+
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map(({label,value,detail,icon:Icon,tone,href}) => <Link key={label} href={href} className="group rounded-2xl border border-[#e4ebe6] bg-white p-5 shadow-[0_3px_16px_-12px_rgba(23,43,58,.25)] transition hover:-translate-y-0.5 hover:border-[#b9d9ca] hover:shadow-lg"><div className="flex items-center justify-between"><span className="text-sm font-medium text-[#71817e]">{label}</span><span className={`flex h-10 w-10 items-center justify-center rounded-xl ${tone === "green" ? "bg-[#e9f5ef] text-[#087f68]" : tone === "amber" ? "bg-amber-50 text-amber-700" : tone === "blue" ? "bg-sky-50 text-sky-700" : "bg-rose-50 text-rose-700"}`}><Icon className="h-5 w-5" /></span></div><p className="mt-4 text-3xl font-semibold tracking-tight text-[#172b3a]">{value}</p><div className="mt-2 flex items-center justify-between"><span className="text-xs text-[#91a09b]">{detail}</span><ArrowUpRight className="h-4 w-4 text-[#a2b0aa] transition group-hover:text-[#087f68]" /></div></Link>)}
       </section>
@@ -45,7 +49,26 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-[#e4ebe6] bg-white p-5 shadow-sm sm:p-6"><div className="flex items-center justify-between"><div><h2 className="font-semibold text-[#263e4a]">Recent activity</h2><p className="mt-1 text-xs text-[#91a09b]">Open an activity to view the related workspace item</p></div><Wallet className="h-5 w-5 text-[#087f68]" /></div><div className="mt-5 grid gap-3 md:grid-cols-3">{recentActivity.map((item) => { const Icon = item.icon; return <Link key={item.title} href={item.href} aria-label={`${item.action}: ${item.title}`} className="group flex min-w-0 gap-3 rounded-xl border border-transparent p-3 transition hover:border-[#dcebe2] hover:bg-[#f6faf7] focus:outline-none focus:ring-2 focus:ring-[#087f68]"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#edf6f0] text-[#087f68]"><Icon className="h-4 w-4" /></span><span className="min-w-0 flex-1"><span className="block text-sm font-semibold text-[#344b58]">{item.title}</span><span className="mt-1 block text-xs leading-5 text-[#82918d]">{item.detail}</span><span className="mt-2 block text-[11px] text-[#a0ada7]">{item.time}</span><span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-[#087f68]">{item.action}<ArrowUpRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></span></span></Link>; })}</div><div className="mt-3 flex justify-end"><Link href="/dashboard/documents" className="text-xs font-semibold text-[#087f68] hover:underline">View all documents →</Link></div></section>
+      <section className="rounded-2xl border border-[#e4ebe6] bg-white p-5 shadow-sm sm:p-6">
+        <div className="flex items-center justify-between">
+          <div><h2 className="font-semibold text-[#263e4a]">Recent activity</h2><p className="mt-1 text-xs text-[#91a09b]">Open the related workspace to inspect the file or continue the workflow.</p></div>
+          <Wallet className="h-5 w-5 text-[#087f68]" />
+        </div>
+        <div className="mt-5 grid gap-4 md:grid-cols-3">
+          {[
+            {title:"Document uploaded",detail:"October Bank Statement.pdf · Acme Corp",time:"12 minutes ago",action:"Open documents",href:"/dashboard/documents",hint:"Browse uploaded files, preview supported formats, download originals, or run analysis."},
+            {title:"Journal entry approved",detail:"JE-2026-1042 · Accrued Expenses",time:"1 hour ago",action:"Open accounting",href:"/dashboard/operations#accounting",hint:"Go to Accounting records to review journal entries and their saved details."},
+            {title:"AI draft prepared",detail:"Four proposed entries for October close",time:"2 hours ago",action:"Open AI workspace",href:"/dashboard/ai",hint:"Continue in the AI workspace. Review suggestions before using them."}
+          ].map(item=><article key={item.title} className="flex min-w-0 flex-col rounded-xl border border-[#e8efea] bg-[#fbfdfb] p-4 transition hover:border-[#b9d9ca] hover:bg-white hover:shadow-sm">
+            <div className="flex items-start gap-3">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#edf6f0] text-[#087f68]"><FileText className="h-4 w-4" /></span>
+              <div className="min-w-0"><p className="text-sm font-semibold text-[#344b58]">{item.title}</p><p className="mt-1 break-words text-xs leading-5 text-[#82918d]">{item.detail}</p><p className="mt-2 text-[11px] text-[#a0ada7]">{item.time}</p></div>
+            </div>
+            <p className="mt-3 flex-1 text-xs leading-5 text-[#71817e]">{item.hint}</p>
+            <Link href={item.href} aria-label={item.action + ": " + item.title} className="mt-4 inline-flex w-fit items-center gap-2 rounded-lg border border-[#dce9e1] bg-white px-3 py-2 text-xs font-semibold text-[#087f68] transition hover:border-[#087f68] hover:bg-[#edf6f0] focus:outline-none focus:ring-2 focus:ring-[#087f68] focus:ring-offset-2">{item.action}<ArrowUpRight className="h-3.5 w-3.5" /></Link>
+          </article>)}
+        </div>
+      </section>
     </div>
   );
 }

@@ -4,7 +4,9 @@ import { authOptions } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  // Allow widget for logged-in users; soft allow for demo
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const body = await req.json().catch(() => ({}));
   const message = String(body.message || "").toLowerCase();
 
@@ -28,7 +30,7 @@ export async function POST(req: NextRequest) {
       "Audit workspace: PBC requests with email notify, and Workpapers with prepare → review → sign-off.";
   else if (message.includes("portal") || message.includes("client"))
     reply =
-      "Client portal is /portal (demo: client@acme.com / Demo123!). Clients upload files and mark PBC items uploaded.";
+      "Client portal is /portal. Clients sign in with their own administrator-provisioned account, upload files, and respond to PBC items.";
   else if (message.includes("statement") || message.includes("trial"))
     reply =
       "Reporting → Financial Statements: import trial balance CSV, then generate Balance Sheet, P&L, cash flow, and ratios.";

@@ -2,12 +2,21 @@
 
 import { useEffect, useRef, useState } from "react";
 import {
-  Shield, Upload, Loader2, CheckCircle2, AlertTriangle, XCircle, Info,
-  ListChecks, FileText, Eye, Download, RefreshCw, FileWarning, ScanSearch,
-  LockKeyhole, ExternalLink
+  Shield,
+  Upload,
+  Loader2,
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+  Info,
+  ListChecks,
+  Eye,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SANITIZER_PLAYBOOK, type SanitizeResult } from "@/lib/security/sanitizer";
+
+type StoredDocument = { id: string; fileName: string; mimeType: string; size: number; status: string; folder?: { name: string } | null };
 
 const severityStyle: Record<string, string> = {
   critical: "bg-red-100 text-red-800 border-red-200",
@@ -46,65 +55,23 @@ export default function SecuritySanitizerPage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewText, setPreviewText] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [storedDocs, setStoredDocs] = useState<StoredDoc[]>([]);
-  const [storedLoading, setStoredLoading] = useState(true);
-  const [storedError, setStoredError] = useState<string | null>(null);
+  const [documents, setDocuments] = useState<StoredDocument[]>([]);
+  const [preview, setPreview] = useState<StoredDocument | null>(null);
   const [scanningId, setScanningId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<Tab>("findings");
-  const [scanTime, setScanTime] = useState<string | null>(null);
-
-  useEffect(() => {
-    let active = true;
-    fetch("/api/documents?clientId=demo-client-001")
-      .then(async (res) => {
-        if (!res.ok) {
-          const body = await res.json().catch(() => ({}));
-          throw new Error(body.error || "Could not load stored documents.");
-        }
-        return res.json();
-      })
-      .then((rows) => {
-        if (active) setStoredDocs(Array.isArray(rows) ? rows : rows.documents || []);
-      })
-      .catch((e) => {
-        if (active) setStoredError(e instanceof Error ? e.message : "Could not load stored documents.");
-      })
-      .finally(() => { if (active) setStoredLoading(false); });
-    return () => {
-      active = false;
-      if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
-    };
-  }, []);
-
-  const setPreview = (file: File, url?: string) => {
-    if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
-    const nextUrl = url || URL.createObjectURL(file);
-    previewUrlRef.current = nextUrl;
-    setPreviewUrl(nextUrl);
-    setSelectedFile(file);
-    setFileLabel(file.name);
-    setPreviewText(isTextPreview(file.name, file.type) ? null : null);
+  const loadDocuments = async () => {
+    const response = await fetch("/api/documents?clientId=demo-client-001");
+    if (response.ok) { const data = await response.json(); setDocuments(Array.isArray(data) ? data : []); }
   };
-
-  const openStored = async (doc: StoredDoc) => {
-    setError(null);
-    setScanningId(doc.id);
+  useEffect(() => { void loadDocuments(); }, []);
+  const scanStored = async (doc: StoredDocument) => {
+    setScanningId(doc.id); setFileLabel(doc.fileName); setError(null); setResult(null);
     try {
-      const res = await fetch(`/api/documents/${encodeURIComponent(doc.id)}/file`);
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || "Could not open the stored attachment.");
-      }
-      const blob = await res.blob();
-      const file = new File([blob], doc.fileName, { type: doc.mimeType || blob.type || "application/octet-stream" });
-      setPreview(file);
-      if (isTextPreview(doc.fileName, doc.mimeType)) setPreviewText(await blob.text());
-      setActiveTab("original");
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not open the stored attachment.");
-    } finally {
-      setScanningId(null);
-    }
+      const response = await fetch("/api/security/sanitize", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ documentId: doc.id }) });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Scan failed");
+      setResult(data.result);
+    } catch (err) { setError(err instanceof Error ? err.message : "Scan failed"); }
+    finally { setScanningId(null); }
   };
 
   const runScan = async (file?: File | null) => {
@@ -165,23 +132,45 @@ export default function SecuritySanitizerPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 pb-10">
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="flex items-center gap-2 text-2xl font-bold text-slate-900">
-            <Shield className="h-7 w-7 text-isaca-medium" /> File Sanitizer
-          </h1>
-          <p className="mt-1 max-w-3xl text-sm text-slate-600">
-            Inspect attachments, review detected risks, and track the actual scan state before storing or sharing files.
-          </p>
-        </div>
-        <div className="rounded-xl border bg-white px-4 py-3 text-right shadow-sm">
-          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Current scan state</p>
-          <p className="mt-1 text-sm font-semibold text-slate-800">{loading ? "Scanning…" : scanState}</p>
-        </div>
-      </header>
+    <div className="max-w-4xl mx-auto space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+          <Shield className="h-7 w-7 text-isaca-medium" />
+          File Sanitizer
+        </h1>
+        <p className="text-slate-600 mt-1">
+          Scan files before firm storage or AI — malware-style type checks, PII hints, classification, public-AI gate
+        </p>
+      </div>
 
-      <section className="rounded-2xl border bg-white p-5 shadow-sm sm:p-6">
+      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="flex items-center justify-between border-b px-5 py-4">
+          <div><h2 className="font-semibold text-slate-900">Documents already uploaded</h2><p className="text-sm text-slate-500">Preview, open, or scan a document from your Documents workspace.</p></div>
+          <button onClick={() => void loadDocuments()} className="rounded-lg border px-3 py-2 text-sm">Refresh</button>
+        </div>
+        {documents.length === 0 ? <p className="p-8 text-center text-sm text-slate-500">No uploaded documents found. Upload files in Documents first.</p> :
+          <div className="divide-y">{documents.map((doc) => <div key={doc.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
+            <div className="min-w-0"><p className="truncate font-medium text-slate-900">{doc.fileName}</p><p className="text-xs text-slate-500">{(doc.size / 1024).toFixed(1)} KB · {doc.status}{doc.folder ? " · " + doc.folder.name : ""}</p></div>
+            <div className="flex flex-wrap gap-2">
+              <button onClick={() => setPreview(doc)} className="inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-sm"><Eye className="h-4 w-4"/> Preview</button>
+              <a href={"/api/documents/" + doc.id + "/file?download=1"} className="rounded-lg border px-3 py-2 text-sm">Open / download</a>
+              <button disabled={scanningId === doc.id} onClick={() => void scanStored(doc)} className="rounded-lg bg-isaca-medium px-3 py-2 text-sm font-semibold text-white disabled:opacity-50">{scanningId === doc.id ? "Scanning…" : "Scan file"}</button>
+            </div>
+          </div>)}</div>}
+      </section>
+      {preview && <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4" role="dialog" aria-modal="true">
+        <div className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
+          <div className="flex items-center justify-between border-b px-5 py-4"><div className="min-w-0"><h3 className="truncate font-semibold">{preview.fileName}</h3><p className="text-xs text-slate-500">{preview.mimeType}</p></div><button onClick={() => setPreview(null)} aria-label="Close preview" className="rounded-lg p-2 hover:bg-slate-100"><X className="h-5 w-5"/></button></div>
+          <div className="min-h-[55vh] flex-1 bg-slate-100 p-3">
+            {preview.mimeType.startsWith("image/") ? <img src={"/api/documents/" + preview.id + "/file"} alt={preview.fileName} className="mx-auto max-h-[70vh] max-w-full object-contain"/> :
+            preview.mimeType === "application/pdf" ? <iframe title={preview.fileName} src={"/api/documents/" + preview.id + "/file"} className="h-[70vh] w-full bg-white"/> :
+            <div className="flex min-h-[50vh] flex-col items-center justify-center gap-3 bg-white p-8 text-center"><FileText className="h-12 w-12 text-cyan-700"/><p className="font-medium">Browser preview is not available for this file type.</p><a className="rounded-lg bg-isaca-medium px-4 py-2 text-white" href={"/api/documents/" + preview.id + "/file?download=1"}>Download original</a></div>}
+          </div>
+          <div className="flex justify-end gap-2 border-t px-5 py-3"><button onClick={() => { const doc = preview; setPreview(null); void scanStored(doc); }} className="rounded-lg bg-isaca-medium px-4 py-2 text-sm font-semibold text-white">Scan this document</button><button onClick={() => setPreview(null)} className="rounded-lg border px-4 py-2 text-sm">Close</button></div>
+        </div>
+      </div>}
+      {/* Simple upload */}
+      <div className="rounded-xl border bg-white p-6 shadow-sm space-y-4">
         <div
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f) void runScan(f); }}
