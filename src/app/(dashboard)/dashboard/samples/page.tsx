@@ -54,7 +54,8 @@ function isTabular(content: string) {
   const first = content.trim().split(/\r?\n/, 1)[0] || "";
   return first.includes(",") && !/^(INVOICE|BANK STATEMENT|STANDARD BANK CONFIRMATION)/i.test(first);
 }
-\nfunction SamplesInner() {
+
+function SamplesInner() {
   const sp = useSearchParams();
   const router = useRouter();
   const [companies, setCompanies] = useState<Company[]>([]);
