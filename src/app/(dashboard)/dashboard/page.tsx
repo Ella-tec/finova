@@ -23,6 +23,10 @@ export default function DashboardPage() {
         <div className="inline-flex items-center gap-2 self-start rounded-xl border border-[#e3ebe6] bg-white px-3 py-2 text-sm text-[#61736c] sm:self-auto"><CalendarDays className="h-4 w-4 text-[#087f68]" /> Friday, November 6</div>
       </section>
 
+      <div className="rounded-xl border border-sky-100 bg-sky-50/70 px-4 py-3 text-xs text-sky-900">
+        Demo workspace snapshot: dashboard counts, task names, and recent activity are illustrative sample content, not live client accounting records.
+      </div>
+
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map(({label,value,detail,icon:Icon,tone,href}) => <Link key={label} href={href} className="group rounded-2xl border border-[#e4ebe6] bg-white p-5 shadow-[0_3px_16px_-12px_rgba(23,43,58,.25)] transition hover:-translate-y-0.5 hover:border-[#b9d9ca] hover:shadow-lg"><div className="flex items-center justify-between"><span className="text-sm font-medium text-[#71817e]">{label}</span><span className={`flex h-10 w-10 items-center justify-center rounded-xl ${tone === "green" ? "bg-[#e9f5ef] text-[#087f68]" : tone === "amber" ? "bg-amber-50 text-amber-700" : tone === "blue" ? "bg-sky-50 text-sky-700" : "bg-rose-50 text-rose-700"}`}><Icon className="h-5 w-5" /></span></div><p className="mt-4 text-3xl font-semibold tracking-tight text-[#172b3a]">{value}</p><div className="mt-2 flex items-center justify-between"><span className="text-xs text-[#91a09b]">{detail}</span><ArrowUpRight className="h-4 w-4 text-[#a2b0aa] transition group-hover:text-[#087f68]" /></div></Link>)}
       </section>

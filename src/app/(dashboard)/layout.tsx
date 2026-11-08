@@ -57,7 +57,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen flex bg-[#f5f7f5]">
       <aside className="hidden lg:flex lg:flex-col w-[272px] shrink-0 border-r border-[#e4ebe6] bg-white text-[#203b35]">
-        <div className="flex h-[76px] items-center gap-2 border-b border-[#edf1ee] px-5"><LogoWordmark light /></div>
+        <div className="flex h-[76px] items-center gap-2 border-b border-[#edf1ee] px-5"><LogoWordmark /></div>
         <nav aria-label="Main navigation" className="flex-1 space-y-1 overflow-y-auto px-4 py-5">{navLinks()}</nav>
         <div className="border-t border-[#edf1ee] p-4">
           <div className="flex items-center gap-3 px-2 mb-3">
