@@ -10,6 +10,9 @@ import {
   XCircle,
   Info,
   ListChecks,
+  FileText,
+  Eye,
+  Download,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SANITIZER_PLAYBOOK, type SanitizeResult } from "@/lib/security/sanitizer";
@@ -22,6 +25,8 @@ const severityStyle: Record<string, string> = {
   info: "bg-sky-50 text-sky-800 border-sky-100",
 };
 
+type StoredDoc = { id: string; fileName: string; mimeType: string; size: number; status: string; createdAt: string };
+
 export default function SecuritySanitizerPage() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [textHint, setTextHint] = useState("");
@@ -29,6 +34,32 @@ export default function SecuritySanitizerPage() {
   const [result, setResult] = useState<SanitizeResult | null>(null);
   const [fileLabel, setFileLabel] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [storedDocs, setStoredDocs] = useState<StoredDoc[]>([]);
+  const [storedLoading, setStoredLoading] = useState(true);
+  const [scanningId, setScanningId] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/documents?clientId=demo-client-001").then(async (res) => {
+      if (!res.ok) throw new Error("Could not load stored documents");
+      return res.json();
+    }).then((rows) => { if (active) setStoredDocs(Array.isArray(rows) ? rows : rows.documents || []); })
+      .catch((e) => { if (active) setError(e.message); })
+      .finally(() => { if (active) setStoredLoading(false); });
+    return () => { active = false; };
+  }, []);
+
+  const scanStored = async (doc: StoredDoc) => {
+    setScanningId(doc.id); setError(null);
+    try {
+      const fileRes = await fetch(`/api/documents/${encodeURIComponent(doc.id)}/file`);
+      if (!fileRes.ok) throw new Error("Could not open the stored file. Check your access and storage.");
+      const blob = await fileRes.blob();
+      const file = new File([blob], doc.fileName, { type: doc.mimeType || blob.type || "application/octet-stream" });
+      await runScan(file);
+    } catch (e: any) { setError(e.message || "Stored file scan failed"); }
+    finally { setScanningId(null); }
+  };
 
   const runScan = async (file?: File | null) => {
     setLoading(true);
@@ -217,6 +248,13 @@ export default function SecuritySanitizerPage() {
           </div>
         </div>
       )}
+
+      <section className="rounded-xl border bg-white p-5 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-2"><div><h2 className="font-semibold text-slate-900">Previously uploaded documents</h2><p className="mt-1 text-sm text-slate-500">Open a stored attachment or scan it here before categorizing it.</p></div><span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">{storedDocs.length} files</span></div>
+        <div className="mt-4 divide-y rounded-lg border">
+          {storedLoading ? <p className="p-4 text-sm text-slate-500">Loading stored files…</p> : storedDocs.length === 0 ? <p className="p-4 text-sm text-slate-500">No stored documents found for this workspace.</p> : storedDocs.map((doc) => <div key={doc.id} className="flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between"><div className="flex min-w-0 items-center gap-3"><FileText className="h-7 w-7 shrink-0 text-emerald-600" /><div className="min-w-0"><p className="break-words text-sm font-medium text-slate-800">{doc.fileName}</p><p className="text-xs text-slate-500">{(doc.size / 1024).toFixed(1)} KB · {doc.status}</p></div></div><div className="flex flex-wrap gap-2"><a target="_blank" rel="noreferrer" href={`/api/documents/${encodeURIComponent(doc.id)}/file`} className="inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-xs font-medium hover:bg-slate-50"><Eye className="h-3.5 w-3.5" /> Open / Preview</a><a href={`/api/documents/${encodeURIComponent(doc.id)}/file?download=1`} className="inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-xs font-medium hover:bg-slate-50"><Download className="h-3.5 w-3.5" /> Download</a><button disabled={scanningId === doc.id || loading} onClick={() => void scanStored(doc)} className="rounded-lg bg-isaca-medium px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">{scanningId === doc.id ? "Scanning…" : "Scan stored file"}</button></div></div>)}
+        </div>
+      </section>
 
       {/* Playbook */}
       <div className="rounded-xl border bg-white p-6 shadow-sm">
