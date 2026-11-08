@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { ExternalLink, PlayCircle, Search, Video } from "lucide-react";
+import { JcccAccountingCourse } from "@/components/learning/JcccAccountingCourse";
 
 type LearningVideo = {
   id: string;
@@ -175,6 +176,8 @@ export function VideoLibrary({ courseTitle }: { courseTitle?: string }) {
           Visit channel <ExternalLink className="h-4 w-4" />
         </a>
       </div>
+
+      <JcccAccountingCourse />
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(280px,.85fr)]">
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-950 shadow-sm">
