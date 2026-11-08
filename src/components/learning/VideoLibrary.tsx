@@ -125,7 +125,7 @@ const VIDEOS: LearningVideo[] = [
   },
 ];
 
-const CATEGORIES = ["All videos", "Accounting Basics", "Bookkeeping", "Bank Reconciliation", "Month-End Close", "Financial Statements", "Inventory & Cost Accounting"];
+const CATEGORIES = ["All videos", "Accounting Basics", "Bookkeeping", "Bank Reconciliation", "Month-End Close", "Financial Statements", "Inventory & Cost Accounting", "Accounting 1 (ACCT 121)"];
 
 export function VideoLibrary({ courseTitle }: { courseTitle?: string }) {
   const [activeVideo, setActiveVideo] = useState(VIDEOS[0]);
@@ -136,7 +136,7 @@ export function VideoLibrary({ courseTitle }: { courseTitle?: string }) {
   const filteredVideos = useMemo(() => {
     const term = search.trim().toLowerCase();
     return VIDEOS.filter((video) => {
-      const matchesCategory = category === "All videos" || video.category === category;
+      const matchesCategory = category !== "Accounting 1 (ACCT 121)" && (category === "All videos" || video.category === category);
       const matchesSearch =
         !term ||
         [video.title, video.category, video.channel, video.description]
@@ -177,6 +177,15 @@ export function VideoLibrary({ courseTitle }: { courseTitle?: string }) {
         >
           Visit channel <ExternalLink className="h-4 w-4" />
         </a>
+      </div>
+
+      <div className="flex flex-wrap gap-2" aria-label="Accounting video categories">
+        {CATEGORIES.map((item) => (
+          <button key={item} type="button" onClick={() => chooseCategory(item)} aria-pressed={category === item}
+            className={`rounded-full border px-3.5 py-2 text-xs font-semibold transition ${category === item ? "border-isaca-medium bg-isaca-medium text-white shadow-sm" : "border-slate-200 bg-white text-slate-600 hover:border-isaca-medium hover:text-isaca-medium"}`}>
+            {item}
+          </button>
+        ))}
       </div>
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(280px,.85fr)]">
@@ -221,19 +230,8 @@ export function VideoLibrary({ courseTitle }: { courseTitle?: string }) {
               className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-sm outline-none transition focus:border-isaca-medium focus:ring-2 focus:ring-isaca-medium/15"
             />
           </label>
-          <div className="flex flex-wrap gap-2">
-            {CATEGORIES.map((item) => (
-              <button
-                key={item}
-                type="button"
-                onClick={() => chooseCategory(item)}
-                className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${category === item ? "border-isaca-medium bg-isaca-medium text-white" : "border-slate-200 bg-white text-slate-600 hover:border-isaca-medium hover:text-isaca-medium"}`}
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-          <div className="max-h-[430px] space-y-2 overflow-y-auto pr-1">
+
+          {category !== "Accounting 1 (ACCT 121)" && <div className="max-h-[430px] space-y-2 overflow-y-auto pr-1">
             {filteredVideos.map((video) => (
               <button
                 key={video.id}
@@ -257,10 +255,10 @@ export function VideoLibrary({ courseTitle }: { courseTitle?: string }) {
                 No videos match that search. Try another accounting topic.
               </p>
             )}
-          </div>
+          </div>}
         </div>
       </div>
-      <JcccAccountingCourse selected={activeJcccIndex} onSelect={(index) => setActiveJcccIndex(index)} />
+      {category === "Accounting 1 (ACCT 121)" && <JcccAccountingCourse selected={activeJcccIndex} onSelect={(index) => setActiveJcccIndex(index)} />}
       <p className="text-xs leading-5 text-slate-500">
         Videos are hosted by their original publishers on YouTube. Availability, advertising, captions, and playback are controlled by YouTube and each publisher.
       </p>
