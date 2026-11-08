@@ -125,7 +125,39 @@ const VIDEOS: LearningVideo[] = [
   },
 ];
 
-const CATEGORIES = ["All videos", "Accounting Basics", "Bookkeeping", "Bank Reconciliation", "Month-End Close", "Financial Statements", "Inventory & Cost Accounting", "Accounting 1 (ACCT 121)"];
+const CATEGORIES = [
+  "All videos",
+  "Accounting Basics",
+  "Bookkeeping",
+  "Bank Reconciliation",
+  "Month-End Close",
+  "Financial Statements",
+  "Inventory & Cost Accounting",
+  "Accounting 1 (ACCT 121)",
+];
+
+const JCCC_PLAYLIST = "PL259DBFA47F3B4761";
+
+/** Known YouTube video IDs for JCCC Accounting 1 (index order matches playlist). */
+const JCCC_VIDEO_IDS = [
+  "ZkZ6Q67Q15E", // 1 Introduction to Class
+  "IL_egHqaU3s", // 2 Basic Accounting Concepts
+  "GhDp9uEKuBk", // 3 Transaction Analysis
+  "0ouQKi6Nb94", // 4 Intro to Financial Statements
+  "4nPJtzNDQng", // 5 Financial Statements
+  "NsJMwtazP-4", // 6 Intro to Debits and Credits
+  "G4Ew3Ija9ZI", // 7 Debits and Credits
+  "aIn7rnu1xTw", // 8 Journal Entries and the Trial Balance
+];
+
+function jcccEmbedSrc(index: number) {
+  const videoId = JCCC_VIDEO_IDS[index];
+  if (videoId) {
+    return `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&list=${JCCC_PLAYLIST}`;
+  }
+  // Fallback for lessons beyond the mapped IDs: playlist embed with index (1-based)
+  return `https://www.youtube-nocookie.com/embed/videoseries?list=${JCCC_PLAYLIST}&index=${index + 1}&rel=0`;
+}
 
 export function VideoLibrary({ courseTitle }: { courseTitle?: string }) {
   const [activeVideo, setActiveVideo] = useState(VIDEOS[0]);
@@ -136,7 +168,9 @@ export function VideoLibrary({ courseTitle }: { courseTitle?: string }) {
   const filteredVideos = useMemo(() => {
     const term = search.trim().toLowerCase();
     return VIDEOS.filter((video) => {
-      const matchesCategory = category !== "Accounting 1 (ACCT 121)" && (category === "All videos" || video.category === category);
+      const matchesCategory =
+        category !== "Accounting 1 (ACCT 121)" &&
+        (category === "All videos" || video.category === category);
       const matchesSearch =
         !term ||
         [video.title, video.category, video.channel, video.description]
@@ -153,7 +187,6 @@ export function VideoLibrary({ courseTitle }: { courseTitle?: string }) {
       setActiveJcccIndex(0);
       return;
     }
-
     const nextVideo = VIDEOS.find(
       (video) => nextCategory === "All videos" || video.category === nextCategory
     );
@@ -161,17 +194,35 @@ export function VideoLibrary({ courseTitle }: { courseTitle?: string }) {
     setActiveJcccIndex(null);
   };
 
+  const playerKey =
+    activeJcccIndex !== null ? `jccc-${activeJcccIndex}` : `video-${activeVideo.id}`;
+  const playerSrc =
+    activeJcccIndex !== null
+      ? jcccEmbedSrc(activeJcccIndex)
+      : `https://www.youtube-nocookie.com/embed/${activeVideo.id}?rel=0`;
+  const playerTitle =
+    activeJcccIndex !== null
+      ? `Accounting 1 Program ${activeJcccIndex + 1}`
+      : activeVideo.title;
+
   return (
     <section className="space-y-5" aria-labelledby="finova-video-library">
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[.16em] text-isaca-medium">Watch & learn</p>
-          <h2 id="finova-video-library" className="mt-1 flex items-center gap-2 text-2xl font-bold text-slate-900">
+          <p className="text-xs font-semibold uppercase tracking-[.16em] text-isaca-medium">
+            Watch & learn
+          </p>
+          <h2
+            id="finova-video-library"
+            className="mt-1 flex items-center gap-2 text-2xl font-bold text-slate-900"
+          >
             <Video className="h-6 w-6 text-isaca-medium" />
             Free accounting video library
           </h2>
           <p className="mt-1 max-w-2xl text-sm text-slate-600">
-            {courseTitle ? `Video lessons and practical examples to support ${courseTitle}.` : "Watch free tutorials from established accounting educators without leaving Finova."}
+            {courseTitle
+              ? `Video lessons and practical examples to support ${courseTitle}.`
+              : "Watch free tutorials from established accounting educators without leaving Finova."}
           </p>
         </div>
         <a
@@ -186,8 +237,17 @@ export function VideoLibrary({ courseTitle }: { courseTitle?: string }) {
 
       <div className="flex flex-wrap gap-2" aria-label="Accounting video categories">
         {CATEGORIES.map((item) => (
-          <button key={item} type="button" onClick={() => chooseCategory(item)} aria-pressed={category === item}
-            className={`rounded-full border px-3.5 py-2 text-xs font-semibold transition ${category === item ? "border-isaca-medium bg-isaca-medium text-white shadow-sm" : "border-slate-200 bg-white text-slate-600 hover:border-isaca-medium hover:text-isaca-medium"}`}>
+          <button
+            key={item}
+            type="button"
+            onClick={() => chooseCategory(item)}
+            aria-pressed={category === item}
+            className={`rounded-full border px-3.5 py-2 text-xs font-semibold transition ${
+              category === item
+                ? "border-isaca-medium bg-isaca-medium text-white shadow-sm"
+                : "border-slate-200 bg-white text-slate-600 hover:border-isaca-medium hover:text-isaca-medium"
+            }`}
+          >
             {item}
           </button>
         ))}
@@ -197,10 +257,10 @@ export function VideoLibrary({ courseTitle }: { courseTitle?: string }) {
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-950 shadow-sm">
           <div className="aspect-video w-full">
             <iframe
-              key={activeVideo.id}
+              key={playerKey}
               className="h-full w-full"
-              src={activeJcccIndex !== null ? `https://www.youtube-nocookie.com/embed/videoseries?list=PL259DBFA47F3B4761&index=${activeJcccIndex + 1}&rel=0` : `https://www.youtube-nocookie.com/embed/${activeVideo.id}?rel=0`}
-              title={activeJcccIndex !== null ? `Accounting 1 Program ${activeJcccIndex + 1}` : activeVideo.title}
+              src={playerSrc}
+              title={playerTitle}
               loading="lazy"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               referrerPolicy="strict-origin-when-cross-origin"
@@ -209,13 +269,43 @@ export function VideoLibrary({ courseTitle }: { courseTitle?: string }) {
           </div>
           <div className="space-y-2 bg-white p-4">
             <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
-              {activeJcccIndex !== null ? <span className="rounded-full bg-isaca-light px-2.5 py-1 font-semibold text-isaca-dark">JCCC · Accounting 1</span> : <><span className="rounded-full bg-isaca-light px-2.5 py-1 font-semibold text-isaca-dark">{activeVideo.category}</span><span>{activeVideo.level}</span><span>•</span><span>{activeVideo.duration}</span></>}
+              {activeJcccIndex !== null ? (
+                <span className="rounded-full bg-isaca-light px-2.5 py-1 font-semibold text-isaca-dark">
+                  JCCC · Accounting 1
+                </span>
+              ) : (
+                <>
+                  <span className="rounded-full bg-isaca-light px-2.5 py-1 font-semibold text-isaca-dark">
+                    {activeVideo.category}
+                  </span>
+                  <span>{activeVideo.level}</span>
+                  <span>•</span>
+                  <span>{activeVideo.duration}</span>
+                </>
+              )}
             </div>
-            <h3 className="font-semibold text-slate-900">{activeJcccIndex !== null ? `Accounting 1 · Lesson ${activeJcccIndex + 1} of 39` : activeVideo.title}</h3>
-            <p className="text-sm text-slate-600">{activeJcccIndex !== null ? "Recorded Fall 2011 by Johnson County Community College. Select a lesson from the course list above." : activeVideo.description}</p>
-            <p className="text-xs text-slate-500">Video by {activeJcccIndex !== null ? "JCCCvideo" : activeVideo.channel}. Playback is provided by the original YouTube publisher.</p>
+            <h3 className="font-semibold text-slate-900">
+              {activeJcccIndex !== null
+                ? `Accounting 1 · Lesson ${activeJcccIndex + 1} of 39`
+                : activeVideo.title}
+            </h3>
+            <p className="text-sm text-slate-600">
+              {activeJcccIndex !== null
+                ? "Recorded Fall 2011 by Johnson County Community College. Select a lesson from the course list below."
+                : activeVideo.description}
+            </p>
+            <p className="text-xs text-slate-500">
+              Video by {activeJcccIndex !== null ? "JCCCvideo" : activeVideo.channel}. Playback is
+              provided by the original YouTube publisher.
+            </p>
             <a
-              href={activeJcccIndex !== null ? "https://www.youtube.com/playlist?list=PL259DBFA47F3B4761" : `https://www.youtube.com/watch?v=${activeVideo.id}`}
+              href={
+                activeJcccIndex !== null
+                  ? JCCC_VIDEO_IDS[activeJcccIndex]
+                    ? `https://www.youtube.com/watch?v=${JCCC_VIDEO_IDS[activeJcccIndex]}&list=${JCCC_PLAYLIST}`
+                    : `https://www.youtube.com/playlist?list=${JCCC_PLAYLIST}`
+                  : `https://www.youtube.com/watch?v=${activeVideo.id}`
+              }
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-1 text-xs font-semibold text-isaca-medium hover:underline"
@@ -236,41 +326,55 @@ export function VideoLibrary({ courseTitle }: { courseTitle?: string }) {
             />
           </label>
 
-          {category !== "Accounting 1 (ACCT 121)" && <div className="max-h-[430px] space-y-2 overflow-y-auto pr-1">
-            {filteredVideos.map((video) => (
-              <button
-                key={video.id}
-                type="button"
-                onClick={() => { setActiveVideo(video); setActiveJcccIndex(null); }}
-                aria-pressed={activeVideo.id === video.id}
-                className={`flex w-full items-start gap-3 rounded-xl border p-3 text-left transition ${activeVideo.id === video.id ? "border-isaca-medium bg-isaca-light/60 ring-1 ring-isaca-medium/20" : "border-slate-200 bg-white hover:border-isaca-medium/50 hover:bg-slate-50"}`}
-              >
-                <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-isaca-light text-isaca-medium">
-                  <PlayCircle className="h-5 w-5" />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-semibold text-slate-900">{video.title}</span>
-                  <span className="mt-1 block text-xs text-slate-500">{video.channel} · {video.duration}</span>
-                  <span className="mt-1 block text-xs text-slate-500">{video.category}</span>
-                </span>
-              </button>
-            ))}
-            {filteredVideos.length === 0 && (
-              <p className="rounded-xl border border-dashed border-slate-300 bg-white p-5 text-sm text-slate-500">
-                No videos match that search. Try another accounting topic.
-              </p>
-            )}
-          </div>}
+          {category !== "Accounting 1 (ACCT 121)" && (
+            <div className="max-h-[430px] space-y-2 overflow-y-auto pr-1">
+              {filteredVideos.map((video) => (
+                <button
+                  key={video.id}
+                  type="button"
+                  onClick={() => {
+                    setActiveVideo(video);
+                    setActiveJcccIndex(null);
+                  }}
+                  aria-pressed={activeVideo.id === video.id && activeJcccIndex === null}
+                  className={`flex w-full items-start gap-3 rounded-xl border p-3 text-left transition ${
+                    activeVideo.id === video.id && activeJcccIndex === null
+                      ? "border-isaca-medium bg-isaca-light/60 ring-1 ring-isaca-medium/20"
+                      : "border-slate-200 bg-white hover:border-isaca-medium/50 hover:bg-slate-50"
+                  }`}
+                >
+                  <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-isaca-light text-isaca-medium">
+                    <PlayCircle className="h-5 w-5" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-semibold text-slate-900">{video.title}</span>
+                    <span className="mt-1 block text-xs text-slate-500">
+                      {video.channel} · {video.duration}
+                    </span>
+                    <span className="mt-1 block text-xs text-slate-500">{video.category}</span>
+                  </span>
+                </button>
+              ))}
+              {filteredVideos.length === 0 && (
+                <p className="rounded-xl border border-dashed border-slate-300 bg-white p-5 text-sm text-slate-500">
+                  No videos match that search. Try another accounting topic.
+                </p>
+              )}
+            </div>
+          )}
         </div>
       </div>
+
       {category === "Accounting 1 (ACCT 121)" && (
         <JcccAccountingCourse
           selected={activeJcccIndex}
           onSelect={(index) => setActiveJcccIndex(index)}
         />
       )}
+
       <p className="text-xs leading-5 text-slate-500">
-        Videos are hosted by their original publishers on YouTube. Availability, advertising, captions, and playback are controlled by YouTube and each publisher.
+        Videos are hosted by their original publishers on YouTube. Availability, advertising,
+        captions, and playback are controlled by YouTube and each publisher.
       </p>
     </section>
   );
