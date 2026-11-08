@@ -3,8 +3,8 @@ import Link from "next/link";
 
 const recentActivity = [
   { title: "Document uploaded", detail: "October Bank Statement.pdf · Acme Corp", time: "12 minutes ago", href: "/dashboard/documents", action: "Open documents", icon: FileText },
-  { title: "Journal entry approved", detail: "JE-2026-1042 · Accrued Expenses", time: "1 hour ago", href: "/dashboard/accounting", action: "Open accounting", icon: CheckCircle2 },
-  { title: "AI draft prepared", detail: "Four proposed entries for October close", time: "2 hours ago", href: "/dashboard/close", action: "Review draft", icon: Bot },
+  { title: "Journal entry approved", detail: "JE-2026-1042 · Accrued Expenses", time: "1 hour ago", href: "/dashboard/operations", action: "Open journal records", icon: CheckCircle2 },
+  { title: "AI draft prepared", detail: "Four proposed entries for October close", time: "2 hours ago", href: "/dashboard/operations", action: "Review accounting drafts", icon: Bot },
 ];
 
 const stats = [
