@@ -118,6 +118,8 @@ export default async function CoursePage({
           ))}
         </div>
 
+        <VideoLibrary courseTitle={course.title} />
+
         <div className="rounded-2xl border border-isaca-medium/20 bg-isaca-light/50 p-5 text-sm text-slate-700">
           <p className="mb-1 font-medium text-isaca-dark">
             Practice in the product
