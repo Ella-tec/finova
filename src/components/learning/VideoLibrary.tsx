@@ -149,6 +149,11 @@ export function VideoLibrary({ courseTitle }: { courseTitle?: string }) {
 
   const chooseCategory = (nextCategory: string) => {
     setCategory(nextCategory);
+    if (nextCategory === "Accounting 1 (ACCT 121)") {
+      setActiveJcccIndex(0);
+      return;
+    }
+
     const nextVideo = VIDEOS.find(
       (video) => nextCategory === "All videos" || video.category === nextCategory
     );
@@ -194,7 +199,7 @@ export function VideoLibrary({ courseTitle }: { courseTitle?: string }) {
             <iframe
               key={activeVideo.id}
               className="h-full w-full"
-              src={activeJcccIndex !== null ? `https://www.youtube-nocookie.com/embed/videoseries?list=PL259DBFA47F3B4761&index=${activeJcccIndex}&rel=0` : `https://www.youtube-nocookie.com/embed/${activeVideo.id}?rel=0`}
+              src={activeJcccIndex !== null ? `https://www.youtube-nocookie.com/embed/videoseries?list=PL259DBFA47F3B4761&index=${activeJcccIndex + 1}&rel=0` : `https://www.youtube-nocookie.com/embed/${activeVideo.id}?rel=0`}
               title={activeJcccIndex !== null ? `Accounting 1 Program ${activeJcccIndex + 1}` : activeVideo.title}
               loading="lazy"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -258,7 +263,12 @@ export function VideoLibrary({ courseTitle }: { courseTitle?: string }) {
           </div>}
         </div>
       </div>
-      <JcccAccountingCourse selected={activeJcccIndex} onSelect={(index) => { setActiveJcccIndex(index); setCategory("Accounting 1 (ACCT 121)"); }} />
+      {category === "Accounting 1 (ACCT 121)" && (
+        <JcccAccountingCourse
+          selected={activeJcccIndex}
+          onSelect={(index) => setActiveJcccIndex(index)}
+        />
+      )}
       <p className="text-xs leading-5 text-slate-500">
         Videos are hosted by their original publishers on YouTube. Availability, advertising, captions, and playback are controlled by YouTube and each publisher.
       </p>
