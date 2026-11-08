@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Clock, PlayCircle, ExternalLink, BookOpen } from "lucide-react";
 import { LogoWordmark } from "@/components/brand/Logo";
 import { getCourse } from "@/lib/learning/courses";
+import { VideoLibrary } from "@/components/learning/VideoLibrary";
 
 const VIDEO_LIBRARY = "https://quickbooks.intuit.com/learn-support/en-us/quickbooks-online/how-to-videos/";
 
@@ -53,6 +54,8 @@ export default async function CoursePage({
             <a href={VIDEO_LIBRARY} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold text-teal-700 hover:text-teal-900">Official QuickBooks video library <ExternalLink className="h-4 w-4" /></a>
           </div>
         </section>
+
+        <VideoLibrary courseTitle={course.title} />
 
         <section className="space-y-3">
           <div className="flex items-end justify-between gap-3">
