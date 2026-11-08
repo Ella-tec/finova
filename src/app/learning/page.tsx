@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { LogoWordmark } from "@/components/brand/Logo";
 import { COURSES } from "@/lib/learning/courses";
+import { VideoLibrary } from "@/components/learning/VideoLibrary";
 
 export default function LearningPage() {
   return (
@@ -70,6 +71,8 @@ export default function LearningPage() {
             </Link>
           ))}
         </div>
+
+        <VideoLibrary />
 
         <div className="rounded-2xl border bg-white p-6 shadow-sm">
           <h2 className="font-semibold text-isaca-dark flex items-center gap-2">
