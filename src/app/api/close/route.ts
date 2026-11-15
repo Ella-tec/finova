@@ -92,6 +92,17 @@ export async function POST(req: NextRequest) {
         data: { status: close.status === "OPEN" ? "IN_PROGRESS" : close.status, startedAt: close.startedAt || new Date() },
         include: { tasks: { orderBy: { step: "asc" } } },
       });
+      if (close.status === "OPEN") {
+        await prisma.auditLog.create({
+          data: {
+            action: "ACCOUNTING_CLOSE_STARTED",
+            entityType: "ClosePeriod",
+            entityId: close.id,
+            details: JSON.stringify({ period, clientId: access.client.id }),
+            userId: access.user.id,
+          },
+        });
+      }
       return NextResponse.json({ success: true, close: updated });
     }
 
@@ -119,6 +130,15 @@ export async function POST(req: NextRequest) {
       where: { id: close.id },
       data: { progress, status: overall },
       include: { tasks: { orderBy: { step: "asc" } } },
+    });
+    await prisma.auditLog.create({
+      data: {
+        action: "ACCOUNTING_CLOSE_TASK_UPDATED",
+        entityType: "CloseTask",
+        entityId: task.id,
+        details: JSON.stringify({ period, clientId: access.client.id, title: task.title, previousStatus: task.status, status }),
+        userId: access.user.id,
+      },
     });
     return NextResponse.json({ success: true, close: updated });
   } catch (error) {
