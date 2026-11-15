@@ -82,8 +82,8 @@ export async function POST(req: NextRequest) {
       try {
         const buffer = await readFile(filePath);
         analysis = await analyzeWithAzure(buffer, doc.fileName, doc.mimeType);
-        if (analysis.provider !== "azure") {
-          return NextResponse.json({ error: "No verified OCR provider is available. Configure Azure Document Intelligence or enable demo data explicitly; no extracted values were inferred from the filename." }, { status: 503 });
+        if (analysis.provider !== "azure" && process.env.FINOVA_DEMO_DATA !== "true") {
+          return NextResponse.json({ error: "No verified OCR provider is available. Configure Azure Document Intelligence; no extracted values were inferred from the filename." }, { status: 503 });
         }
         rawText = analysis.summary || "";
       } catch (providerError) {
