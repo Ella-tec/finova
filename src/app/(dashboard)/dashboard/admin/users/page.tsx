@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import { UserPlus, Loader2, CheckCircle2, RefreshCw, AlertCircle, Copy } from "lucide-react";
 import { Role } from "@prisma/client";
 
+type ClientOption = { id: string; name: string };
+
 type UserRow = {
   id: string;
   email: string;
@@ -19,9 +21,10 @@ const ROLES: Role[] = [
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<UserRow[]>([]);
+  const [clients, setClients] = useState<ClientOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [inviteOpen, setInviteOpen] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "", role: "STAFF_ACCOUNTANT" as Role });
+  const [form, setForm] = useState({ name: "", email: "", role: "STAFF_ACCOUNTANT" as Role, clientId: "" });
   const [inviting, setInviting] = useState(false);
   const [tempPassword, setTempPassword] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +46,20 @@ export default function AdminUsersPage() {
     }
   }, []);
 
-  useEffect(() => { void load(); }, [load]);
+  const loadClients = useCallback(async () => {
+    try {
+      const response = await fetch("/api/clients", { cache: "no-store" });
+      const data = await response.json();
+      if (response.ok) setClients(data.clients || []);
+    } catch {
+      setClients([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    void load();
+    void loadClients();
+  }, [load, loadClients]);
 
   const handleInvite = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -55,13 +71,18 @@ export default function AdminUsersPage() {
       const response = await fetch("/api/users/invite", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          role: form.role,
+          ...(form.role === "CLIENT" ? { clientId: form.clientId } : {}),
+        }),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "User invitation could not be completed.");
       if (!data.temporaryPassword) throw new Error("The user was created but no one-time setup credential was returned. Follow the configured invitation process.");
       setTempPassword(data.temporaryPassword);
-      setForm({ name: "", email: "", role: "STAFF_ACCOUNTANT" });
+      setForm({ name: "", email: "", role: "STAFF_ACCOUNTANT", clientId: "" });
       setNotice("Development user created. Share the one-time credential using a secure channel.");
       await load();
     } catch (err) {
@@ -135,10 +156,20 @@ export default function AdminUsersPage() {
               <input required type="email" maxLength={254} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm font-normal text-slate-900" />
             </label>
             <label className="text-xs font-semibold text-slate-600">Requested role
-              <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value as Role })} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm font-normal text-slate-900">
+              <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value as Role, clientId: e.target.value === "CLIENT" ? form.clientId : "" })} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm font-normal text-slate-900">
                 {ROLES.map((role) => <option key={role} value={role}>{role.replace(/_/g, " ")}</option>)}
               </select>
             </label>
+            {form.role === "CLIENT" && (
+              <label className="text-xs font-semibold text-slate-600 sm:col-span-3">
+                Assign client workspace
+                <select required value={form.clientId} onChange={(e) => setForm({ ...form, clientId: e.target.value })} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm font-normal text-slate-900">
+                  <option value="">Select a client workspace</option>
+                  {clients.map((client) => <option key={client.id} value={client.id}>{client.name}</option>)}
+                </select>
+                <span className="mt-1 block font-normal text-slate-500">This determines which client records the portal user can access.</span>
+              </label>
+            )}
             <div className="sm:col-span-3">
               <button type="submit" disabled={inviting} className="inline-flex items-center gap-2 rounded-lg bg-isaca-medium px-4 py-2.5 text-sm font-semibold text-white hover:brightness-110 disabled:opacity-60">
                 {inviting ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />} Create user
