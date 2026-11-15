@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
     }
 
     const filePath = path.resolve(process.cwd(), "uploads", doc.storageKey);
-    const uploadRoot = path.resolve(process.cwd(), "uploads");
+    const uploadRoot = path.resolve(process.cwd(), "uploads", access.client.id);
     if (!filePath.startsWith(uploadRoot + path.sep)) {
       return NextResponse.json({ error: "Invalid document storage path." }, { status: 400 });
     }
