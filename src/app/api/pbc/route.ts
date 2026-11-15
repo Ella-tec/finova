@@ -73,8 +73,9 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
 
     if (body.id && body.status) {
-      if (!STAFF_ROLES.includes(user.role)) {
-        return NextResponse.json({ error: "Only authorized firm staff may change PBC review status." }, { status: 403 });
+      const isClientUploadConfirmation = user.role === "CLIENT" && body.status === "UPLOADED";
+      if (!STAFF_ROLES.includes(user.role) && !isClientUploadConfirmation) {
+        return NextResponse.json({ error: "Only authorized firm staff or the assigned client may perform this PBC status action." }, { status: 403 });
       }
       if (!PBC_STATUSES.includes(body.status)) {
         return NextResponse.json({ error: "Invalid PBC status." }, { status: 400 });
