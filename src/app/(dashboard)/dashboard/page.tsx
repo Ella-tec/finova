@@ -25,8 +25,8 @@ export default function DashboardPage() {
   return (
     <div className="mx-auto max-w-[1500px] space-y-7">
       <section className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div><p className="text-xs font-bold uppercase tracking-[.18em] text-[#087f68]">Your workspace</p><h1 className="mt-2 text-3xl font-semibold tracking-[-.04em] text-[#172b3a]">Good morning, Accountant</h1><p className="mt-2 text-sm text-[#71817e]">Here’s what needs your attention today.</p></div>
-        <div className="inline-flex items-center gap-2 self-start rounded-xl border border-[#e3ebe6] bg-white px-3 py-2 text-sm text-[#61736c] sm:self-auto"><CalendarDays className="h-4 w-4 text-[#087f68]" /> Friday, November 6</div>
+        <div><p className="text-xs font-bold uppercase tracking-[.18em] text-[#087f68]">Your workspace</p><h1 className="mt-2 text-3xl font-semibold tracking-[-.04em] text-[#172b3a]">Finova executive workspace</h1><p className="mt-2 text-sm text-[#71817e]">Here’s what needs your attention today.</p></div>
+        <div className="inline-flex items-center gap-2 self-start rounded-xl border border-[#e3ebe6] bg-white px-3 py-2 text-sm text-[#61736c] sm:self-auto"><CalendarDays className="h-4 w-4 text-[#087f68]" /> {new Intl.DateTimeFormat("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric", timeZone: "America/Chicago" }).format(new Date())}</div>
       </section>
 
       <div className="rounded-xl border border-sky-100 bg-sky-50/70 px-4 py-3 text-xs text-sky-900">
