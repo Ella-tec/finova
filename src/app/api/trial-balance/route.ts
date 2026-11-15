@@ -14,6 +14,7 @@ export async function POST(req: NextRequest) {
     }
     const access = await authorizeClientAccess(body.clientId || "");
     if (!access.ok) return access.response;
+    if (access.user.role === "CLIENT") return NextResponse.json({ error: "Only firm staff may import or replace a trial balance." }, { status: 403 });
 
     const lines = Array.isArray(body.lines)
       ? body.lines
