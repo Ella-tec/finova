@@ -1,47 +1,62 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { hash } from "bcryptjs";
+import { randomBytes } from "crypto";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Role } from "@prisma/client";
 
 const inviteSchema = z.object({
-  email: z.string().email(),
-  name: z.string().min(2),
+  email: z.string().email().max(254),
+  name: z.string().trim().min(2).max(120),
   role: z.nativeEnum(Role),
-  temporaryPassword: z.string().min(8).optional(),
 });
+
+const INVITERS = ["ADMIN", "PARTNER", "CONTROLLER"] as const;
+
+async function currentFirmAdmin() {
+  const session = await getServerSession(authOptions);
+  const userId = (session?.user as { id?: string } | undefined)?.id;
+  if (!userId) return null;
+  return prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, role: true, firmId: true },
+  });
+}
+
+function canAssignRole(currentRole: string, requestedRole: Role) {
+  if (currentRole === "ADMIN") return true;
+  if (currentRole === "PARTNER") return requestedRole !== "ADMIN";
+  return ["CLIENT", "STAFF_ACCOUNTANT", "SENIOR_ACCOUNTANT"].includes(requestedRole);
+}
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const currentUser = await currentFirmAdmin();
+    if (!currentUser) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!INVITERS.includes(currentUser.role as typeof INVITERS[number]) || !currentUser.firmId) {
+      return NextResponse.json({ error: "Firm administrator, partner, or controller access is required." }, { status: 403 });
     }
 
-    const currentUser = session.user as any;
-    if (!["ADMIN", "PARTNER", "CONTROLLER"].includes(currentUser.role)) {
-      return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 });
+    const parsed = inviteSchema.safeParse(await req.json());
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Invalid invitation details.", details: parsed.error.flatten() }, { status: 400 });
+    }
+    const data = parsed.data;
+    if (!canAssignRole(currentUser.role, data.role)) {
+      return NextResponse.json({ error: "You cannot assign a role at or above your own permission level." }, { status: 403 });
     }
 
-    const body = await req.json();
-    const data = inviteSchema.parse(body);
+    const email = data.email.toLowerCase().trim();
+    const existing = await prisma.user.findUnique({ where: { email }, select: { id: true } });
+    if (existing) return NextResponse.json({ error: "A user with this email already exists." }, { status: 409 });
 
-    const existing = await prisma.user.findUnique({
-      where: { email: data.email.toLowerCase() },
-    });
-
-    if (existing) {
-      return NextResponse.json({ error: "User already exists" }, { status: 400 });
-    }
-
-    const tempPassword = data.temporaryPassword || `Temp${Math.random().toString(36).slice(2, 10)}!`;
-    const passwordHash = await hash(tempPassword, 12);
-
+    const temporaryPassword = randomBytes(18).toString("base64url");
+    const passwordHash = await hash(temporaryPassword, 12);
     const user = await prisma.user.create({
       data: {
-        email: data.email.toLowerCase(),
+        email,
         name: data.name,
         passwordHash,
         role: data.role,
@@ -57,39 +72,41 @@ export async function POST(req: NextRequest) {
         details: JSON.stringify({
           email: user.email,
           role: user.role,
-          invitedBy: currentUser.id,
+          firmId: currentUser.firmId,
         }),
         userId: currentUser.id,
       },
     });
 
-    // In production you would send an email here with the temp password or magic link
+    // The one-time temporary password is returned only in development/demo mode.
+    if (process.env.NODE_ENV === "production") {
+      return NextResponse.json({
+        success: true,
+        user: { id: user.id, email: user.email, name: user.name, role: user.role },
+        invitationDelivery: "NOT_CONFIGURED",
+        message: "User record created. Configure a secure invitation/password-setup delivery before production use.",
+      }, { status: 201 });
+    }
+
     return NextResponse.json({
       success: true,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-      },
-      temporaryPassword: tempPassword, // only returned once for demo
-    });
-  } catch (err: any) {
-    if (err.name === "ZodError") {
-      return NextResponse.json({ error: "Invalid input", details: err.errors }, { status: 400 });
-    }
-    console.error("Invite error:", err);
-    return NextResponse.json({ error: "Invite failed" }, { status: 500 });
+      user: { id: user.id, email: user.email, name: user.name, role: user.role },
+      temporaryPassword,
+      invitationDelivery: "DEVELOPMENT_ONLY",
+    }, { status: 201 });
+  } catch (error) {
+    console.error("Invite error:", error);
+    return NextResponse.json({ error: "Invite failed. Check for duplicate email or firm configuration." }, { status: 500 });
   }
 }
 
-export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export async function GET() {
+  const currentUser = await currentFirmAdmin();
+  if (!currentUser) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!INVITERS.includes(currentUser.role as typeof INVITERS[number]) || !currentUser.firmId) {
+    return NextResponse.json({ error: "Firm administrator, partner, or controller access is required to view team members." }, { status: 403 });
   }
 
-  const currentUser = session.user as any;
   const users = await prisma.user.findMany({
     where: { firmId: currentUser.firmId },
     select: {
@@ -101,6 +118,5 @@ export async function GET(req: NextRequest) {
     },
     orderBy: { createdAt: "desc" },
   });
-
   return NextResponse.json({ users });
 }
