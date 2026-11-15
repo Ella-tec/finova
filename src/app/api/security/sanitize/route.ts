@@ -30,8 +30,8 @@ export async function POST(req: NextRequest) {
         fileName = document.fileName;
         mimeType = document.mimeType;
         size = document.size;
-        const root = path.resolve(process.cwd(), "uploads");
-        const filePath = path.resolve(root, document.storageKey);
+        const root = path.resolve(process.cwd(), "uploads", access.client.id);
+        const filePath = path.resolve(process.cwd(), "uploads", document.storageKey);
         if (!filePath.startsWith(root + path.sep)) return NextResponse.json({ error: "Invalid file path" }, { status: 400 });
         if ([".csv", ".txt", ".json"].some((ext) => fileName.toLowerCase().endsWith(ext)) || mimeType.includes("text")) {
           textContent = (await readFile(filePath)).toString("utf8").slice(0, 200000);
