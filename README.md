@@ -75,3 +75,9 @@ npm run dev
 ```
 
 Open `http://localhost:3000/dashboard/operations` after signing in.
+
+## Enterprise product direction
+
+The proposed enterprise target state, detailed functional requirements, role and approval model, data architecture, 90-day roadmap, initial Jira epics, release gates, and current-state gap register are documented in [docs/ENTERPRISE-PRD.md](docs/ENTERPRISE-PRD.md).
+
+The PRD is the target-state blueprint, not a claim that every listed workflow is already implemented. Accounting operations currently provide draft record capture; double-entry posting, production-grade PostgreSQL migration, full multi-step approvals, and other planned capabilities must be delivered and tested in phases.
