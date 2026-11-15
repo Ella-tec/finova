@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Shield,
   Upload,
@@ -21,6 +21,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SANITIZER_PLAYBOOK, type SanitizeResult } from "@/lib/security/sanitizer";
+
+type ClientOption = { id: string; name: string };
 
 type StoredDocument = {
   id: string;
@@ -61,21 +63,63 @@ export default function SecuritySanitizerPage() {
   const [previewText, setPreviewText] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [documents, setDocuments] = useState<StoredDocument[]>([]);
+  const [clients, setClients] = useState<ClientOption[]>([]);
+  const [clientId, setClientId] = useState("");
+  const [loadingDocuments, setLoadingDocuments] = useState(true);
   const [preview, setPreview] = useState<StoredDocument | null>(null);
   const [scanningId, setScanningId] = useState<string | null>(null);
   const [scanTime, setScanTime] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>("findings");
 
-  const loadDocuments = async () => {
-    const response = await fetch("/api/documents", { cache: "no-store" });
-    if (response.ok) {
-      const data = await response.json();
-      setDocuments(Array.isArray(data.documents) ? data.documents : []);
+  const loadDocuments = useCallback(async (selectedClientId: string) => {
+    if (!selectedClientId) {
+      setDocuments([]);
+      setLoadingDocuments(false);
+      return;
     }
-  };
-  useEffect(() => {
-    void loadDocuments();
+    setLoadingDocuments(true);
+    try {
+      const response = await fetch(`/api/documents?clientId=${encodeURIComponent(selectedClientId)}`, { cache: "no-store" });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Could not load client documents.");
+      setDocuments(Array.isArray(data.documents) ? data.documents : []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not load client documents.");
+      setDocuments([]);
+    } finally {
+      setLoadingDocuments(false);
+    }
   }, []);
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const response = await fetch("/api/clients", { cache: "no-store" });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Could not load authorized clients.");
+        const rows: ClientOption[] = data.clients || [];
+        if (!active) return;
+        setClients(rows);
+        if (rows.length === 1) setClientId(rows[0].id);
+        else setLoadingDocuments(false);
+      } catch (err) {
+        if (active) {
+          setError(err instanceof Error ? err.message : "Could not load client workspaces.");
+          setLoadingDocuments(false);
+        }
+      }
+    })();
+    return () => { active = false; };
+  }, []);
+
+  useEffect(() => {
+    if (clientId) void loadDocuments(clientId);
+    else if (clients.length > 1) {
+      setDocuments([]);
+      setLoadingDocuments(false);
+    }
+  }, [clientId, clients.length, loadDocuments]);
 
   const scanStored = async (doc: StoredDocument) => {
     setScanningId(doc.id);
@@ -183,13 +227,26 @@ export default function SecuritySanitizerPage() {
               Preview, open, or scan a document from your Documents workspace.
             </p>
           </div>
-          <button onClick={() => void loadDocuments()} className="rounded-lg border px-3 py-2 text-sm">
-            Refresh
-          </button>
+          <div className="flex flex-wrap items-end gap-2">
+            <label className="text-xs font-semibold text-slate-600">
+              Client workspace
+              <select aria-label="Client workspace" value={clientId} onChange={(event) => setClientId(event.target.value)} disabled={clients.length === 0} className="mt-1 block min-w-44 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-normal text-slate-900">
+                <option value="">{clients.length ? "Select a client" : "No client workspaces"}</option>
+                {clients.map((client) => <option key={client.id} value={client.id}>{client.name}</option>)}
+              </select>
+            </label>
+            <button onClick={() => void loadDocuments(clientId)} disabled={!clientId || loadingDocuments} className="rounded-lg border px-3 py-2 text-sm disabled:opacity-50">
+              Refresh
+            </button>
+          </div>
         </div>
-        {documents.length === 0 ? (
+        {loadingDocuments ? (
+          <p className="p-8 text-center text-sm text-slate-500">Loading authorized client documents…</p>
+        ) : !clientId ? (
+          <p className="p-8 text-center text-sm text-slate-500">Select an authorized client workspace to review its uploaded documents.</p>
+        ) : documents.length === 0 ? (
           <p className="p-8 text-center text-sm text-slate-500">
-            No uploaded documents found. Upload files in Documents first.
+            No uploaded documents found for this client. Upload files in Documents first.
           </p>
         ) : (
           <div className="divide-y">
