@@ -249,6 +249,11 @@ export default function OperationsPage() {
         </button>
       </header>
 
+      <div role="note" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <strong>Draft capture workspace:</strong> records saved here are retained for preparation and review. They do not yet post double-entry journal lines or change the General Ledger or Trial Balance.
+        <Link href="/dashboard/reporting/statements" className="ml-1 font-semibold underline underline-offset-2">Open financial statements</Link> to review the separate trial-balance workflow.
+      </div>
+
       <nav
         aria-label="Accounting work areas"
         className="grid grid-cols-2 gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm lg:grid-cols-4"
