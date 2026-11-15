@@ -11,6 +11,7 @@ export async function POST(req: NextRequest) {
     }
     const access = await authorizeClientAccess(body.clientId || "");
     if (!access.ok) return access.response;
+    if (access.user.role === "CLIENT") return NextResponse.json({ error: "Only firm staff may generate internal financial statements." }, { status: 403 });
 
     let tbLines: TBLine[] = Array.isArray(body.lines) ? body.lines : [];
     if (!tbLines.length) {
