@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
   if (access.user.role === "CLIENT") return NextResponse.json({ error: "Audit workpapers are internal firm records." }, { status: 403 });
 
   const period = req.nextUrl.searchParams.get("period");
-  if (period && !/^\\d{4}-(0[1-9]|1[0-2])$/.test(period)) return NextResponse.json({ error: "Invalid workpaper period." }, { status: 400 });
+  if (period && !/^\d{4}-(0[1-9]|1[0-2])$/.test(period)) return NextResponse.json({ error: "Invalid workpaper period." }, { status: 400 });
   const workpapers = await prisma.workpaper.findMany({
     where: {
       clientId: access.client.id,
