@@ -94,6 +94,7 @@ export async function GET(req: NextRequest) {
     if (period && !isValidPeriod(period)) return NextResponse.json({ error: "Invalid reporting period." }, { status: 400 });
     const access = await authorizeClientAccess(clientId || "");
     if (!access.ok) return access.response;
+    if (access.user.role === "CLIENT") return NextResponse.json({ error: "Trial balance access is restricted to firm staff." }, { status: 403 });
 
     const rows = await prisma.trialBalance.findMany({
       where: { ...(period ? { period } : {}), clientId: access.client.id },
