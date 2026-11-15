@@ -19,6 +19,7 @@ export async function GET(req: NextRequest) {
   if (!isValidPeriod(period)) return NextResponse.json({ error: "A valid YYYY-MM period is required." }, { status: 400 });
   const access = await getAccess(clientId);
   if (!access.ok) return access.response;
+  if (access.user.role === "CLIENT") return NextResponse.json({ error: "Bank reconciliation is an internal firm workflow." }, { status: 403 });
 
   let rows = await prisma.bankTransaction.findMany({
     where: { period, clientId: access.client.id },
