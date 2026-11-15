@@ -72,7 +72,8 @@ export async function POST(req: NextRequest) {
     await prisma.auditLog.create({
       data: {
         action: "FILE_SANITIZE_SCAN",
-        entityType: "Security",
+        entityType: scannedDocumentId ? "Document" : "Security",
+        entityId: scannedDocumentId,
         details: JSON.stringify({
           fileName,
           classification: result.classification,
