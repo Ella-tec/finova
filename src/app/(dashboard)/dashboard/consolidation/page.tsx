@@ -122,7 +122,7 @@ function exportFullCsv(result: Result, entities: Entity[]) {
 
   rows.push(["FINOVA — MULTI-ENTITY CONSOLIDATION WORKSHEET"]);
   rows.push([`Period: ${period}`, `Reporting currency: ${currency}`]);
-  rows.push(["FICTIONAL / SAMPLE DATA — for system demonstration"]);
+  rows.push(["Illustrative balances may be used only when demo data is explicitly enabled"]);
   rows.push([]);
 
   rows.push(["ENTITY DIRECTORY"]);
@@ -206,7 +206,7 @@ function exportEntityCsv(result: Result, entity: Entity) {
   rows.push(["FINOVA — ENTITY TRIAL BALANCE EXPORT"]);
   rows.push([`Entity: ${entity.code} — ${entity.name}`]);
   rows.push([`Ownership: ${entity.ownershipPct}%`, `Period: ${period}`]);
-  rows.push(["FICTIONAL / SAMPLE DATA — for system demonstration"]);
+  rows.push(["Illustrative balances may be used only when demo data is explicitly enabled"]);
   rows.push([]);
   rows.push(["Account Code", "Account Name", "Classification", "Amount"]);
 
@@ -377,7 +377,16 @@ export default function ConsolidationPage() {
           <Loader2 className="h-5 w-5 animate-spin" /> Loading consolidation…
         </div>
       ) : !result ? (
-        <div className="py-12 text-center text-slate-500">No data for this period</div>
+        <div className="rounded-2xl border border-slate-200 bg-white px-6 py-12 text-center">
+          <Building2 className="mx-auto h-9 w-9 text-slate-300" />
+          <h2 className="mt-3 font-semibold text-slate-900">{entities.length === 0 ? "No entities configured" : "No balances for this period"}</h2>
+          <p className="mx-auto mt-2 max-w-lg text-sm text-slate-500">
+            {entities.length === 0
+              ? "Add the legal entities for this firm in Entity Management before running a consolidation."
+              : "Entity balances have not been recorded for the selected period. Import or record the entity trial balances, then refresh this workspace."}
+          </p>
+          {entities.length === 0 && <a href="/dashboard/entities" className="mt-4 inline-flex rounded-lg bg-isaca-medium px-4 py-2 text-sm font-semibold text-white">Open Entity Management</a>}
+        </div>
       ) : (
         <>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
