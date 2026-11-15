@@ -64,6 +64,7 @@ export async function POST(req: NextRequest) {
     if (!isValidPeriod(period)) return NextResponse.json({ error: "A valid YYYY-MM period is required." }, { status: 400 });
     const access = await getAccess(clientId);
     if (!access.ok) return access.response;
+    if (access.user.role === "CLIENT") return NextResponse.json({ error: "Only firm staff may change bank reconciliation matches." }, { status: 403 });
 
     if (action === "auto-match") {
       const rows = await prisma.bankTransaction.findMany({
