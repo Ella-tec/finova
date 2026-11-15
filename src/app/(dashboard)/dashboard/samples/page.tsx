@@ -155,9 +155,11 @@ function SamplesInner() {
           Free Sample Library
         </h1>
         <p className="text-slate-600 mt-1">
-          {companies.length} companies · {documents.length} downloadable files · full R2R / P2P / O2C / audit lifecycle
-          samples for training and testing
+          {companies.length} sample companies · {documents.length} downloadable templates · R2R / P2P / O2C / audit process examples
         </p>
+        <div className="mt-3 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm leading-6 text-sky-950">
+          <strong>Training data only:</strong> these are illustrative sample documents and templates. They are not live client records, verified financial statements, approved accounting entries, or audit evidence.
+        </div>
       </div>
 
       {/* Process map */}
