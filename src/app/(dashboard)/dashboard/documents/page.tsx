@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Upload,
   FileText,
@@ -12,6 +12,8 @@ import {
   Download,
   ExternalLink,
 } from "lucide-react";
+
+type ClientOption = { id: string; name: string };
 
 type Doc = {
   id: string;
@@ -38,6 +40,7 @@ type Analysis = {
 
 export default function DocumentsPage() {
   const [docs, setDocs] = useState<Doc[]>([]);
+  const [clients, setClients] = useState<ClientOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [analyzing, setAnalyzing] = useState<string | null>(null);
@@ -54,28 +57,61 @@ export default function DocumentsPage() {
     doc.mimeType.startsWith("text/") ||
     doc.mimeType === "application/json";
 
-  const load = async () => {
+  const load = useCallback(async (selectedClientId: string) => {
+    if (!selectedClientId) {
+      setDocs([]);
+      setLoading(false);
+      setLoadError("Select an authorized client workspace to view its documents.");
+      return;
+    }
     setLoading(true);
     try {
-      const res = await fetch("/api/documents");
+      const res = await fetch(`/api/documents?clientId=${encodeURIComponent(selectedClientId)}`, { cache: "no-store" });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "Could not load documents");
-      setClientId(data.clientId || "");
+      setClientId(data.clientId || selectedClientId);
       setDocs(data.documents || []);
-      setLoadError(
-        data.clientId ? null : "No client workspace is assigned to this account yet."
-      );
+      setLoadError(null);
     } catch (error) {
       setDocs([]);
       setLoadError(error instanceof Error ? error.message : "Could not load documents");
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    void load();
+    let active = true;
+    (async () => {
+      try {
+        const res = await fetch("/api/clients", { cache: "no-store" });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Could not load authorized clients.");
+        const rows: ClientOption[] = data.clients || [];
+        if (!active) return;
+        setClients(rows);
+        if (rows.length === 1) setClientId(rows[0].id);
+        else {
+          setLoading(false);
+          if (!rows.length) setLoadError("No client workspace is assigned to this account.");
+        }
+      } catch (error) {
+        if (active) {
+          setLoadError(error instanceof Error ? error.message : "Could not load client workspaces.");
+          setLoading(false);
+        }
+      }
+    })();
+    return () => { active = false; };
   }, []);
+
+  useEffect(() => {
+    if (clientId) void load(clientId);
+    else if (clients.length > 1) {
+      setDocs([]);
+      setLoading(false);
+    }
+  }, [clientId, clients.length, load]);
 
   const handleUpload = async (files: FileList | null) => {
     if (!files?.length) return;
@@ -120,7 +156,7 @@ export default function DocumentsPage() {
       }
     } finally {
       setUploading(false);
-      await load();
+      await load(clientId);
     }
   };
 
@@ -182,6 +218,14 @@ export default function DocumentsPage() {
             <span className="text-slate-500">— check files before AI analysis.</span>
           </p>
         </div>
+
+        <label className="text-xs font-semibold text-slate-600">
+          Client workspace
+          <select aria-label="Client workspace" value={clientId} onChange={(event) => setClientId(event.target.value)} disabled={clients.length === 0} className="mt-1 block min-w-48 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm font-normal text-slate-900">
+            <option value="">{clients.length ? "Select a client" : "No client workspaces"}</option>
+            {clients.map((client) => <option key={client.id} value={client.id}>{client.name}</option>)}
+          </select>
+        </label>
 
         <button
           type="button"
