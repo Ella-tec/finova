@@ -39,6 +39,7 @@ export default function ClosePage() {
   const { data: session, status: sessionStatus } = useSession();
   const role = (session?.user as { role?: string } | undefined)?.role;
   const isClient = role === "CLIENT";
+  const canApproveClose = ["CONTROLLER", "CFO", "PARTNER", "ADMIN"].includes(role || "");
   const [period, setPeriod] = useState(() => new Date().toISOString().slice(0, 7));
   const [clients, setClients] = useState<Client[]>([]);
   const [clientId, setClientId] = useState("");
@@ -124,6 +125,20 @@ export default function ClosePage() {
     }
   };
 
+  const approveClose = async () => {
+    setStarting(true);
+    setError(null);
+    setNotice(null);
+    try {
+      await postAction({ action: "close" });
+      setNotice("The accounting period was closed and locked.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not approve and close this period.");
+    } finally {
+      setStarting(false);
+    }
+  };
+
   const startClose = async () => {
     setStarting(true);
     setError(null);
@@ -204,6 +219,12 @@ export default function ClosePage() {
                   {starting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />} Start Close
                 </button>
               )}
+              {close.status === "PENDING_APPROVAL" && canApproveClose && (
+                <button type="button" onClick={() => void approveClose()} disabled={starting} className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-800 disabled:opacity-60">
+                  {starting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />} Approve & lock period
+                </button>
+              )}
+              {close.status === "PENDING_APPROVAL" && !canApproveClose && <span className="rounded-full bg-amber-50 px-3 py-1.5 text-sm font-medium text-amber-800">Awaiting authorized approval</span>}
               {close.status === "CLOSED" && <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-sm font-medium text-emerald-700"><Lock className="h-4 w-4" /> Closed</span>}
             </div>
           </section>
