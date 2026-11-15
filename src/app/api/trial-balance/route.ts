@@ -42,6 +42,22 @@ export async function POST(req: NextRequest) {
       credit: Number(line.credit),
       clientId: access.client.id,
     }));
+    const accountCodes = normalized.map((line) => line.accountCode.toLowerCase());
+    if (new Set(accountCodes).size !== accountCodes.length) {
+      return NextResponse.json({ error: "The trial balance contains duplicate account codes. Combine each account into one row before importing." }, { status: 400 });
+    }
+    const proposedDebits = normalized.reduce((sum, line) => sum + line.debit, 0);
+    const proposedCredits = normalized.reduce((sum, line) => sum + line.credit, 0);
+    const proposedDifference = Math.round((proposedDebits - proposedCredits) * 100) / 100;
+    if (Math.abs(proposedDifference) >= 0.01) {
+      return NextResponse.json({
+        error: "The trial balance is out of balance. Existing saved balances were not changed.",
+        debitTotal: proposedDebits,
+        creditTotal: proposedCredits,
+        difference: proposedDifference,
+      }, { status: 422 });
+    }
+
     const saved = await prisma.$transaction(async (tx) => {
       await tx.trialBalance.deleteMany({ where: { period: body.period!, clientId: access.client.id } });
       await tx.trialBalance.createMany({ data: normalized });
