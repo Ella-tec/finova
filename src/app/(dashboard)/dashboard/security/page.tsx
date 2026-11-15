@@ -160,6 +160,10 @@ export default function SecuritySanitizerPage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-8">
+      <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950">
+        <strong>Important security boundary:</strong> these are lightweight file-type, metadata, and text-pattern checks. They are not antivirus, malware detonation, or content-disarm-and-reconstruction (CDR). Binary PDFs and images may receive metadata-only checks when no text layer is available. Do not treat a passing result as proof that a file is malware-free.
+      </div>
+
       <div>
         <h1 className="flex items-center gap-2 text-2xl font-bold text-slate-900">
           <Shield className="h-7 w-7 text-isaca-medium" />
