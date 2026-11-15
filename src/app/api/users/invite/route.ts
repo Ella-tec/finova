@@ -11,6 +11,7 @@ const inviteSchema = z.object({
   email: z.string().email().max(254),
   name: z.string().trim().min(2).max(120),
   role: z.nativeEnum(Role),
+  clientId: z.string().min(1).optional(),
 });
 
 const INVITERS = ["ADMIN", "PARTNER", "CONTROLLER"] as const;
@@ -54,6 +55,21 @@ export async function POST(req: NextRequest) {
       }, { status: 503 });
     }
 
+    let assignedClientId: string | null = null;
+    if (data.role === "CLIENT") {
+      if (!data.clientId) {
+        return NextResponse.json({ error: "Select the client workspace this portal user will belong to." }, { status: 400 });
+      }
+      const client = await prisma.client.findFirst({
+        where: { id: data.clientId, firmId: currentUser.firmId },
+        select: { id: true },
+      });
+      if (!client) return NextResponse.json({ error: "The selected client does not belong to your firm." }, { status: 403 });
+      assignedClientId = client.id;
+    } else if (data.clientId) {
+      return NextResponse.json({ error: "Client workspace assignment is only valid for a Client role." }, { status: 400 });
+    }
+
     const email = data.email.toLowerCase().trim();
     const existing = await prisma.user.findUnique({ where: { email }, select: { id: true } });
     if (existing) return NextResponse.json({ error: "A user with this email already exists." }, { status: 409 });
@@ -67,6 +83,7 @@ export async function POST(req: NextRequest) {
         passwordHash,
         role: data.role,
         firmId: currentUser.firmId,
+        clientId: assignedClientId,
       },
     });
 
@@ -79,6 +96,7 @@ export async function POST(req: NextRequest) {
           email: user.email,
           role: user.role,
           firmId: currentUser.firmId,
+          clientId: assignedClientId,
         }),
         userId: currentUser.id,
       },
