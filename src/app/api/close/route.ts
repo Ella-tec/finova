@@ -14,6 +14,7 @@ export async function GET(req: NextRequest) {
   }
   const access = await authorizeClientAccess(clientId);
   if (!access.ok) return access.response;
+  if (access.user.role === "CLIENT") return NextResponse.json({ error: "Month-end close is an internal firm workflow." }, { status: 403 });
 
   let close = await prisma.closePeriod.findFirst({
     where: { period, clientId: access.client.id },
