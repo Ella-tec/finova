@@ -14,8 +14,10 @@ export async function GET(req: NextRequest) {
 
   const access = await authorizeClientAccess(clientId);
   if (!access.ok) return access.response;
+  if (access.user.role === "CLIENT") return NextResponse.json({ error: "Audit workpapers are internal firm records." }, { status: 403 });
 
   const period = req.nextUrl.searchParams.get("period");
+  if (period && !/^\\d{4}-(0[1-9]|1[0-2])$/.test(period)) return NextResponse.json({ error: "Invalid workpaper period." }, { status: 400 });
   const workpapers = await prisma.workpaper.findMany({
     where: {
       clientId: access.client.id,
@@ -36,6 +38,7 @@ export async function POST(req: NextRequest) {
 
     const access = await authorizeClientAccess(body.clientId);
     if (!access.ok) return access.response;
+    if (access.user.role === "CLIENT") return NextResponse.json({ error: "Client portal users cannot create or modify internal audit workpapers." }, { status: 403 });
 
     if (typeof body.id === "string") {
       const existing = await prisma.workpaper.findFirst({
@@ -101,10 +104,22 @@ export async function POST(req: NextRequest) {
         data,
         include: { schedules: { orderBy: { sortOrder: "asc" } } },
       });
+      await prisma.auditLog.create({
+        data: {
+          action: isReview ? "WORKPAPER_REVIEWED" : isSignoff ? "WORKPAPER_SIGNED_OFF" : "WORKPAPER_UPDATED",
+          entityType: "Workpaper",
+          entityId: updated.id,
+          details: JSON.stringify({ clientId: access.client.id, previousStatus: existing.status, status: updated.status }),
+          userId: access.user.id,
+        },
+      });
       return NextResponse.json({ success: true, workpaper: updated });
     }
 
     if (typeof body.templateAccountCode !== "string") return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+    if (!["STAFF_ACCOUNTANT", "SENIOR_ACCOUNTANT", "CONTROLLER", "AUDITOR", "AUDIT_MANAGER", "PARTNER", "ADMIN"].includes(access.user.role)) {
+      return NextResponse.json({ error: "Your role is not authorized to prepare audit workpapers." }, { status: 403 });
+    }
     const template = WORKPAPER_TEMPLATES.find(t => t.accountCode === body.templateAccountCode);
     if (!template) return NextResponse.json({ error: "Template not found" }, { status: 404 });
 
@@ -131,6 +146,15 @@ export async function POST(req: NextRequest) {
       include: { schedules: { orderBy: { sortOrder: "asc" } } },
     });
 
+    await prisma.auditLog.create({
+      data: {
+        action: "WORKPAPER_CREATED",
+        entityType: "Workpaper",
+        entityId: workpaper.id,
+        details: JSON.stringify({ clientId: access.client.id, title: workpaper.title, period: workpaper.period }),
+        userId: access.user.id,
+      },
+    });
     return NextResponse.json({ success: true, workpaper }, { status: 201 });
   } catch (error) {
     console.error("Workpaper API error:", error);
