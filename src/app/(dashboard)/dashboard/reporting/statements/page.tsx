@@ -6,6 +6,7 @@ import { FinancialStatements, TBLine } from "@/lib/statements/generator";
 import { formatCurrency } from "@/lib/utils";
 
 type SavedLine = TBLine & { id?: string };
+type Client = { id: string; name: string };
 
 const SAMPLE: TBLine[] = [
   { accountCode: "1000", accountName: "Cash", debit: 125000, credit: 0 },
@@ -62,6 +63,9 @@ function parseCsv(text: string): TBLine[] {
 
 export default function StatementsPage() {
   const [period, setPeriod] = useState(() => new Date().toISOString().slice(0, 7));
+  const [clients, setClients] = useState<Client[]>([]);
+  const [clientId, setClientId] = useState("");
+  const [loadingClients, setLoadingClients] = useState(true);
   const [lines, setLines] = useState<SavedLine[]>([]);
   const [statements, setStatements] = useState<FinancialStatements | null>(null);
   const [loading, setLoading] = useState(false);
@@ -75,9 +79,15 @@ export default function StatementsPage() {
   const difference = debitTotal - creditTotal;
 
   const loadSaved = useCallback(async () => {
+    if (!clientId) {
+      setLines([]);
+      setStatements(null);
+      setLoadingSaved(false);
+      return;
+    }
     setLoadingSaved(true); setError(""); setMessage("");
     try {
-      const response = await fetch("/api/trial-balance?period=" + encodeURIComponent(period), { cache: "no-store" });
+      const response = await fetch("/api/trial-balance?period=" + encodeURIComponent(period) + "&clientId=" + encodeURIComponent(clientId), { cache: "no-store" });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Could not load saved trial balance.");
       setLines((data.rows || []).map((r: any) => ({ id: r.id, accountCode: r.accountCode, accountName: r.accountName, debit: r.debit, credit: r.credit })));
@@ -85,7 +95,28 @@ export default function StatementsPage() {
       setMessage(data.rows?.length ? "Loaded " + data.rows.length + " saved accounts for " + period + "." : "No saved trial balance for this period yet. Import a CSV or add accounts below.");
     } catch (e) { setError(e instanceof Error ? e.message : "Could not load saved data."); }
     finally { setLoadingSaved(false); }
-  }, [period]);
+  }, [period, clientId]);
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const response = await fetch("/api/clients", { cache: "no-store" });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Could not load authorized clients.");
+        const rows: Client[] = data.clients || [];
+        if (!active) return;
+        setClients(rows);
+        if (rows.length === 1) setClientId(rows[0].id);
+        if (rows.length === 0) setError("No client workspace is assigned to this account.");
+      } catch (error) {
+        if (active) setError(error instanceof Error ? error.message : "Could not load clients.");
+      } finally {
+        if (active) setLoadingClients(false);
+      }
+    })();
+    return () => { active = false; };
+  }, []);
 
   useEffect(() => { void loadSaved(); }, [loadSaved]);
 
@@ -112,7 +143,7 @@ export default function StatementsPage() {
     }
     setLoading(true); setError(""); setMessage("");
     try {
-      const response = await fetch("/api/trial-balance", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ period, lines }) });
+      const response = await fetch("/api/trial-balance", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ period, clientId, lines }) });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Could not save trial balance.");
       setDirty(false); setLines((data.lines || []).map((l: TBLine) => l));
@@ -125,7 +156,7 @@ export default function StatementsPage() {
     setLoading(true); setError(""); setMessage("");
     try {
       if (dirty) throw new Error("Save your trial balance changes before generating statements.");
-      const response = await fetch("/api/statements", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ period }) });
+      const response = await fetch("/api/statements", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ period, clientId }) });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Statement generation failed.");
       setStatements(data.statements); setMessage("Financial statements generated from the saved trial balance.");
@@ -147,19 +178,29 @@ export default function StatementsPage() {
     <div className="mx-auto max-w-6xl space-y-6 pb-12">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div><p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-700">Finova · Reporting workspace</p><h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900">Financial Statements</h1><p className="mt-1 max-w-2xl text-sm text-slate-600">Import, edit, validate, save, and regenerate financial statements from your trial balance.</p></div>
-        <label className="text-sm font-medium text-slate-600">Reporting period<input type="month" value={period} onChange={(e) => setPeriod(e.target.value)} className="mt-1 block rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm shadow-sm focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-100" /></label>
+        <div className="flex flex-wrap items-end gap-3">
+          <label className="text-sm font-medium text-slate-600">Client workspace
+            <select value={clientId} onChange={(e) => setClientId(e.target.value)} disabled={loadingClients || clients.length === 0} className="mt-1 block min-w-56 rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm shadow-sm">
+              <option value="">{loadingClients ? "Loading clients…" : "Select client"}</option>
+              {clients.map((client) => <option key={client.id} value={client.id}>{client.name}</option>)}
+            </select>
+          </label>
+          <label className="text-sm font-medium text-slate-600">Reporting period<input type="month" value={period} onChange={(e) => setPeriod(e.target.value)} className="mt-1 block rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm shadow-sm focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-100" /></label>
+        </div>
       </header>
+
+      {!clientId && !loadingClients && <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">Select an authorized client workspace before importing, saving, or generating financial statements. The page no longer defaults to demo-client data.</div>}
 
       <section className="grid gap-3 sm:grid-cols-3">
         {[{ label: "Accounts", value: lines.length }, { label: "Total debits", value: money(debitTotal) }, { label: "Total credits", value: money(creditTotal) }].map((k) => <div key={k.label} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{k.label}</p><p className="mt-2 text-xl font-bold text-slate-900">{k.value}</p></div>)}
       </section>
 
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-        <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-semibold text-slate-900">1. Import and maintain trial balance</h2><p className="mt-1 text-sm text-slate-500">Upload a CSV, load sample accounts, or edit account rows directly.</p></div><button onClick={loadSaved} disabled={loadingSaved} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"><RefreshCw className={"h-4 w-4 " + (loadingSaved ? "animate-spin" : "")}/>Reload saved</button></div>
+        <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-semibold text-slate-900">1. Import and maintain trial balance</h2><p className="mt-1 text-sm text-slate-500">Upload a CSV, load sample accounts, or edit account rows directly.</p></div><button onClick={loadSaved} disabled={loadingSaved || !clientId} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"><RefreshCw className={"h-4 w-4 " + (loadingSaved ? "animate-spin" : "")}/>Reload saved</button></div>
         <div className="mt-4 flex flex-wrap items-center gap-3">
-          <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-teal-200 bg-teal-50 px-4 py-2.5 text-sm font-semibold text-teal-800 transition hover:bg-teal-100"><FileUp className="h-4 w-4"/>Choose CSV file<input type="file" accept=".csv,text/csv" className="hidden" onChange={(e) => { void importFile(e.target.files?.[0]); e.currentTarget.value = ""; }}/></label>
-          <button onClick={() => { setLines(SAMPLE.map((l) => ({ ...l }))); setDirty(true); setStatements(null); setMessage("Sample accounts loaded. Save them to replace this period's saved trial balance."); setError(""); }} className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">Load sample data</button>
-          <button onClick={addLine} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:border-teal-300 hover:text-teal-800"><Plus className="h-4 w-4"/>Add account</button>
+          <label className={"inline-flex cursor-pointer items-center gap-2 rounded-xl border border-teal-200 bg-teal-50 px-4 py-2.5 text-sm font-semibold text-teal-800 transition hover:bg-teal-100 " + (!clientId ? "pointer-events-none opacity-50" : "")}><FileUp className="h-4 w-4"/>Choose CSV file<input type="file" accept=".csv,text/csv" className="hidden" onChange={(e) => { void importFile(e.target.files?.[0]); e.currentTarget.value = ""; }}/></label>
+          <button onClick={() => { setLines(SAMPLE.map((l) => ({ ...l }))); setDirty(true); setStatements(null); setMessage("Sample accounts loaded. Save them to replace this period's saved trial balance."); setError(""); }} disabled={!clientId} className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50">Load sample data</button>
+          <button onClick={addLine} disabled={!clientId} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:border-teal-300 hover:text-teal-800 disabled:opacity-50"><Plus className="h-4 w-4"/>Add account</button>
           <button onClick={downloadCsv} disabled={!lines.length} className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40">Export CSV</button>
         </div>
         <div className="mt-5 overflow-x-auto rounded-xl border border-slate-200">
@@ -171,11 +212,11 @@ export default function StatementsPage() {
           {!lines.length && <p className="p-8 text-center text-sm text-slate-500">{loadingSaved ? "Loading saved accounts…" : "No accounts loaded. Upload a CSV or add an account to begin."}</p>}
         </div>
         {Math.abs(difference) >= 0.01 && lines.length > 0 && <p className="mt-3 flex items-center gap-2 text-sm text-amber-700"><AlertTriangle className="h-4 w-4"/>Debits and credits do not balance. Review the trial balance before generating statements.</p>}
-        <div className="mt-4 flex flex-wrap items-center gap-3"><button onClick={saveTrialBalance} disabled={loading || !dirty || !lines.length} className="inline-flex items-center gap-2 rounded-xl bg-teal-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-50"><Save className="h-4 w-4"/>{loading ? "Saving…" : "Save / Update Trial Balance"}</button>{dirty && <span className="text-xs font-medium text-amber-700">Unsaved changes</span>}</div>
+        <div className="mt-4 flex flex-wrap items-center gap-3"><button onClick={saveTrialBalance} disabled={loading || !clientId || !dirty || !lines.length} className="inline-flex items-center gap-2 rounded-xl bg-teal-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-50"><Save className="h-4 w-4"/>{loading ? "Saving…" : "Save / Update Trial Balance"}</button>{dirty && <span className="text-xs font-medium text-amber-700">Unsaved changes</span>}</div>
       </section>
 
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-        <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-semibold text-slate-900">2. Generate financial statements</h2><p className="mt-1 text-sm text-slate-500">Generate from the saved trial balance for {period}.</p></div><button onClick={generate} disabled={loading || loadingSaved || dirty || !lines.length} className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50">{loading ? <Loader2 className="h-4 w-4 animate-spin"/> : <FileText className="h-4 w-4"/>}Generate / Regenerate statements</button></div>
+        <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-semibold text-slate-900">2. Generate financial statements</h2><p className="mt-1 text-sm text-slate-500">Generate from the saved trial balance for {period}.</p></div><button onClick={generate} disabled={loading || loadingSaved || !clientId || dirty || !lines.length} className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50">{loading ? <Loader2 className="h-4 w-4 animate-spin"/> : <FileText className="h-4 w-4"/>}Generate / Regenerate statements</button></div>
         {dirty && <p className="mt-3 text-xs text-amber-700">Save your edits before generating statements.</p>}
       </section>
 
