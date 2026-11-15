@@ -28,6 +28,32 @@ export async function POST(req: NextRequest) {
     }
     const access = await authorizeClientAccess(doc.clientId);
     if (!access.ok) return access.response;
+    if (access.user.role === "CLIENT") {
+      return NextResponse.json({ error: "Client portal users may upload evidence, but AI analysis must be initiated by authorized firm staff after review." }, { status: 403 });
+    }
+
+    // A stored document must have a completed, passing sanitizer scan before analysis.
+    const latestScan = await prisma.auditLog.findFirst({
+      where: {
+        action: "FILE_SANITIZE_SCAN",
+        entityType: "Document",
+        entityId: documentId,
+      },
+      orderBy: { createdAt: "desc" },
+      select: { details: true, createdAt: true },
+    });
+    if (!latestScan?.details) {
+      return NextResponse.json({ error: "Run File Sanitizer on this stored document before requesting AI analysis." }, { status: 409 });
+    }
+    let scanDetails: { safeToUpload?: boolean; classification?: string; safeForPublicAI?: boolean } = {};
+    try {
+      scanDetails = JSON.parse(latestScan.details);
+    } catch {
+      return NextResponse.json({ error: "The latest sanitizer result could not be verified. Run File Sanitizer again." }, { status: 409 });
+    }
+    if (scanDetails.safeToUpload !== true) {
+      return NextResponse.json({ error: "The latest sanitizer result did not approve this document for processing. Review the findings before continuing." }, { status: 422 });
+    }
 
     // Try to read stored file for text (limited — binary files will fall back to simulation)
     let rawText = textHint || "";
