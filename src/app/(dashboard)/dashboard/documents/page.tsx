@@ -181,7 +181,7 @@ export default function DocumentsPage() {
       setLoadError(error instanceof Error ? error.message : "Document analysis failed");
     } finally {
       setAnalyzing(null);
-      await load();
+      await load(clientId);
     }
   };
 
@@ -278,7 +278,7 @@ export default function DocumentsPage() {
           </div>
           <button
             type="button"
-            onClick={() => void load()}
+            onClick={() => void load(clientId)}
             className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
           >
             Refresh
