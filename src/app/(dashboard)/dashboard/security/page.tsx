@@ -583,9 +583,9 @@ export default function SecuritySanitizerPage() {
                           {f.severity}
                         </span>
                         <div>
-                          <p className="font-medium text-slate-900">{f.title || f.message}</p>
-                          {f.message && f.title && (
-                            <p className="mt-1 text-slate-600">{f.message}</p>
+                          <p className="font-medium text-slate-900">{f.message}</p>
+                          {f.recommendation && (
+                            <p className="mt-1 text-slate-600">{f.recommendation}</p>
                           )}
                         </div>
                       </li>
