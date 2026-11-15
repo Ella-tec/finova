@@ -1,0 +1,11 @@
+BEGIN;
+CREATE TABLE IF NOT EXISTS roles (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), code varchar(50) NOT NULL UNIQUE, name varchar(100) NOT NULL, description text, created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE IF NOT EXISTS users (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), email varchar(320) NOT NULL UNIQUE, first_name varchar(100) NOT NULL, last_name varchar(100) NOT NULL, password_hash text, role_id uuid REFERENCES roles(id), status varchar(20) NOT NULL DEFAULT 'INVITED' CHECK(status IN ('INVITED','ACTIVE','SUSPENDED','DISABLED')), mfa_enabled boolean NOT NULL DEFAULT false, last_login_at timestamptz, created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now(), deleted_at timestamptz);
+CREATE TABLE IF NOT EXISTS permissions (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), code varchar(100) NOT NULL UNIQUE, description text);
+CREATE TABLE IF NOT EXISTS role_permissions (role_id uuid NOT NULL REFERENCES roles(id) ON DELETE CASCADE, permission_id uuid NOT NULL REFERENCES permissions(id) ON DELETE CASCADE, PRIMARY KEY(role_id,permission_id));
+CREATE TABLE IF NOT EXISTS user_sessions (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE, session_hash text NOT NULL UNIQUE, ip_address inet, user_agent text, expires_at timestamptz NOT NULL, revoked_at timestamptz, created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE IF NOT EXISTS audit_logs (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), actor_user_id uuid REFERENCES users(id), entity_type varchar(100) NOT NULL, entity_id uuid, action varchar(100) NOT NULL, old_value jsonb, new_value jsonb, ip_address inet, correlation_id uuid, created_at timestamptz NOT NULL DEFAULT now());
+CREATE INDEX IF NOT EXISTS ix_users_role ON users(role_id);
+CREATE INDEX IF NOT EXISTS ix_audit_entity_time ON audit_logs(entity_type,entity_id,created_at DESC);
+CREATE INDEX IF NOT EXISTS ix_sessions_user_expiry ON user_sessions(user_id,expires_at);
+COMMIT;
