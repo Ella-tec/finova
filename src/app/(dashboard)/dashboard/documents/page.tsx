@@ -44,6 +44,7 @@ export default function DocumentsPage() {
   const [analysis, setAnalysis] = useState<Record<string, Analysis>>({});
   const [clientId, setClientId] = useState("");
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [previewDoc, setPreviewDoc] = useState<Doc | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileUrl = (doc: Doc) => `/api/documents/${doc.id}/file`;
@@ -86,6 +87,7 @@ export default function DocumentsPage() {
     }
 
     setLoadError(null);
+    setNotice(null);
     setUploading(true);
 
     try {
@@ -105,27 +107,8 @@ export default function DocumentsPage() {
             throw new Error(uploaded.error || `Could not upload ${file.name}`);
           }
 
-          setAnalyzing(uploaded.id);
-          try {
-            const analysisResponse = await fetch("/api/documents/analyze", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ documentId: uploaded.id }),
-            });
-            const result = await analysisResponse.json().catch(() => ({}));
-
-            if (!analysisResponse.ok) {
-              throw new Error(result.error || `Analysis failed for ${file.name}`);
-            }
-            if (result.analysis) {
-              setAnalysis((previous) => ({
-                ...previous,
-                [uploaded.id]: result.analysis,
-              }));
-            }
-          } finally {
-            setAnalyzing(null);
-          }
+          // Upload only. The server requires a passing File Sanitizer audit event before analysis.
+          setNotice("Upload complete. Run File Sanitizer on the stored document before requesting AI analysis.");
         } catch (error) {
           setLoadError(
             error instanceof Error
@@ -177,6 +160,8 @@ export default function DocumentsPage() {
         </div>
       )}
 
+      {notice && <div role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{notice}</div>}
+
       <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <Link
@@ -187,8 +172,8 @@ export default function DocumentsPage() {
           </Link>
           <h1 className="text-2xl font-bold text-slate-900">Document Inbox</h1>
           <p className="mt-1 text-sm text-slate-600">
-            Upload invoices, bills, receipts, and statements. Finova will analyze each file and
-            prepare its details for review.
+            Upload invoices, bills, receipts, and statements. Scan the stored file in File Sanitizer
+            before requesting AI analysis and review of extracted details.
           </p>
           <p className="mt-2 text-sm">
             <Link href="/dashboard/security" className="font-medium text-teal-700 hover:underline">
@@ -205,7 +190,7 @@ export default function DocumentsPage() {
           className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-teal-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-          {uploading ? "Uploading and analyzing…" : "Upload documents"}
+          {uploading ? "Uploading…" : "Upload documents"}
         </button>
         <input
           ref={inputRef}
@@ -234,8 +219,8 @@ export default function DocumentsPage() {
         <h2 className="mt-3 font-semibold text-slate-900">Drop documents here</h2>
         <p className="mt-1 text-sm text-slate-600">PDF, JPG, PNG, CSV, Excel, and Word files</p>
         <p className="mt-2 text-xs text-slate-500">
-          Files are analyzed into suggested records. Review and approve before anything is posted to
-          the ledger.
+          Upload stores the original only. Run File Sanitizer first, then use Analyze on the document
+          after the server confirms a passing scan. Suggestions remain drafts for human review.
         </p>
       </section>
 
@@ -266,7 +251,7 @@ export default function DocumentsPage() {
             <FileText className="mx-auto h-9 w-9 text-slate-300" />
             <p className="mt-3 font-medium text-slate-800">Your inbox is empty</p>
             <p className="mt-1 text-sm text-slate-500">
-              Upload an invoice or receipt to start extracting its details.
+              Upload a file, scan it in File Sanitizer, then request analysis from its document row.
             </p>
           </div>
         ) : (
