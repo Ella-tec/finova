@@ -48,6 +48,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "You cannot assign a role at or above your own permission level." }, { status: 403 });
     }
 
+    if (process.env.NODE_ENV === "production") {
+      return NextResponse.json({
+        error: "Secure invitation delivery is not configured. Configure a verified password-setup or invitation email flow before inviting production users.",
+      }, { status: 503 });
+    }
+
     const email = data.email.toLowerCase().trim();
     const existing = await prisma.user.findUnique({ where: { email }, select: { id: true } });
     if (existing) return NextResponse.json({ error: "A user with this email already exists." }, { status: 409 });
@@ -78,16 +84,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // The one-time temporary password is returned only in development/demo mode.
-    if (process.env.NODE_ENV === "production") {
-      return NextResponse.json({
-        success: true,
-        user: { id: user.id, email: user.email, name: user.name, role: user.role },
-        invitationDelivery: "NOT_CONFIGURED",
-        message: "User record created. Configure a secure invitation/password-setup delivery before production use.",
-      }, { status: 201 });
-    }
-
+    // Development/demo only: display a one-time password so the local workflow can be tested.
     return NextResponse.json({
       success: true,
       user: { id: user.id, email: user.email, name: user.name, role: user.role },
