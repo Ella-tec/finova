@@ -1,6 +1,6 @@
 import Link from "next/link";
 import {
-  ArrowDownRight, ArrowRight, ArrowUpRight, Banknote, Bot, CalendarDays,
+  ArrowRight, ArrowUpRight, Banknote, Bot, CalendarDays,
   CheckCircle2, Clock3, FileText, Plus, Receipt, Sparkles, Wallet,
 } from "lucide-react";
 
