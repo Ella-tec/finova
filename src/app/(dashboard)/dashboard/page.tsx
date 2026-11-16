@@ -1,72 +1,400 @@
-import { CheckCircle2, Clock3, AlertTriangle, FileText, Users, Bot, ArrowRight, ArrowUpRight, Wallet, CalendarDays, Sparkles } from "lucide-react";
-import Link from "next/link";
+"use client";
 
-const recentActivity = [
-  { title: "Document uploaded", detail: "October Bank Statement.pdf · Acme Corp", time: "12 minutes ago", href: "/dashboard/documents", action: "Open documents", icon: FileText },
-  { title: "Journal entry approved", detail: "JE-2026-1042 · Accrued Expenses", time: "1 hour ago", href: "/dashboard/operations", action: "Open journal records", icon: CheckCircle2 },
-  { title: "AI draft prepared", detail: "Four proposed entries for October close", time: "2 hours ago", href: "/dashboard/operations", action: "Review accounting drafts", icon: Bot },
+import {
+  CheckCircle2,
+  Clock3,
+  AlertTriangle,
+  FileText,
+  Users,
+  Bot,
+  ArrowRight,
+  ArrowUpRight,
+  Wallet,
+  CalendarDays,
+  Sparkles,
+  TrendingUp,
+  Receipt,
+  DollarSign,
+  Building2,
+} from "lucide-react";
+import Link from "next/link";
+import { useSession } from "next-auth/react";
+
+const moneyKpis = [
+  {
+    label: "Cash",
+    value: "$4.2M",
+    detail: "Across operating accounts",
+    icon: Wallet,
+    href: "/dashboard/bank-rec",
+    tone: "green" as const,
+  },
+  {
+    label: "Income",
+    value: "$8.5M",
+    detail: "YTD revenue",
+    icon: TrendingUp,
+    href: "/dashboard/reporting/statements",
+    tone: "blue" as const,
+  },
+  {
+    label: "Bills",
+    value: "$220K",
+    detail: "Open payables",
+    icon: Receipt,
+    href: "/dashboard/operations#accounting",
+    tone: "amber" as const,
+  },
+  {
+    label: "Profit",
+    value: "$2.3M",
+    detail: "YTD net income",
+    icon: DollarSign,
+    href: "/dashboard/reporting/statements",
+    tone: "green" as const,
+  },
 ];
 
-const stats = [
-  { label: "Open tasks", value: "12", detail: "Across active engagements", icon: Clock3, tone: "amber", href: "/dashboard/close" },
-  { label: "Pending approvals", value: "5", detail: "Ready for your review", icon: CheckCircle2, tone: "green", href: "/dashboard/close" },
-  { label: "Client requests", value: "8", detail: "Waiting for a response", icon: Users, tone: "blue", href: "/dashboard/audit/pbc" },
-  { label: "Exceptions", value: "3", detail: "Need attention", icon: AlertTriangle, tone: "rose", href: "/dashboard/bank-rec" },
+const workStats = [
+  {
+    label: "Open tasks",
+    value: "12",
+    detail: "Across engagements",
+    icon: Clock3,
+    tone: "amber" as const,
+    href: "/dashboard/close",
+  },
+  {
+    label: "Approvals",
+    value: "5",
+    detail: "Ready for review",
+    icon: CheckCircle2,
+    tone: "green" as const,
+    href: "/dashboard/close",
+  },
+  {
+    label: "Client requests",
+    value: "8",
+    detail: "Waiting on response",
+    icon: Users,
+    tone: "blue" as const,
+    href: "/dashboard/audit/pbc",
+  },
+  {
+    label: "Exceptions",
+    value: "3",
+    detail: "Bank & books",
+    icon: AlertTriangle,
+    tone: "rose" as const,
+    href: "/dashboard/bank-rec",
+  },
 ];
 
 const tasks = [
-  { title: "Bank reconciliation — October", client: "Acme Corp", due: "Today", status: "In progress", href: "/dashboard/bank-rec", tone: "green" },
-  { title: "Review AP accruals", client: "TechStart LLC", due: "Tomorrow", status: "Pending review", href: "/dashboard/close", tone: "amber" },
-  { title: "Prepare trial balance", client: "Green Energy Inc", due: "Nov 5", status: "Not started", href: "/dashboard/reporting/statements", tone: "slate" },
-  { title: "PBC request — bank statements", client: "Acme Corp", due: "Nov 4", status: "Client response", href: "/dashboard/audit/pbc", tone: "blue" },
+  {
+    title: "Bank reconciliation — October",
+    client: "Acme Corp",
+    due: "Today",
+    status: "In progress",
+    href: "/dashboard/bank-rec",
+    tone: "blue",
+  },
+  {
+    title: "Review AP accruals",
+    client: "TechStart LLC",
+    due: "Tomorrow",
+    status: "Needs review",
+    href: "/dashboard/close",
+    tone: "amber",
+  },
+  {
+    title: "Prepare trial balance",
+    client: "Green Energy Inc",
+    due: "Nov 18",
+    status: "Not started",
+    href: "/dashboard/reporting/statements",
+    tone: "slate",
+  },
+  {
+    title: "PBC — bank statements",
+    client: "Acme Corp",
+    due: "Nov 20",
+    status: "Client response",
+    href: "/dashboard/audit/pbc",
+    tone: "blue",
+  },
 ];
 
+const insights = [
+  "Revenue up ~12% vs prior period (demo sample).",
+  "3 bank items still need review before close.",
+  "2 PBC requests are past suggested due date.",
+];
+
+function toneClasses(tone: string) {
+  if (tone === "green") return "bg-emerald-50 text-emerald-700";
+  if (tone === "amber") return "bg-amber-50 text-amber-700";
+  if (tone === "blue") return "bg-sky-50 text-sky-700";
+  if (tone === "rose") return "bg-rose-50 text-rose-700";
+  return "bg-slate-100 text-slate-600";
+}
+
 export default function DashboardPage() {
+  const { data: session } = useSession();
+  const firstName =
+    session?.user?.name?.split(" ")[0] ||
+    session?.user?.email?.split("@")[0] ||
+    "there";
+
+  const hour = new Date().getHours();
+  const hello =
+    hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+
+  const today = new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
+
   return (
-    <div className="mx-auto max-w-[1500px] space-y-7">
-      <section className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div><p className="text-xs font-bold uppercase tracking-[.18em] text-[#087f68]">Your workspace</p><h1 className="mt-2 text-3xl font-semibold tracking-[-.04em] text-[#172b3a]">Good morning, Accountant</h1><p className="mt-2 text-sm text-[#71817e]">Here’s what needs your attention today.</p></div>
-        <div className="inline-flex items-center gap-2 self-start rounded-xl border border-[#e3ebe6] bg-white px-3 py-2 text-sm text-[#61736c] sm:self-auto"><CalendarDays className="h-4 w-4 text-[#087f68]" /> Friday, November 6</div>
+    <div className="mx-auto max-w-[1400px] space-y-6">
+      {/* Friendly header — QuickBooks style */}
+      <section className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
+            {hello}, {firstName}
+          </h1>
+          <p className="mt-1 text-sm text-slate-500">
+            Here&apos;s what&apos;s happening with your business today.
+          </p>
+        </div>
+        <div className="inline-flex items-center gap-2 self-start rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600 sm:self-auto">
+          <CalendarDays className="h-4 w-4 text-emerald-600" />
+          {today}
+        </div>
       </section>
 
-      <div className="rounded-xl border border-sky-100 bg-sky-50/70 px-4 py-3 text-xs text-sky-900">
-        Demo workspace snapshot: dashboard counts, task names, and recent activity are illustrative sample content, not live client accounting records.
+      <div className="rounded-xl border border-sky-100 bg-sky-50/80 px-4 py-2.5 text-xs text-sky-900">
+        Demo snapshot — KPI amounts and task names are sample data for product
+        design, not live books.
       </div>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {stats.map(({label,value,detail,icon:Icon,tone,href}) => <Link key={label} href={href} className="group rounded-2xl border border-[#e4ebe6] bg-white p-5 shadow-[0_3px_16px_-12px_rgba(23,43,58,.25)] transition hover:-translate-y-0.5 hover:border-[#b9d9ca] hover:shadow-lg"><div className="flex items-center justify-between"><span className="text-sm font-medium text-[#71817e]">{label}</span><span className={`flex h-10 w-10 items-center justify-center rounded-xl ${tone === "green" ? "bg-[#e9f5ef] text-[#087f68]" : tone === "amber" ? "bg-amber-50 text-amber-700" : tone === "blue" ? "bg-sky-50 text-sky-700" : "bg-rose-50 text-rose-700"}`}><Icon className="h-5 w-5" /></span></div><p className="mt-4 text-3xl font-semibold tracking-tight text-[#172b3a]">{value}</p><div className="mt-2 flex items-center justify-between"><span className="text-xs text-[#91a09b]">{detail}</span><ArrowUpRight className="h-4 w-4 text-[#a2b0aa] transition group-hover:text-[#087f68]" /></div></Link>)}
+      {/* Business money KPIs — like QuickBooks */}
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {moneyKpis.map(({ label, value, detail, icon: Icon, href, tone }) => (
+          <Link
+            key={label}
+            href={href}
+            className="group rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-md"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-slate-500">{label}</span>
+              <span
+                className={`flex h-9 w-9 items-center justify-center rounded-xl ${toneClasses(tone)}`}
+              >
+                <Icon className="h-4 w-4" />
+              </span>
+            </div>
+            <p className="mt-3 text-3xl font-semibold tracking-tight text-slate-900">
+              {value}
+            </p>
+            <div className="mt-1 flex items-center justify-between">
+              <span className="text-xs text-slate-400">{detail}</span>
+              <ArrowUpRight className="h-4 w-4 text-slate-300 transition group-hover:text-emerald-600" />
+            </div>
+          </Link>
+        ))}
       </section>
 
-      <section className="grid gap-5 xl:grid-cols-[1.55fr_.85fr]">
-        <div className="overflow-hidden rounded-2xl border border-[#e4ebe6] bg-white shadow-sm">
-          <div className="flex items-center justify-between border-b border-[#edf1ee] px-5 py-5 sm:px-6"><div><h2 className="font-semibold text-[#263e4a]">My work</h2><p className="mt-1 text-xs text-[#91a09b]">Your current priorities and deadlines</p></div><Link href="/dashboard/close" className="inline-flex items-center gap-1 text-sm font-semibold text-[#087f68] hover:text-[#066b59]">View all <ArrowRight className="h-4 w-4" /></Link></div>
-          <div className="divide-y divide-[#edf1ee]">{tasks.map(task => <Link key={task.title} href={task.href} className="flex flex-col gap-3 px-5 py-4 transition hover:bg-[#f8fbf9] sm:flex-row sm:items-center sm:justify-between sm:px-6"><div className="min-w-0"><p className="truncate text-sm font-semibold text-[#2b414b]">{task.title}</p><p className="mt-1 text-xs text-[#87958f]">{task.client}</p></div><div className="flex shrink-0 items-center gap-3 sm:justify-end"><span className="text-xs text-[#87958f]">Due {task.due}</span><span className={`rounded-full px-3 py-1 text-[11px] font-semibold ${task.tone === "green" ? "bg-[#e9f5ef] text-[#087f68]" : task.tone === "amber" ? "bg-amber-50 text-amber-700" : task.tone === "blue" ? "bg-sky-50 text-sky-700" : "bg-slate-100 text-slate-600"}`}>{task.status}</span><ArrowRight className="h-4 w-4 text-[#a5b1ab]" /></div></Link>)}</div>
+      {/* Work queue stats */}
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {workStats.map(({ label, value, detail, icon: Icon, tone, href }) => (
+          <Link
+            key={label}
+            href={href}
+            className="flex items-center gap-4 rounded-2xl border border-slate-200/80 bg-white px-4 py-3.5 shadow-sm transition hover:border-emerald-200"
+          >
+            <span
+              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${toneClasses(tone)}`}
+            >
+              <Icon className="h-5 w-5" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-xs font-medium text-slate-500">{label}</p>
+              <p className="text-xl font-semibold text-slate-900">{value}</p>
+              <p className="truncate text-[11px] text-slate-400">{detail}</p>
+            </div>
+          </Link>
+        ))}
+      </section>
+
+      <section className="grid gap-5 xl:grid-cols-[1.5fr_0.9fr]">
+        {/* My work */}
+        <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
+          <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+            <div>
+              <h2 className="font-semibold text-slate-800">To do</h2>
+              <p className="text-xs text-slate-400">Priorities and deadlines</p>
+            </div>
+            <Link
+              href="/dashboard/close"
+              className="inline-flex items-center gap-1 text-sm font-semibold text-emerald-700 hover:text-emerald-800"
+            >
+              View all <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+          <div className="divide-y divide-slate-100">
+            {tasks.map((task) => (
+              <Link
+                key={task.title}
+                href={task.href}
+                className="flex flex-col gap-2 px-5 py-3.5 transition hover:bg-slate-50 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-slate-800">
+                    {task.title}
+                  </p>
+                  <p className="mt-0.5 text-xs text-slate-400">{task.client}</p>
+                </div>
+                <div className="flex shrink-0 items-center gap-3">
+                  <span className="text-xs text-slate-400">Due {task.due}</span>
+                  <span
+                    className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${toneClasses(task.tone)}`}
+                  >
+                    {task.status}
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
 
         <div className="space-y-5">
-          <div className="overflow-hidden rounded-2xl bg-[#172f3d] p-6 text-white shadow-sm"><div className="flex items-center justify-between"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10"><Bot className="h-5 w-5 text-[#9dd9bf]" /></span><Sparkles className="h-5 w-5 text-[#9dd9bf]" /></div><h2 className="mt-5 text-lg font-semibold">Finova AI Assistant</h2><p className="mt-2 text-sm leading-6 text-[#c1d1cb]">Get help understanding accounting workflows, drafting summaries, and preparing work for your review.</p><Link href="/dashboard/ai" className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#8fd3b6] px-4 py-2.5 text-sm font-semibold text-[#173a35] hover:bg-[#b0e2cb]">Open AI workspace <ArrowRight className="h-4 w-4" /></Link></div>
-          <div className="rounded-2xl border border-[#e4ebe6] bg-white p-5 shadow-sm"><h2 className="font-semibold text-[#263e4a]">Quick actions</h2><p className="mt-1 text-xs text-[#91a09b]">Jump into a common workflow</p><div className="mt-4 space-y-1">{[{label:"Import trial balance",href:"/dashboard/reporting/statements"},{label:"Generate financial statements",href:"/dashboard/reporting/statements"},{label:"Create PBC request",href:"/dashboard/audit/pbc"},{label:"Start month-end close",href:"/dashboard/close"}].map(item=><Link key={item.label} href={item.href} className="flex items-center justify-between rounded-xl px-3 py-3 text-sm font-medium text-[#526760] transition hover:bg-[#f1f7f3] hover:text-[#087f68]">{item.label}<ArrowUpRight className="h-4 w-4 text-[#9aaba3]" /></Link>)}</div></div>
+          {/* AI */}
+          <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 p-5 text-white shadow-sm">
+            <div className="flex items-center gap-2">
+              <Bot className="h-5 w-5 text-emerald-300" />
+              <Sparkles className="h-4 w-4 text-emerald-300" />
+              <span className="text-sm font-semibold">Ask Finova AI</span>
+            </div>
+            <p className="mt-3 text-sm leading-relaxed text-slate-300">
+              Draft journals, explain balances, find close gaps, or summarize a
+              workpaper — always with your approval.
+            </p>
+            <Link
+              href="/dashboard/ai"
+              className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-emerald-300"
+            >
+              Open AI <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          {/* Insights */}
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
+            <h2 className="font-semibold text-slate-800">Insights</h2>
+            <ul className="mt-3 space-y-2.5">
+              {insights.map((line) => (
+                <li
+                  key={line}
+                  className="flex gap-2 text-sm text-slate-600"
+                >
+                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
+                  {line}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Quick actions */}
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
+            <h2 className="font-semibold text-slate-800">Quick actions</h2>
+            <div className="mt-3 space-y-1">
+              {[
+                {
+                  label: "Create journal entry",
+                  href: "/dashboard/operations#accounting",
+                },
+                {
+                  label: "Import trial balance",
+                  href: "/dashboard/reporting/statements",
+                },
+                { label: "Match bank transactions", href: "/dashboard/bank-rec" },
+                { label: "Start month-end close", href: "/dashboard/close" },
+                { label: "New PBC request", href: "/dashboard/audit/pbc" },
+              ].map((item) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className="flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-emerald-50 hover:text-emerald-800"
+                >
+                  {item.label}
+                  <ArrowUpRight className="h-4 w-4 text-slate-300" />
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="rounded-2xl border border-[#e4ebe6] bg-white p-5 shadow-sm sm:p-6">
+      {/* Recent activity — soft rows */}
+      <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
         <div className="flex items-center justify-between">
-          <div><h2 className="font-semibold text-[#263e4a]">Recent activity</h2><p className="mt-1 text-xs text-[#91a09b]">Open the related workspace to inspect the file or continue the workflow.</p></div>
-          <Wallet className="h-5 w-5 text-[#087f68]" />
+          <div>
+            <h2 className="font-semibold text-slate-800">Recent activity</h2>
+            <p className="text-xs text-slate-400">
+              Open the related workspace to continue
+            </p>
+          </div>
+          <Building2 className="h-5 w-5 text-emerald-600" />
         </div>
-        <div className="mt-5 grid gap-4 md:grid-cols-3">
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
           {[
-            {title:"Document uploaded",detail:"October Bank Statement.pdf · Acme Corp",time:"12 minutes ago",action:"Open documents",href:"/dashboard/documents",hint:"Browse uploaded files, preview supported formats, download originals, or run analysis."},
-            {title:"Journal entry approved",detail:"JE-2026-1042 · Accrued Expenses",time:"1 hour ago",action:"Open accounting",href:"/dashboard/operations#accounting",hint:"Go to Accounting records to review journal entries and their saved details."},
-            {title:"AI draft prepared",detail:"Four proposed entries for October close",time:"2 hours ago",action:"Open AI workspace",href:"/dashboard/ai",hint:"Continue in the AI workspace. Review suggestions before using them."}
-          ].map(item=><article key={item.title} className="flex min-w-0 flex-col rounded-xl border border-[#e8efea] bg-[#fbfdfb] p-4 transition hover:border-[#b9d9ca] hover:bg-white hover:shadow-sm">
-            <div className="flex items-start gap-3">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#edf6f0] text-[#087f68]"><FileText className="h-4 w-4" /></span>
-              <div className="min-w-0"><p className="text-sm font-semibold text-[#344b58]">{item.title}</p><p className="mt-1 break-words text-xs leading-5 text-[#82918d]">{item.detail}</p><p className="mt-2 text-[11px] text-[#a0ada7]">{item.time}</p></div>
-            </div>
-            <p className="mt-3 flex-1 text-xs leading-5 text-[#71817e]">{item.hint}</p>
-            <Link href={item.href} aria-label={item.action + ": " + item.title} className="mt-4 inline-flex w-fit items-center gap-2 rounded-lg border border-[#dce9e1] bg-white px-3 py-2 text-xs font-semibold text-[#087f68] transition hover:border-[#087f68] hover:bg-[#edf6f0] focus:outline-none focus:ring-2 focus:ring-[#087f68] focus:ring-offset-2">{item.action}<ArrowUpRight className="h-3.5 w-3.5" /></Link>
-          </article>)}
+            {
+              title: "Document uploaded",
+              detail: "October Bank Statement.pdf · Acme",
+              time: "12 min ago",
+              action: "Documents",
+              href: "/dashboard/documents",
+            },
+            {
+              title: "Journal approved",
+              detail: "JE-2026-1042 · Accrued expenses",
+              time: "1 hour ago",
+              action: "Accounting",
+              href: "/dashboard/operations#accounting",
+            },
+            {
+              title: "AI draft ready",
+              detail: "Four proposed close entries",
+              time: "2 hours ago",
+              action: "Review AI",
+              href: "/dashboard/ai",
+            },
+          ].map((item) => (
+            <article
+              key={item.title}
+              className="flex flex-col rounded-xl border border-slate-100 bg-slate-50/50 p-4 transition hover:border-emerald-200 hover:bg-white"
+            >
+              <div className="flex gap-3">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+                  <FileText className="h-4 w-4" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-slate-800">
+                    {item.title}
+                  </p>
+                  <p className="mt-0.5 text-xs text-slate-500">{item.detail}</p>
+                  <p className="mt-1 text-[11px] text-slate-400">{item.time}</p>
+                </div>
+              </div>
+              <Link
+                href={item.href}
+                className="mt-3 inline-flex w-fit items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50"
+              >
+                {item.action} <ArrowUpRight className="h-3.5 w-3.5" />
+              </Link>
+            </article>
+          ))}
         </div>
       </section>
     </div>
