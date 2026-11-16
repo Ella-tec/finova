@@ -9,6 +9,8 @@ import {
   SkipForward,
   Bot,
   Lock,
+  AlertCircle,
+  RefreshCw,
 } from "lucide-react";
 import { ClosePeriod, CloseTaskStatus } from "@/lib/close/checklist";
 import { cn } from "@/lib/utils";
@@ -33,13 +35,28 @@ export default function ClosePage() {
   const [period, setPeriod] = useState(() => new Date().toISOString().slice(0, 7));
   const [close, setClose] = useState<ClosePeriod | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
-    const res = await fetch(`/api/close?period=${period}`);
-    const data = await res.json();
-    setClose(data.close);
-    setLoading(false);
+    setError(null);
+    try {
+      const res = await fetch(`/api/close?period=${period}`);
+      const text = await res.text();
+      const data = text ? JSON.parse(text) : {};
+      if (!res.ok) {
+        setError(data.error || "Could not load close checklist");
+        setClose(null);
+      } else {
+        setClose(data.close ?? null);
+        if (!data.close) setError("No close period returned. Try Start Close.");
+      }
+    } catch {
+      setError("Network error loading close checklist");
+      setClose(null);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -47,29 +64,72 @@ export default function ClosePage() {
   }, [period]);
 
   const updateTask = async (taskId: string, status: CloseTaskStatus) => {
-    const res = await fetch("/api/close", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ period, taskId, status }),
-    });
-    const data = await res.json();
-    if (data.close) setClose(data.close);
+    try {
+      const res = await fetch("/api/close", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ period, taskId, status }),
+      });
+      const text = await res.text();
+      const data = text ? JSON.parse(text) : {};
+      if (data.close) setClose(data.close);
+    } catch {
+      /* keep current state */
+    }
   };
 
   const startClose = async () => {
-    const res = await fetch("/api/close", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ period, action: "start" }),
-    });
-    const data = await res.json();
-    if (data.close) setClose(data.close);
+    try {
+      const res = await fetch("/api/close", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ period, action: "start" }),
+      });
+      const text = await res.text();
+      const data = text ? JSON.parse(text) : {};
+      if (data.close) {
+        setClose(data.close);
+        setError(null);
+      }
+    } catch {
+      setError("Could not start close period");
+    }
   };
 
-  if (loading || !close) {
+  if (loading) {
     return (
-      <div className="flex items-center justify-center h-64 text-slate-500">
-        Loading close checklist&
+      <div className="flex flex-col items-center justify-center h-64 gap-3 text-slate-500">
+        <RefreshCw className="h-6 w-6 animate-spin text-emerald-600" />
+        <p>Loading close checklist…</p>
+      </div>
+    );
+  }
+
+  if (error || !close) {
+    return (
+      <div className="max-w-lg mx-auto mt-16 rounded-2xl border bg-white p-8 text-center shadow-sm">
+        <AlertCircle className="h-10 w-10 text-amber-500 mx-auto mb-3" />
+        <h2 className="text-lg font-semibold text-slate-900">Close checklist unavailable</h2>
+        <p className="text-sm text-slate-600 mt-2">{error || "No data for this period."}</p>
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
+          <button
+            type="button"
+            onClick={load}
+            className="rounded-lg border px-4 py-2 text-sm font-medium hover:bg-slate-50"
+          >
+            Retry
+          </button>
+          <button
+            type="button"
+            onClick={startClose}
+            className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+          >
+            Start Close for {period}
+          </button>
+        </div>
+        <p className="mt-4 text-xs text-slate-400">
+          Tip: ensure API route /api/close works and DATABASE_URL is set.
+        </p>
       </div>
     );
   }
@@ -92,12 +152,13 @@ export default function ClosePage() {
         <div className="flex items-center gap-3">
           <div className="text-right">
             <p className="text-sm text-slate-500">Progress</p>
-            <p className="text-2xl font-bold text-isaca-medium">{close.progress}%</p>
+            <p className="text-2xl font-bold text-emerald-700">{close.progress}%</p>
           </div>
           {close.status === "OPEN" && (
             <button
+              type="button"
               onClick={startClose}
-              className="inline-flex items-center gap-2 rounded-lg bg-isaca-medium px-4 py-2 text-sm font-semibold text-white hover:bg-isaca-dark"
+              className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
             >
               <Play className="h-4 w-4" />
               Start Close
@@ -111,15 +172,13 @@ export default function ClosePage() {
         </div>
       </div>
 
-      {/* Progress bar */}
       <div className="h-2 rounded-full bg-slate-200 overflow-hidden">
         <div
-          className="h-full bg-isaca-medium transition-all duration-500"
+          className="h-full bg-emerald-600 transition-all duration-500"
           style={{ width: `${close.progress}%` }}
         />
       </div>
 
-      {/* Tasks */}
       <div className="rounded-xl border bg-white shadow-sm divide-y">
         {close.tasks.map((task) => {
           const Icon = statusIcon[task.status];
@@ -136,7 +195,7 @@ export default function ClosePage() {
                       Step {task.step}
                     </span>
                     {task.aiCanHelp && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-isaca-light px-2 py-0.5 text-xs font-medium text-isaca-dark">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-800">
                         <Bot className="h-3 w-3" /> AI can help
                       </span>
                     )}
@@ -155,12 +214,14 @@ export default function ClosePage() {
                 {task.status !== "COMPLETED" && task.status !== "SKIPPED" && (
                   <>
                     <button
+                      type="button"
                       onClick={() => updateTask(task.id, "IN_PROGRESS")}
                       className="rounded-lg border px-3 py-1.5 text-xs font-medium hover:bg-slate-50"
                     >
                       Start
                     </button>
                     <button
+                      type="button"
                       onClick={() => updateTask(task.id, "COMPLETED")}
                       className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700"
                     >
