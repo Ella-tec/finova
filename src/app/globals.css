@@ -2,40 +2,63 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * FINOVA visual system — inspired by the ISACA palette and interaction
+ * language used in IsaChatApp. Keep these brand primitives separate from
+ * the selectable page themes below so every page can share the same
+ * accessible foundation without losing its own accent color.
+ */
 :root {
   color-scheme: light;
-  --brand-dark: #12315f;
-  --brand-medium: #0B63CE;
-  --brand-blue: #3B82F6;
-  --brand-teal: #06B6D4;
-  --brand-green: #16A34A;
-  --brand-light: #eff6ff;
+
+  /* IsaChatApp / ISACA brand palette */
+  --isa-navy: #1d2d5c;
+  --isa-medium-blue: #07649d;
+  --isa-bright-blue: #00a4e4;
+  --isa-teal: #36ac91;
+  --isa-green: #6cb33f;
+  --isa-light-blue: #e7f0f5;
+  --isa-grey-1: #f6f7f8;
+  --isa-grey-2: #e5e7eb;
+  --isa-grey-3: #cbd2d9;
+  --isa-grey-7: #52606d;
+  --isa-ink: #1f2933;
+
+  /* FINOVA semantic brand tokens */
+  --brand-dark: var(--isa-navy);
+  --brand-medium: var(--isa-medium-blue);
+  --brand-blue: var(--isa-bright-blue);
+  --brand-teal: var(--isa-teal);
+  --brand-green: var(--isa-green);
+  --brand-light: var(--isa-light-blue);
   --brand-red: #DC2626;
   --brand-orange: #F97316;
   --brand-yellow: #F59E0B;
   --brand-purple: #7C3AED;
-  --background: 210 40% 98%;
-  --foreground: 222 47% 11%;
+
+  --background: 210 17% 97%;
+  --foreground: 210 22% 16%;
   --card: 0 0% 100%;
-  --card-foreground: 222 47% 11%;
+  --card-foreground: 210 22% 16%;
   --popover: 0 0% 100%;
-  --popover-foreground: 222 47% 11%;
-  --primary: 215 88% 43%;
+  --popover-foreground: 210 22% 16%;
+  --primary: 201 91% 32%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 210 40% 96%;
-  --secondary-foreground: 222 47% 11%;
-  --muted: 210 40% 96%;
-  --muted-foreground: 215 16% 47%;
-  --accent: 210 40% 96%;
-  --accent-foreground: 222 47% 11%;
+  --secondary: 204 43% 95%;
+  --secondary-foreground: 220 51% 24%;
+  --muted: 210 17% 96%;
+  --muted-foreground: 208 13% 36%;
+  --accent: 164 49% 94%;
+  --accent-foreground: 220 51% 24%;
   --destructive: 0 72% 51%;
   --destructive-foreground: 0 0% 100%;
-  --border: 214 32% 91%;
-  --input: 214 32% 91%;
-  --ring: 215 88% 43%;
+  --border: 207 18% 83%;
+  --input: 207 18% 83%;
+  --ring: 201 91% 32%;
   --radius: 0.75rem;
 }
 
+/* Page-specific FINOVA accents remain selectable and independent. */
 :root[data-theme="dashboard-blue"] { --brand-medium:#0B63CE; --brand-blue:#3B82F6; --brand-teal:#60A5FA; --brand-light:#eff6ff; --primary:215 88% 43%; --ring:215 88% 43%; }
 :root[data-theme="green-focus"] { --brand-medium:#16A34A; --brand-blue:#22C55E; --brand-teal:#86EFAC; --brand-light:#f0fdf4; --primary:142 71% 36%; --ring:142 71% 36%; }
 :root[data-theme="teal-harmony"] { --brand-medium:#0891B2; --brand-blue:#06B6D4; --brand-teal:#67E8F9; --brand-light:#ecfeff; --primary:189 94% 37%; --ring:189 94% 37%; }
@@ -67,30 +90,67 @@
 
 @layer base {
   * { @apply border-border; }
-  body { @apply bg-background text-foreground; }
+  html { scroll-behavior: smooth; }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
   button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
-  a, button { transition: color .18s ease, background-color .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease; }
-  :focus-visible { outline: 3px solid color-mix(in srgb, var(--brand-blue) 55%, transparent); outline-offset: 2px; }
+  a, button {
+    transition: color .18s ease, background-color .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+  }
+  :focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--brand-blue) 55%, transparent);
+    outline-offset: 2px;
+  }
+  ::selection { background: var(--isa-teal); color: #fff; }
 }
 
 @layer utilities {
-  .bg-brand-gradient { background-image: linear-gradient(110deg, var(--brand-medium), var(--brand-blue), var(--brand-teal)); }
+  .bg-brand-gradient {
+    background-image: linear-gradient(110deg, var(--brand-dark), var(--brand-medium), var(--brand-blue), var(--brand-teal));
+  }
+  .text-brand-gradient {
+    background-image: linear-gradient(110deg, var(--brand-medium), var(--brand-teal));
+    background-clip: text;
+    color: transparent;
+  }
   .bg-isaca-medium { background-color: var(--brand-medium) !important; }
   .text-isaca-medium { color: var(--brand-medium) !important; }
   .border-isaca-medium { border-color: var(--brand-medium) !important; }
   .bg-isaca-light { background-color: color-mix(in srgb, var(--brand-medium) 10%, white) !important; }
   .text-isaca-dark { color: color-mix(in srgb, var(--brand-medium) 75%, #10213c) !important; }
   .ring-isaca-medium { --tw-ring-color: var(--brand-medium) !important; }
-  .shadow-brand { box-shadow: 0 10px 40px -10px color-mix(in srgb, var(--brand-medium) 40%, transparent); }
+  .shadow-brand { box-shadow: 0 10px 40px -10px color-mix(in srgb, var(--brand-medium) 35%, transparent); }
+
+  /* Explicit ISACA palette helpers for consistent page-level styling. */
+  .bg-isa-navy { background-color: var(--isa-navy) !important; }
+  .bg-isa-medium { background-color: var(--isa-medium-blue) !important; }
+  .bg-isa-light { background-color: var(--isa-light-blue) !important; }
+  .text-isa-navy { color: var(--isa-navy) !important; }
+  .text-isa-medium { color: var(--isa-medium-blue) !important; }
+  .text-isa-teal { color: var(--isa-teal) !important; }
+  .text-isa-green { color: var(--isa-green) !important; }
+  .border-isa { border-color: var(--isa-grey-3) !important; }
+
+  .surface-hover {
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  }
+  .surface-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 32px -18px color-mix(in srgb, var(--brand-medium) 45%, transparent);
+  }
+  .surface-card {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    box-shadow: 0 1px 2px rgba(29, 45, 92, .05);
+  }
   .hover\\:bg-isaca-medium:hover { background-color: var(--brand-medium) !important; }
   .hover\\:text-isaca-medium:hover { color: var(--brand-medium) !important; }
-  .text-brand-gradient { background-image: linear-gradient(110deg, var(--brand-medium), var(--brand-teal)); background-clip: text; color: transparent; }
-  .surface-hover { transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
-  .surface-hover:hover { transform: translateY(-2px); box-shadow: 0 14px 32px -18px color-mix(in srgb, var(--brand-medium) 45%, transparent); }
 }
 
-
-/* Dark mode compatibility for the existing utility-class screens. */
+/* Dark mode compatibility for existing utility-class screens. */
 .dark body { background-color: hsl(var(--background)); color: hsl(var(--foreground)); }
 .dark .bg-white { background-color: hsl(var(--card)); }
 .dark .bg-slate-50, .dark .bg-slate-100 { background-color: hsl(var(--secondary)); }
