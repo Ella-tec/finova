@@ -8,7 +8,7 @@ import {
   BarChart3, Bot, Settings, LogOut, ChevronRight, GraduationCap, Building2, Shield,
   Menu, X, ArrowLeft, Wallet,
 } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { LogoWordmark } from "@/components/brand/Logo";
 import { GlobalSearch } from "@/components/brand/GlobalSearch";
@@ -36,44 +36,88 @@ const navigation = [
   { name: "Administration", href: "/dashboard/admin", icon: Settings },
 ];
 
+const allItems = navigation.flatMap((section) => section.items);
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { data: session, status } = useSession();
   const [mobileOpen, setMobileOpen] = useState(false);
   const displayName = session?.user?.name || session?.user?.email || "User";
   const initials = displayName.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase();
+  const activeItem = useMemo(() => {
+    if (pathname === "/dashboard") return allItems[0];
+    return allItems.find((item) => pathname === item.match || pathname.startsWith(item.match + "/"));
+  }, [pathname]);
 
-  const navLinks = (mobile = false) => navigation.map((item) => {
-    const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
-    return (
-      <Link key={item.name} href={item.href} onClick={() => mobile && setMobileOpen(false)}
-        aria-current={isActive ? "page" : undefined}
-        className={cn("flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-all",
-          isActive ? "bg-[#e8f4ee] text-[#087f68] shadow-sm ring-1 ring-[#d3e9de]" : "text-[#62736f] hover:bg-[#f1f6f3] hover:text-[#203b35]")}>
-        <item.icon className="h-5 w-5 shrink-0" />{item.name}
-      </Link>
-    );
-  });
+  const navLinks = (mobile = false) => navigation.map((section) => (
+    <div key={section.label} className="space-y-1">
+      <p className="px-3 pb-1 pt-4 text-[10px] font-bold uppercase tracking-[.16em] text-[#9aa8a1]">{section.label}</p>
+      {section.items.map((item) => {
+        const isActive = item.match === "/dashboard"
+          ? pathname === "/dashboard"
+          : pathname === item.match || pathname.startsWith(item.match + "/");
+        return (
+          <Link
+            key={item.name}
+            href={item.href}
+            onClick={() => mobile && setMobileOpen(false)}
+            aria-current={isActive ? "page" : undefined}
+            className={cn(
+              "flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-all",
+              isActive
+                ? "bg-[#e8f4ee] text-[#087f68] shadow-sm ring-1 ring-[#d3e9de]"
+                : "text-[#62736f] hover:bg-[#f1f6f3] hover:text-[#203b35]"
+            )}
+          >
+            <item.icon className="h-5 w-5 shrink-0" />
+            <span>{item.name}</span>
+          </Link>
+        );
+      })}
+    </div>
+  ));
 
   return (
     <div className="min-h-screen flex bg-[#f5f7f5]">
       <aside className="hidden lg:flex lg:flex-col w-[272px] shrink-0 border-r border-[#e4ebe6] bg-white text-[#203b35]">
-        <div className="flex h-[76px] items-center gap-2 border-b border-[#edf1ee] px-5"><LogoWordmark /></div>
-        <nav aria-label="Main navigation" className="flex-1 space-y-1 overflow-y-auto px-4 py-5">{navLinks()}</nav>
+        <div className="flex h-[76px] items-center gap-2 border-b border-[#edf1ee] px-5">
+          <LogoWordmark />
+        </div>
+        <nav aria-label="Main navigation" className="flex-1 space-y-2 overflow-y-auto px-4 pb-5">
+          {navLinks()}
+        </nav>
         <div className="border-t border-[#edf1ee] p-4">
-          <div className="flex items-center gap-3 px-2 mb-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e8f4ee] text-sm font-bold text-[#087f68]">{status === "loading" ? "…" : initials}</div>
-            <div className="flex-1 min-w-0"><p className="text-sm font-medium truncate">{displayName}</p><p className="truncate text-xs text-[#87958f]">{(session?.user as { role?: string } | undefined)?.role || "Member"}</p></div>
+          <div className="mb-3 flex items-center gap-3 px-2">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e8f4ee] text-sm font-bold text-[#087f68]">
+              {status === "loading" ? "…" : initials}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium">{displayName}</p>
+              <p className="truncate text-xs text-[#87958f]">{(session?.user as { role?: string } | undefined)?.role || "Member"}</p>
+            </div>
           </div>
-          <button type="button" onClick={() => signOut({ callbackUrl: "/login" })} className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm text-[#71817b] hover:bg-[#f1f6f3] hover:text-[#203b35]"><LogOut className="h-4 w-4" />Sign out</button>
+          <button type="button" onClick={() => signOut({ callbackUrl: "/login" })} className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm text-[#71817b] hover:bg-[#f1f6f3] hover:text-[#203b35]">
+            <LogOut className="h-4 w-4" />Sign out
+          </button>
         </div>
       </aside>
 
-      {mobileOpen && <button aria-label="Close navigation" className="fixed inset-0 z-40 bg-[#172f3d]/35 backdrop-blur-sm lg:hidden" onClick={() => setMobileOpen(false)} />}
+      {mobileOpen && (
+        <button aria-label="Close navigation" className="fixed inset-0 z-40 bg-[#172f3d]/35 backdrop-blur-sm lg:hidden" onClick={() => setMobileOpen(false)} />
+      )}
       <aside className={cn("fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-[#e4ebe6] bg-white text-[#203b35] shadow-2xl transition-transform lg:hidden", mobileOpen ? "translate-x-0" : "-translate-x-full")}>
-        <div className="flex h-16 items-center justify-between border-b border-[#edf1ee] px-4"><LogoWordmark light /><button aria-label="Close menu" onClick={() => setMobileOpen(false)}><X /></button></div>
-        <nav aria-label="Mobile navigation" className="flex-1 space-y-1 overflow-y-auto p-3">{navLinks(true)}</nav>
-        <div className="border-t border-[#edf1ee] p-4"><button onClick={() => signOut({ callbackUrl: "/login" })} className="flex items-center gap-2 text-sm text-[#71817b]"><LogOut className="h-4 w-4" />Sign out</button></div>
+        <div className="flex h-16 items-center justify-between border-b border-[#edf1ee] px-4">
+          <LogoWordmark light />
+          <button aria-label="Close menu" onClick={() => setMobileOpen(false)}><X /></button>
+        </div>
+        <nav aria-label="Mobile navigation" className="flex-1 space-y-2 overflow-y-auto p-3 pb-5">
+          {navLinks(true)}
+        </nav>
+        <div className="border-t border-[#edf1ee] p-4">
+          <button onClick={() => signOut({ callbackUrl: "/login" })} className="flex items-center gap-2 text-sm text-[#71817b]">
+            <LogOut className="h-4 w-4" />Sign out
+          </button>
+        </div>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
@@ -89,7 +133,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="hidden items-center gap-2 md:flex"><ThemeSwitcher /><DarkModeToggle /></div>
           <Link href="/dashboard/ai" className="flex shrink-0 items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50"><Bot className="h-4 w-4 text-emerald-700" /><span className="hidden sm:inline">Ask AI</span></Link>
         </header>
-        <div className="flex items-center justify-between border-b border-[#e5ebe7] bg-white px-4 py-2 md:hidden"><ThemeSwitcher /><DarkModeToggle /></div>
+        <div className="flex items-center justify-between border-b border-[#e5ebe7] bg-white px-4 py-2 md:hidden">
+          <ThemeSwitcher /><DarkModeToggle />
+        </div>
         <main className="min-h-0 flex-1 p-4 sm:p-5 lg:p-7">{children}</main>
       </div>
     </div>

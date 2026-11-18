@@ -12,17 +12,32 @@ const allowedKinds: Record<Area, string[]> = {
   BANKING: ["BANK_ACCOUNT", "BANK_STATEMENT", "EMPLOYEE", "PAYROLL"],
 };
 
+const INTERNAL_ROLES = ["STAFF_ACCOUNTANT", "SENIOR_ACCOUNTANT", "CONTROLLER", "CFO", "AUDITOR", "AUDIT_MANAGER", "PARTNER", "TAX_MANAGER", "ADMIN"];
+
 async function context() {
   const session = await getServerSession(authOptions);
-  if (!session?.user) return null;
-  const user = session.user as { id?: string; firmId?: string; clientId?: string };
-  if (!user.id) return null;
-  return { userId: user.id, firmId: user.firmId ?? null, clientId: user.clientId ?? null };
+  const sessionUserId = (session?.user as { id?: string } | undefined)?.id;
+  if (!sessionUserId) return null;
+  const user = await prisma.user.findUnique({
+    where: { id: sessionUserId },
+    select: { id: true, role: true, firmId: true, clientId: true },
+  });
+  if (!user) return null;
+  return { userId: user.id, role: user.role, firmId: user.firmId, clientId: user.clientId };
+}
+
+function denyClient(role: string) {
+  return role === "CLIENT"
+    ? NextResponse.json({ error: "Accounting operations records are internal firm work. Use the Client Portal to submit evidence." }, { status: 403 })
+    : null;
 }
 
 export async function GET(req: NextRequest) {
   const owner = await context();
   if (!owner) return NextResponse.json({ error: "Please sign in to view records." }, { status: 401 });
+  const denied = denyClient(owner.role);
+  if (denied) return denied;
+  if (!INTERNAL_ROLES.includes(owner.role)) return NextResponse.json({ error: "Internal firm role required." }, { status: 403 });
   const area = req.nextUrl.searchParams.get("area");
   if (area && !AREAS.includes(area as Area)) return NextResponse.json({ error: "Invalid workspace area." }, { status: 400 });
 
@@ -40,6 +55,9 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const owner = await context();
   if (!owner) return NextResponse.json({ error: "Please sign in to save records." }, { status: 401 });
+  const denied = denyClient(owner.role);
+  if (denied) return denied;
+  if (!INTERNAL_ROLES.includes(owner.role)) return NextResponse.json({ error: "Internal firm role required." }, { status: 403 });
   try {
     const body = await req.json();
     const area = String(body.area || "") as Area;
@@ -96,6 +114,9 @@ async function ownedRecord(recordId: string, owner: { userId: string; firmId: st
 export async function PUT(req: NextRequest) {
   const owner = await context();
   if (!owner) return NextResponse.json({ error: "Please sign in to edit records." }, { status: 401 });
+  const denied = denyClient(owner.role);
+  if (denied) return denied;
+  if (!INTERNAL_ROLES.includes(owner.role)) return NextResponse.json({ error: "Internal firm role required." }, { status: 403 });
   try {
     const body = await req.json();
     const id = String(body.id || "");
@@ -132,6 +153,9 @@ export async function PUT(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   const owner = await context();
   if (!owner) return NextResponse.json({ error: "Please sign in to approve records." }, { status: 401 });
+  const denied = denyClient(owner.role);
+  if (denied) return denied;
+  if (!INTERNAL_ROLES.includes(owner.role)) return NextResponse.json({ error: "Internal firm role required." }, { status: 403 });
   try {
     const body = await req.json();
     const id = String(body.id || "");

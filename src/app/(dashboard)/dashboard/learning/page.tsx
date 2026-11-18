@@ -118,7 +118,7 @@ export default function DashboardLearningPage() {
         <p className="mt-2 text-sm text-slate-600">
           New to Finova? Start with Getting Started, then take Bank Reconciliation and Month-End
           Close to follow a typical accounting workflow. After that explore Documents & OCR and the
-          AI Copilot.
+          Finova AI workflow guide.
         </p>
         <Link
           href="/learning/getting-started"

@@ -8,6 +8,8 @@ import {
 } from "lucide-react";
 import { formatCurrency, cn } from "@/lib/utils";
 
+type Client = { id: string; name: string };
+
 type Txn = {
   id: string;
   date: string;
@@ -29,6 +31,9 @@ function dateLabel(value: string) {
 
 export default function BankRecPage() {
   const [period, setPeriod] = useState(() => new Date().toISOString().slice(0, 7));
+  const [clients, setClients] = useState<Client[]>([]);
+  const [clientId, setClientId] = useState("");
+  const [loadingClients, setLoadingClients] = useState(true);
   const [txns, setTxns] = useState<Txn[]>([]);
   const [loading, setLoading] = useState(true);
   const [matching, setMatching] = useState(false);
@@ -42,9 +47,10 @@ export default function BankRecPage() {
   const [selectedBookId, setSelectedBookId] = useState("");
 
   const load = useCallback(async () => {
+    if (!clientId) { setTxns([]); setLoading(false); return; }
     setLoading(true);
     try {
-      const res = await fetch(`/api/bank-rec?period=${encodeURIComponent(period)}`, { cache: "no-store" });
+      const res = await fetch(`/api/bank-rec?period=${encodeURIComponent(period)}&clientId=${encodeURIComponent(clientId)}`, { cache: "no-store" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Unable to load bank transactions.");
       setTxns((data.transactions || []).map((t: Txn) => ({
@@ -56,7 +62,28 @@ export default function BankRecPage() {
     } finally {
       setLoading(false);
     }
-  }, [period]);
+  }, [period, clientId]);
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const res = await fetch("/api/clients", { cache: "no-store" });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Could not load authorized clients.");
+        const rows: Client[] = data.clients || [];
+        if (!active) return;
+        setClients(rows);
+        if (rows.length === 1) setClientId(rows[0].id);
+        if (rows.length === 0) setNotice({ kind: "error", text: "No client workspace is assigned to this account." });
+      } catch (error) {
+        if (active) setNotice({ kind: "error", text: error instanceof Error ? error.message : "Could not load clients." });
+      } finally {
+        if (active) setLoadingClients(false);
+      }
+    })();
+    return () => { active = false; };
+  }, []);
 
   useEffect(() => { void load(); }, [load]);
 
@@ -84,7 +111,7 @@ export default function BankRecPage() {
       const res = await fetch("/api/bank-rec", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "auto-match", period }),
+        body: JSON.stringify({ action: "auto-match", period, clientId }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Auto-match failed.");
@@ -105,7 +132,7 @@ export default function BankRecPage() {
       const res = await fetch("/api/bank-rec", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "manual-match", period, bankId: selectedBankId, bookId: selectedBookId }),
+        body: JSON.stringify({ action: "manual-match", period, clientId, bankId: selectedBankId, bookId: selectedBookId }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Could not match these entries.");
@@ -128,7 +155,7 @@ export default function BankRecPage() {
       const res = await fetch("/api/bank-rec", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "unmatch", period, bankId: txn.source === "BANK" ? txn.id : txn.matchedToId }),
+        body: JSON.stringify({ action: "unmatch", period, clientId, bankId: txn.source === "BANK" ? txn.id : txn.matchedToId }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Could not unlink these entries.");
@@ -155,16 +182,27 @@ export default function BankRecPage() {
           <p className="mt-1 text-sm text-slate-600">Review every bank movement, connect it to the ledger, and track supporting evidence.</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <label className="sr-only" htmlFor="recon-client">Client workspace</label>
+          <select id="recon-client" value={clientId} onChange={(e) => setClientId(e.target.value)} disabled={loadingClients || clients.length === 0} className="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm shadow-sm">
+            <option value="">{loadingClients ? "Loading clients…" : "Select client"}</option>
+            {clients.map((client) => <option key={client.id} value={client.id}>{client.name}</option>)}
+          </select>
           <label className="sr-only" htmlFor="recon-period">Statement period</label>
           <input id="recon-period" type="month" value={period} onChange={(e) => setPeriod(e.target.value)} className="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm shadow-sm" />
-          <button onClick={() => void load()} disabled={loading} className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50">
+          <button onClick={() => void load()} disabled={loading || !clientId} className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50">
             <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} /> Refresh
           </button>
-          <button onClick={runAutoMatch} disabled={matching || loading} className="inline-flex items-center gap-2 rounded-xl bg-teal-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-teal-800 disabled:opacity-60">
+          <button onClick={runAutoMatch} disabled={matching || loading || !clientId} className="inline-flex items-center gap-2 rounded-xl bg-teal-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-teal-800 disabled:opacity-60">
             {matching ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />} AI Auto-Match
           </button>
         </div>
       </header>
+
+      {!clientId && !loadingClients && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          Select an authorized client workspace to view or reconcile bank activity. This page no longer assumes a demo client.
+        </div>
+      )}
 
       {notice && (
         <div role="status" className={cn("flex items-start gap-2 rounded-xl border px-4 py-3 text-sm", notice.kind === "success" ? "border-emerald-200 bg-emerald-50 text-emerald-900" : "border-rose-200 bg-rose-50 text-rose-900")}>

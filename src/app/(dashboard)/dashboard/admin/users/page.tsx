@@ -14,6 +14,8 @@ import {
 import { Role } from "@prisma/client";
 import { cn } from "@/lib/utils";
 
+type ClientOption = { id: string; name: string };
+
 type UserRow = {
   id: string;
   email: string;
@@ -23,16 +25,8 @@ type UserRow = {
 };
 
 const ROLES: Role[] = [
-  "CLIENT",
-  "STAFF_ACCOUNTANT",
-  "SENIOR_ACCOUNTANT",
-  "CONTROLLER",
-  "CFO",
-  "AUDITOR",
-  "AUDIT_MANAGER",
-  "PARTNER",
-  "TAX_MANAGER",
-  "ADMIN",
+  "CLIENT", "STAFF_ACCOUNTANT", "SENIOR_ACCOUNTANT", "CONTROLLER", "CFO",
+  "AUDITOR", "AUDIT_MANAGER", "PARTNER", "TAX_MANAGER", "ADMIN",
 ];
 
 function roleTone(role: string) {
@@ -45,6 +39,7 @@ function roleTone(role: string) {
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<UserRow[]>([]);
+  const [clients, setClients] = useState<ClientOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [inviteOpen, setInviteOpen] = useState(false);
   const [selected, setSelected] = useState<UserRow | null>(null);
@@ -56,8 +51,9 @@ export default function AdminUsersPage() {
   const [inviting, setInviting] = useState(false);
   const [tempPassword, setTempPassword] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch("/api/users/invite");
@@ -68,20 +64,37 @@ export default function AdminUsersPage() {
     }
   };
 
-  useEffect(() => {
-    load();
+  const loadClients = useCallback(async () => {
+    try {
+      const response = await fetch("/api/clients", { cache: "no-store" });
+      const data = await response.json();
+      if (response.ok) setClients(data.clients || []);
+    } catch {
+      setClients([]);
+    }
   }, []);
 
-  const handleInvite = async (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    void load();
+    void loadClients();
+  }, [load, loadClients]);
+
+  const handleInvite = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     setInviting(true);
     setError(null);
+    setNotice(null);
     setTempPassword(null);
     try {
-      const res = await fetch("/api/users/invite", {
+      const response = await fetch("/api/users/invite", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          role: form.role,
+          ...(form.role === "CLIENT" ? { clientId: form.clientId } : {}),
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Invite failed");
@@ -92,6 +105,16 @@ export default function AdminUsersPage() {
       setError(err instanceof Error ? err.message : "Invite failed");
     } finally {
       setInviting(false);
+    }
+  };
+
+  const copyPassword = async () => {
+    if (!tempPassword) return;
+    try {
+      await navigator.clipboard.writeText(tempPassword);
+      setNotice("One-time password copied. Share it only through an approved secure channel.");
+    } catch {
+      setError("Clipboard access was unavailable. Select the password and copy it manually.");
     }
   };
 
@@ -199,7 +222,7 @@ export default function AdminUsersPage() {
               </button>
             </div>
           </form>
-        </div>
+        </section>
       )}
 
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
