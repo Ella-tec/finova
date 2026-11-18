@@ -14,7 +14,8 @@ const links = [
   {
     href: "/dashboard/reporting/statements",
     title: "Financial Statements",
-    description: "Import trial balance and generate Balance Sheet, P&L, Cash Flow and notes.",
+    description:
+      "Import trial balance and generate Balance Sheet, P&L, Cash Flow and notes.",
     icon: FileText,
     badge: "Core",
   },
@@ -58,7 +59,7 @@ const links = [
 export default function ReportingPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <div>
+      <header>
         <h1 className="text-2xl font-bold text-slate-900">Financial Reporting</h1>
         <p className="mt-1 text-slate-600">
           Trial balance, statements, consolidation context, and management reports
@@ -77,7 +78,9 @@ export default function ReportingPage() {
           >
             <div className="flex items-center gap-2 text-emerald-700">
               <k.icon className="h-4 w-4" />
-              <span className="text-xs font-semibold uppercase tracking-wide">{k.label}</span>
+              <span className="text-xs font-semibold uppercase tracking-wide">
+                {k.label}
+              </span>
             </div>
             <p className="mt-2 text-sm font-medium text-slate-800">{k.value}</p>
           </div>
@@ -109,21 +112,6 @@ export default function ReportingPage() {
           </Link>
         ))}
       </div>
-
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {workspaces.map((item) => (
-          <Link key={item.href} href={item.href} className="group flex min-h-48 flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-isaca-medium/40 hover:shadow-md">
-            <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-isaca-light text-isaca-medium">
-              <item.icon className="h-5 w-5" />
-            </span>
-            <h2 className="font-semibold text-slate-900 group-hover:text-isaca-medium">{item.title}</h2>
-            <p className="mt-2 flex-1 text-sm leading-6 text-slate-600">{item.description}</p>
-            <span className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-isaca-medium">
-              Open workspace <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
-            </span>
-          </Link>
-        ))}
-      </section>
     </div>
   );
 }
