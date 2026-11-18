@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   UserPlus,
   Loader2,
@@ -25,8 +25,16 @@ type UserRow = {
 };
 
 const ROLES: Role[] = [
-  "CLIENT", "STAFF_ACCOUNTANT", "SENIOR_ACCOUNTANT", "CONTROLLER", "CFO",
-  "AUDITOR", "AUDIT_MANAGER", "PARTNER", "TAX_MANAGER", "ADMIN",
+  "CLIENT",
+  "STAFF_ACCOUNTANT",
+  "SENIOR_ACCOUNTANT",
+  "CONTROLLER",
+  "CFO",
+  "AUDITOR",
+  "AUDIT_MANAGER",
+  "PARTNER",
+  "TAX_MANAGER",
+  "ADMIN",
 ];
 
 function roleTone(role: string) {
@@ -47,6 +55,7 @@ export default function AdminUsersPage() {
     name: "",
     email: "",
     role: "STAFF_ACCOUNTANT" as Role,
+    clientId: "",
   });
   const [inviting, setInviting] = useState(false);
   const [tempPassword, setTempPassword] = useState<string | null>(null);
@@ -62,7 +71,7 @@ export default function AdminUsersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const loadClients = useCallback(async () => {
     try {
@@ -93,13 +102,16 @@ export default function AdminUsersPage() {
           name: form.name,
           email: form.email,
           role: form.role,
-          ...(form.role === "CLIENT" ? { clientId: form.clientId } : {}),
+          ...(form.role === "CLIENT" && form.clientId
+            ? { clientId: form.clientId }
+            : {}),
         }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Invite failed");
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Invite failed");
       setTempPassword(data.temporaryPassword);
-      setForm({ name: "", email: "", role: "STAFF_ACCOUNTANT" });
+      setNotice("User invited successfully.");
+      setForm({ name: "", email: "", role: "STAFF_ACCOUNTANT", clientId: "" });
       await load();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Invite failed");
@@ -112,9 +124,13 @@ export default function AdminUsersPage() {
     if (!tempPassword) return;
     try {
       await navigator.clipboard.writeText(tempPassword);
-      setNotice("One-time password copied. Share it only through an approved secure channel.");
+      setNotice(
+        "One-time password copied. Share it only through an approved secure channel."
+      );
     } catch {
-      setError("Clipboard access was unavailable. Select the password and copy it manually.");
+      setError(
+        "Clipboard access was unavailable. Select the password and copy it manually."
+      );
     }
   };
 
@@ -163,6 +179,7 @@ export default function AdminUsersPage() {
         <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <h2 className="font-semibold text-slate-900">Invite a new user</h2>
           {error && <p className="text-sm text-rose-600">{error}</p>}
+          {notice && <p className="text-sm text-emerald-700">{notice}</p>}
           {tempPassword && (
             <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm">
               <p className="flex items-center gap-2 font-medium text-emerald-800">
@@ -172,6 +189,13 @@ export default function AdminUsersPage() {
                 Temporary password:{" "}
                 <code className="rounded bg-white px-1.5 py-0.5">{tempPassword}</code>
               </p>
+              <button
+                type="button"
+                onClick={() => void copyPassword()}
+                className="mt-2 text-xs font-semibold text-emerald-800 underline"
+              >
+                Copy password
+              </button>
             </div>
           )}
           <form onSubmit={handleInvite} className="grid gap-4 sm:grid-cols-3">
@@ -192,7 +216,9 @@ export default function AdminUsersPage() {
             />
             <select
               value={form.role}
-              onChange={(e) => setForm({ ...form, role: e.target.value as Role })}
+              onChange={(e) =>
+                setForm({ ...form, role: e.target.value as Role })
+              }
               className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm"
             >
               {ROLES.map((r) => (
@@ -201,6 +227,20 @@ export default function AdminUsersPage() {
                 </option>
               ))}
             </select>
+            {form.role === "CLIENT" && clients.length > 0 && (
+              <select
+                value={form.clientId}
+                onChange={(e) => setForm({ ...form, clientId: e.target.value })}
+                className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm sm:col-span-3"
+              >
+                <option value="">Select client workspace</option>
+                {clients.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            )}
             <div className="flex gap-2 sm:col-span-3">
               <button
                 type="submit"
@@ -215,6 +255,8 @@ export default function AdminUsersPage() {
                 onClick={() => {
                   setInviteOpen(false);
                   setTempPassword(null);
+                  setError(null);
+                  setNotice(null);
                 }}
                 className="rounded-xl border px-4 py-2.5 text-sm font-medium hover:bg-slate-50"
               >
@@ -222,7 +264,7 @@ export default function AdminUsersPage() {
               </button>
             </div>
           </form>
-        </section>
+        </div>
       )}
 
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -258,7 +300,9 @@ export default function AdminUsersPage() {
                     selected?.id === u.id && "bg-emerald-50"
                   )}
                 >
-                  <td className="px-6 py-3.5 font-medium text-slate-900">{u.name}</td>
+                  <td className="px-6 py-3.5 font-medium text-slate-900">
+                    {u.name}
+                  </td>
                   <td className="px-6 py-3.5 text-slate-600">{u.email}</td>
                   <td className="px-6 py-3.5">
                     <span
@@ -350,10 +394,6 @@ export default function AdminUsersPage() {
                 </div>
               </div>
             </dl>
-            <p className="mt-4 text-xs text-slate-400">
-              Role changes and deactivation are managed by firm administrators in
-              production.
-            </p>
             <button
               type="button"
               onClick={() => setSelected(null)}
