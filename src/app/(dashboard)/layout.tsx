@@ -18,16 +18,31 @@ import { DarkModeToggle } from "@/components/brand/DarkModeToggle";
 // Keep the primary navigation focused on the daily business workflow.
 // Specialist tools remain available through their direct routes and dashboard links.
 const navigation = [
-  { name: "Home", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Documents", href: "/dashboard/documents", icon: FileText },
-  { name: "Sample Library", href: "/dashboard/samples", icon: Library },
-  { name: "File Sanitizer", href: "/dashboard/security", icon: Shield },
-  { name: "Accounting", href: "/dashboard/operations", icon: BookOpen },
-  { name: "AR Aging", href: "/dashboard/ar", icon: Wallet },
-  { name: "Bank Rec", href: "/dashboard/bank-rec", icon: BookOpen },
-  { name: "Financial Reporting", href: "/dashboard/reporting", icon: BarChart3 },
-  { name: "Consolidation", href: "/dashboard/consolidation", icon: Building2 },
-  { name: "Settings", href: "/dashboard/admin", icon: Settings },
+  {
+    label: "WORKSPACE",
+    items: [
+      { name: "Home", href: "/dashboard", match: "/dashboard", icon: LayoutDashboard },
+      { name: "Documents", href: "/dashboard/documents", match: "/dashboard/documents", icon: FileText },
+      { name: "Sample Library", href: "/dashboard/samples", match: "/dashboard/samples", icon: Library },
+      { name: "File Sanitizer", href: "/dashboard/security", match: "/dashboard/security", icon: Shield },
+    ],
+  },
+  {
+    label: "ACCOUNTING",
+    items: [
+      { name: "Accounting", href: "/dashboard/operations", match: "/dashboard/operations", icon: BookOpen },
+      { name: "AR Aging", href: "/dashboard/ar", match: "/dashboard/ar", icon: Wallet },
+      { name: "Bank Rec", href: "/dashboard/bank-rec", match: "/dashboard/bank-rec", icon: BookOpen },
+      { name: "Financial Reporting", href: "/dashboard/reporting", match: "/dashboard/reporting", icon: BarChart3 },
+      { name: "Consolidation", href: "/dashboard/consolidation", match: "/dashboard/consolidation", icon: Building2 },
+    ],
+  },
+  {
+    label: "ADMINISTRATION",
+    items: [
+      { name: "Settings", href: "/dashboard/admin", match: "/dashboard/admin", icon: Settings },
+    ],
+  },
 ];
 
 const allItems = navigation.flatMap((section) => section.items);

@@ -7,6 +7,26 @@ import { DEFAULT_MONTH_END_TASKS, calculateProgress } from "@/lib/close/checklis
 
 const APPROVER_ROLES = ["CONTROLLER", "CFO", "PARTNER", "ADMIN"];
 const TASK_STATUSES = ["NOT_STARTED", "IN_PROGRESS", "COMPLETED", "BLOCKED", "WAITING", "SKIPPED"];
+ 
+function normalizeChecklistCategory(category: string): "BANK" | "AR" | "AP" | "ASSETS" | "INVENTORY" | "JE" | "REVIEW" | "APPROVAL" {
+  switch (category) {
+    case "BANK":
+    case "CASH":
+      return "BANK";
+    case "AR":
+    case "AP":
+    case "ASSETS":
+    case "INVENTORY":
+    case "JE":
+    case "APPROVAL":
+      return category;
+    case "PAYROLL":
+      return "JE";
+    default:
+      return "REVIEW";
+  }
+}
+
 
 /** Resolve client for firm staff when clientId is omitted. */
 async function resolveClientId(explicit?: string | null) {
@@ -230,8 +250,8 @@ export async function POST(req: NextRequest) {
         step: t.step,
         title: t.title,
         description: t.description || "",
-        category: t.category as "CASH" | "AR" | "AP" | "PAYROLL" | "INVENTORY" | "ASSETS" | "TAX" | "REPORTING" | "OTHER",
-        status: t.status as "NOT_STARTED" | "IN_PROGRESS" | "WAITING" | "COMPLETED" | "SKIPPED",
+        category: normalizeChecklistCategory(t.category),
+        status: (t.status === "BLOCKED" ? "WAITING" : t.status) as "NOT_STARTED" | "IN_PROGRESS" | "WAITING" | "COMPLETED" | "SKIPPED",
         ownerRole: t.ownerRole || undefined,
         aiCanHelp: t.aiCanHelp,
       }))
