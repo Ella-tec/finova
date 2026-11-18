@@ -400,3 +400,7 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+function LandmarkIcon() {
+  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="h-[18px] w-[18px]" aria-hidden="true"><path d="m3 9 9-6 9 6M4 10h16M6 10v8m4-8v8m4-8v8m4-8v8M3 20h18M2 22h20" /></svg>;
+}

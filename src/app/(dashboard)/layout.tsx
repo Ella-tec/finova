@@ -15,6 +15,8 @@ import { GlobalSearch } from "@/components/brand/GlobalSearch";
 import { ThemeSwitcher } from "@/components/brand/ThemeSwitcher";
 import { DarkModeToggle } from "@/components/brand/DarkModeToggle";
 
+// Keep the primary navigation focused on the daily business workflow.
+// Specialist tools remain available through their direct routes and dashboard links.
 const navigation = [
   { name: "Home", href: "/dashboard", icon: LayoutDashboard },
   { name: "Documents", href: "/dashboard/documents", icon: FileText },
@@ -25,15 +27,7 @@ const navigation = [
   { name: "Bank Rec", href: "/dashboard/bank-rec", icon: BookOpen },
   { name: "Financial Reporting", href: "/dashboard/reporting", icon: BarChart3 },
   { name: "Consolidation", href: "/dashboard/consolidation", icon: Building2 },
-  { name: "Entities", href: "/dashboard/entities", icon: Building2 },
-  { name: "Market Pulse", href: "/dashboard/market", icon: BarChart3 },
-  { name: "Month-End Close", href: "/dashboard/close", icon: ClipboardCheck },
-  { name: "Audit / PBC", href: "/dashboard/audit", icon: ClipboardCheck },
-  { name: "Client Portal", href: "/dashboard/clients", icon: Users },
-  { name: "AI Assistant", href: "/dashboard/ai", icon: Bot },
-  { name: "Users", href: "/dashboard/admin/users", icon: Users },
-  { name: "Learning Center", href: "/dashboard/learning", icon: GraduationCap },
-  { name: "Administration", href: "/dashboard/admin", icon: Settings },
+  { name: "Settings", href: "/dashboard/admin", icon: Settings },
 ];
 
 const allItems = navigation.flatMap((section) => section.items);
