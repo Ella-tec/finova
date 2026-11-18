@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { authorizeClientAccess } from "@/lib/authz";
-import { analyzeDocumentText, simulateOcr } from "@/lib/documents/analyzer";
+import { analyzeDocumentText } from "@/lib/documents/analyzer";
 import { analyzeWithAzure } from "@/lib/azure/document-intelligence";
 import { readFile } from "fs/promises";
 import path from "path";
@@ -28,36 +28,68 @@ export async function POST(req: NextRequest) {
     }
     const access = await authorizeClientAccess(doc.clientId);
     if (!access.ok) return access.response;
+    if (access.user.role === "CLIENT") {
+      return NextResponse.json({ error: "Client portal users may upload evidence, but AI analysis must be initiated by authorized firm staff after review." }, { status: 403 });
+    }
 
-    // Try to read stored file for text (limited — binary files will fall back to simulation)
-    let rawText = textHint || "";
+    // A stored document must have a completed, passing sanitizer scan before analysis.
+    const latestScan = await prisma.auditLog.findFirst({
+      where: {
+        action: "FILE_SANITIZE_SCAN",
+        entityType: "Document",
+        entityId: documentId,
+      },
+      orderBy: { createdAt: "desc" },
+      select: { details: true, createdAt: true },
+    });
+    if (!latestScan?.details) {
+      return NextResponse.json({ error: "Run File Sanitizer on this stored document before requesting AI analysis." }, { status: 409 });
+    }
+    let scanDetails: { safeToUpload?: boolean; classification?: string; safeForPublicAI?: boolean } = {};
     try {
-      const filePath = path.join(process.cwd(), "uploads", doc.storageKey);
-      const buf = await readFile(filePath);
-      const asText = buf.toString("utf8");
-      if (asText.length > 30 && !asText.includes("\u0000")) {
-        rawText = asText.slice(0, 8000);
-      }
+      scanDetails = JSON.parse(latestScan.details);
     } catch {
-      // file may not be readable as text
+      return NextResponse.json({ error: "The latest sanitizer result could not be verified. Run File Sanitizer again." }, { status: 409 });
+    }
+    if (scanDetails.safeToUpload !== true) {
+      return NextResponse.json({ error: "The latest sanitizer result did not approve this document for processing. Review the findings before continuing." }, { status: 422 });
     }
 
-    if (!rawText || rawText.length < 20) {
-      rawText = simulateOcr(doc.fileName, textHint);
+    const filePath = path.resolve(process.cwd(), "uploads", doc.storageKey);
+    const uploadRoot = path.resolve(process.cwd(), "uploads", access.client.id);
+    if (!filePath.startsWith(uploadRoot + path.sep)) {
+      return NextResponse.json({ error: "Invalid document storage path." }, { status: 400 });
     }
 
-    // Prefer Azure Document Intelligence when configured and file is readable
+    const extension = path.extname(doc.fileName).toLowerCase();
+    const isTextDocument =
+      doc.mimeType.startsWith("text/") ||
+      doc.mimeType === "application/json" ||
+      [".csv", ".txt", ".json", ".xml", ".md"].includes(extension);
+    let rawText = "";
+    if (isTextDocument) {
+      rawText = (await readFile(filePath)).toString("utf8").slice(0, 8000);
+      if (!rawText.trim()) {
+        return NextResponse.json({ error: "The text document is empty or could not be read." }, { status: 422 });
+      }
+    }
+
+    // Text files use transparent pattern-based parsing. Binary documents require configured Azure Document Intelligence.
     let analysis;
-    try {
-      const filePath = path.join(process.cwd(), "uploads", doc.storageKey);
-      const buf = await readFile(filePath);
-      const azureResult = await analyzeWithAzure(buf, doc.fileName, doc.mimeType);
-      analysis = azureResult;
-      if (azureResult.provider === "azure" && !rawText) {
-        rawText = azureResult.summary;
+    if (isTextDocument) {
+      analysis = { ...analyzeDocumentText(rawText, doc.fileName), provider: "text-parser" as const };
+    } else {
+      try {
+        const buffer = await readFile(filePath);
+        analysis = await analyzeWithAzure(buffer, doc.fileName, doc.mimeType);
+        if (analysis.provider !== "azure" && process.env.FINOVA_DEMO_DATA !== "true") {
+          return NextResponse.json({ error: "No verified OCR provider is available. Configure Azure Document Intelligence; no extracted values were inferred from the filename." }, { status: 503 });
+        }
+        rawText = analysis.summary || "";
+      } catch (providerError) {
+        console.error("Document intelligence provider unavailable:", providerError);
+        return NextResponse.json({ error: "Verified document extraction is unavailable. Configure Azure Document Intelligence and retry; the document was not analyzed using filename-based sample data." }, { status: 503 });
       }
-    } catch {
-      analysis = analyzeDocumentText(rawText, doc.fileName);
     }
 
     // Persist analysis

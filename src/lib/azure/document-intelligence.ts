@@ -24,10 +24,12 @@ export async function analyzeWithAzure(
   const key = process.env.AZURE_DOCUMENT_INTELLIGENCE_KEY;
 
   if (!endpoint || !key) {
-    // Local fallback
-    const text = simulateOcr(fileName);
-    const local = analyzeDocumentText(text, fileName);
-    return { ...local, provider: "simulator" };
+    if (process.env.FINOVA_DEMO_DATA === "true") {
+      const text = simulateOcr(fileName);
+      const local = analyzeDocumentText(text, fileName);
+      return { ...local, provider: "simulator" };
+    }
+    throw new Error("Azure Document Intelligence is not configured.");
   }
 
   try {
@@ -63,10 +65,13 @@ export async function analyzeWithAzure(
 
     return pollAndMap(analyzeRes, fileName, key);
   } catch (err) {
-    console.error("Azure Document Intelligence failed, using simulator:", err);
-    const text = simulateOcr(fileName);
-    const local = analyzeDocumentText(text, fileName);
-    return { ...local, provider: "simulator" };
+    console.error("Azure Document Intelligence failed:", err);
+    if (process.env.FINOVA_DEMO_DATA === "true") {
+      const text = simulateOcr(fileName);
+      const local = analyzeDocumentText(text, fileName);
+      return { ...local, provider: "simulator" };
+    }
+    throw new Error("Azure Document Intelligence failed. No filename-based fallback was used.");
   }
 }
 
@@ -77,8 +82,11 @@ async function pollAndMap(
 ): Promise<AzureAnalyzeResult> {
   const operationLocation = initialRes.headers.get("operation-location");
   if (!operationLocation) {
-    const text = simulateOcr(fileName);
-    return { ...analyzeDocumentText(text, fileName), provider: "simulator" };
+    if (process.env.FINOVA_DEMO_DATA === "true") {
+      const text = simulateOcr(fileName);
+      return { ...analyzeDocumentText(text, fileName), provider: "simulator" };
+    }
+    throw new Error("Azure Document Intelligence did not return an operation location.");
   }
 
   // Poll up to ~30s
@@ -99,8 +107,11 @@ async function pollAndMap(
   }
 
   if (!result) {
-    const text = simulateOcr(fileName);
-    return { ...analyzeDocumentText(text, fileName), provider: "simulator" };
+    if (process.env.FINOVA_DEMO_DATA === "true") {
+      const text = simulateOcr(fileName);
+      return { ...analyzeDocumentText(text, fileName), provider: "simulator" };
+    }
+    throw new Error("Azure Document Intelligence timed out before returning a result.");
   }
 
   return mapAzureInvoiceResult(result, fileName);

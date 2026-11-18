@@ -3,35 +3,36 @@
 import Link from "next/link";
 import {
   ArrowRight,
-  Bell,
   Building2,
   CheckCircle2,
   Database,
   FileText,
   KeyRound,
-  Palette,
   ScrollText,
   Settings,
   Shield,
   Users,
+  GraduationCap,
+  Bot,
+  BookOpen,
 } from "lucide-react";
 
 const summaryCards = [
-  { label: "Workspace", value: "Active", detail: "Core modules available", icon: CheckCircle2, href: "/dashboard" },
-  { label: "Access management", value: "User roles", detail: "Review team permissions", icon: Users, href: "/dashboard/admin/users" },
-  { label: "Security", value: "Controls", detail: "Sanitizer and audit access", icon: Shield, href: "/dashboard/security" },
+  { label: "Workspace", value: "Finova", detail: "Enterprise accounting and assurance workspace", icon: CheckCircle2, href: "/dashboard" },
+  { label: "Access management", value: "User roles", detail: "Review team permissions and invitations", icon: Users, href: "/dashboard/admin/users" },
+  { label: "Security", value: "Controls", detail: "Review document scanning and security activity", icon: Shield, href: "/dashboard/security" },
 ];
 
 const adminLinks = [
-  { href: "/dashboard/admin/users", title: "Users & Invites", description: "Invite team members, assign roles, and manage access.", icon: Users },
-  { href: "/dashboard/security", title: "Security & File Sanitizer", description: "Review file scans, privacy controls, and risk checks.", icon: Shield },
-  { href: "/dashboard/entities", title: "Entities & Firm Structure", description: "Manage legal entities, ownership, and reporting currency.", icon: Building2 },
-  { href: "/dashboard/clients", title: "Client Management", description: "Manage engagements and client portal access.", icon: FileText },
-  { href: "/dashboard/audit", title: "Audit Controls", description: "Review PBC requests, workpapers, and findings.", icon: ScrollText },
-  { href: "/dashboard/ai", title: "AI & Assistant Settings", description: "Review assistant settings and approval workflows.", icon: KeyRound },
-  { href: "/dashboard/documents", title: "Document Workspace", description: "Open the document repository and uploaded files.", icon: Database },
-  { href: "/learning", title: "Learning Center", description: "Open courses, lessons, and team enablement resources.", icon: Bell },
-  { href: "/dashboard/settings", title: "Brand & Workspace", description: "Manage workspace preferences and appearance.", icon: Palette },
+  { href: "/dashboard/admin/users", title: "Users & Access", description: "Invite team members and review assigned roles.", icon: Users },
+  { href: "/dashboard/operations#accounting", title: "Company Setup", description: "Open company, fiscal, currency, and accounting setup workflows.", icon: Building2 },
+  { href: "/dashboard/entities", title: "Entities & Firm Structure", description: "Manage legal entities, ownership, and reporting currency.", icon: BookOpen },
+  { href: "/dashboard/clients", title: "Client Management", description: "Review authorized clients and open their workspaces.", icon: FileText },
+  { href: "/dashboard/audit", title: "Audit Controls", description: "Review PBC requests, workpapers, and engagement activity.", icon: ScrollText },
+  { href: "/dashboard/ai", title: "AI Assistant Workspace", description: "Use the Finova assistant for research and draft analysis.", icon: Bot },
+  { href: "/dashboard/documents", title: "Document Workspace", description: "Open the document repository and uploaded evidence.", icon: Database },
+  { href: "/dashboard/learning", title: "Learning Center", description: "Open courses, accounting videos, and team enablement resources.", icon: GraduationCap },
+  { href: "/dashboard/security", title: "Security & File Sanitizer", description: "Review file checks and scan results before AI processing.", icon: Shield },
 ];
 
 export default function AdminPage() {
@@ -39,13 +40,13 @@ export default function AdminPage() {
     <div className="mx-auto max-w-7xl space-y-7">
       <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[.16em] text-isaca-medium">Workspace controls</p>
+          <p className="text-sm font-semibold uppercase tracking-[.16em] text-isaca-medium">Firm controls</p>
           <h1 className="mt-1 flex items-center gap-2 text-3xl font-bold tracking-tight text-slate-900">
             <Settings className="h-7 w-7 text-isaca-medium" />
             Administration
           </h1>
           <p className="mt-2 max-w-2xl text-slate-600">
-            Manage your FinSphere AI workspace, people, security, and operational settings from one place.
+            Manage the Finova workspace, people, access, company structure, documents, and operational controls.
           </p>
         </div>
         <Link href="/dashboard/admin/users" className="inline-flex items-center justify-center gap-2 rounded-xl bg-isaca-medium px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:brightness-110">
@@ -67,8 +68,8 @@ export default function AdminPage() {
 
       <section>
         <div className="mb-4">
-          <h2 className="text-lg font-semibold text-slate-900">Administration modules</h2>
-          <p className="text-sm text-slate-500">Select a module to open its workspace.</p>
+          <h2 className="text-lg font-semibold text-slate-900">Administration workspaces</h2>
+          <p className="text-sm text-slate-500">Open a connected Finova module. Access is still enforced by the destination API.</p>
         </div>
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {adminLinks.map((item) => (
@@ -95,9 +96,9 @@ export default function AdminPage() {
             <p className="mt-1 text-sm text-slate-600">Keep secrets in environment variables and never commit credentials to source control.</p>
             <ul className="mt-3 grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
               <li>• Configure NEXTAUTH_SECRET and DATABASE_URL</li>
-              <li>• Run database migrations and seed data</li>
+              <li>• Use versioned Prisma migrations for production changes</li>
               <li>• Configure email and identity providers as needed</li>
-              <li>• Review access roles before inviting production users</li>
+              <li>• Review role and client scope before inviting production users</li>
             </ul>
           </div>
         </div>

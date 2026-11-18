@@ -61,6 +61,18 @@ function isTabular(content: string) {
   return first.includes(",") && !/^(INVOICE|BANK STATEMENT|STANDARD BANK CONFIRMATION)/i.test(first);
 }
 
+const QUICK_TYPES: { id: string; label: string; match: string[] }[] = [
+  { id: "all", label: "All types", match: [] },
+  { id: "TRIAL_BALANCE", label: "Trial Balance", match: ["TRIAL_BALANCE"] },
+  { id: "JOURNAL_ENTRY", label: "Journal Entry", match: ["JOURNAL_ENTRY"] },
+  { id: "BALANCE_SHEET", label: "Balance Sheet", match: ["BALANCE_SHEET"] },
+  { id: "INCOME_STATEMENT", label: "Income Statement", match: ["INCOME_STATEMENT"] },
+  { id: "CASH_FLOW", label: "Cash Flow", match: ["CASH_FLOW"] },
+  { id: "AR_AGING", label: "AR Aging", match: ["AR_AGING"] },
+  { id: "AP_AGING", label: "AP Aging", match: ["AP_AGING"] },
+  { id: "BANK_RECON", label: "Bank Rec", match: ["BANK_RECON", "BANK_STATEMENT"] },
+];
+
 function SamplesInner() {
   const sp = useSearchParams();
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -120,7 +132,12 @@ function SamplesInner() {
 
   const filtered = documents.filter((d) => {
     if (companyId !== "all" && d.companyId !== companyId) return false;
-    if (type !== "all" && d.type !== type) return false;
+    if (type !== "all") {
+      const qt = QUICK_TYPES.find((t) => t.id === type);
+      if (qt && qt.match.length) {
+        if (!qt.match.includes(d.type)) return false;
+      } else if (d.type !== type) return false;
+    }
     if (processId !== "all") {
       const keys = processKeywords[processId] || [];
       const hay = (d.title + d.description + d.fileName + d.typeLabel).toLowerCase();
@@ -134,6 +151,7 @@ function SamplesInner() {
   });
 
   const companyName = (id: string) => companies.find((c) => c.id === id)?.name || id;
+  const selectedCompany = companies.find((c) => c.id === companyId);
 
   const download = (id: string) => {
     window.location.href = `/api/samples?docId=${encodeURIComponent(id)}&download=1`;
@@ -171,7 +189,7 @@ function SamplesInner() {
             Free Sample Library
           </h1>
           <p className="mt-1 text-sm text-slate-600">
-            Training packs for R2R, P2P, O2C, and the full audit lifecycle
+            Training packs for R2R, P2P, O2C, and the full audit lifecycle — preview, copy, download
           </p>
         </div>
         {(companyId !== "all" || type !== "all" || processId !== "all" || q) && (
@@ -185,7 +203,6 @@ function SamplesInner() {
         )}
       </div>
 
-      {/* KPI row */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="flex items-center gap-2 text-emerald-700">
@@ -217,7 +234,66 @@ function SamplesInner() {
         </div>
       </div>
 
-      {/* Process filters — two clean panels */}
+      {/* Company dropdown + document type quick buttons */}
+      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+          <div className="flex-1">
+            <label className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-slate-700">
+              <Building2 className="h-4 w-4 text-emerald-700" /> Company
+            </label>
+            <select
+              value={companyId}
+              onChange={(e) => setCompanyId(e.target.value)}
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+            >
+              <option value="all">All companies ({companies.length})</option>
+              {companies.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.code} — {c.name} ({c.industry})
+                </option>
+              ))}
+            </select>
+            {selectedCompany && (
+              <p className="mt-1.5 text-xs text-slate-500">
+                {selectedCompany.name} · {selectedCompany.industry} · {selectedCompany.currency}
+              </p>
+            )}
+          </div>
+          <div className="sm:w-56">
+            <label className="mb-1.5 block text-sm font-semibold text-slate-700">Search</label>
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Name, id, type…"
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+            />
+          </div>
+        </div>
+
+        <div>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Financial documents — click to filter
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {QUICK_TYPES.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => setType(t.id)}
+                className={cn(
+                  "rounded-xl border px-3 py-2 text-xs font-semibold transition",
+                  type === t.id
+                    ? "border-emerald-600 bg-emerald-600 text-white shadow-sm"
+                    : "border-slate-200 bg-white text-slate-700 hover:border-emerald-300"
+                )}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <div className="grid gap-4 md:grid-cols-2">
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <h2 className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-slate-800">
@@ -292,74 +368,20 @@ function SamplesInner() {
         </div>
       )}
 
-      {/* Companies */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="mb-3 flex items-center gap-1.5 text-sm font-semibold text-slate-700">
-          <Building2 className="h-4 w-4 text-emerald-700" /> Companies
-        </h2>
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => setCompanyId("all")}
-            className={cn(
-              "rounded-full border px-3 py-1 text-xs font-medium",
-              companyId === "all"
-                ? "border-emerald-600 bg-emerald-600 text-white"
-                : "border-slate-200 bg-white"
-            )}
-          >
-            All
-          </button>
-          {companies.map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              onClick={() => setCompanyId(c.id)}
-              className={cn(
-                "rounded-full border px-3 py-1 text-xs font-medium",
-                companyId === c.id
-                  ? "border-emerald-600 bg-emerald-600 text-white"
-                  : "border-slate-200 bg-white hover:border-emerald-300"
-              )}
-            >
-              {c.code}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-3 sm:flex-row">
-        <input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="Search by name, id, type…"
-          className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
-        />
-        <select
-          value={type}
-          onChange={(e) => setType(e.target.value)}
-          className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm"
-        >
-          <option value="all">All types</option>
-          {types.map((t) => (
-            <option key={t} value={t}>
-              {documents.find((d) => d.type === t)?.typeLabel || t}
-            </option>
-          ))}
-        </select>
-      </div>
-
       <p className="text-xs text-slate-500">
         Showing <strong>{filtered.length}</strong> of {documents.length} samples
-        {companyId !== "all" && (
-          <> · company <strong>{companies.find((c) => c.id === companyId)?.code || companyId}</strong></>
+        {companyId !== "all" && selectedCompany && (
+          <> · <strong>{selectedCompany.code}</strong></>
+        )}
+        {type !== "all" && (
+          <> · type <strong>{QUICK_TYPES.find((t) => t.id === type)?.label || type}</strong></>
         )}
       </p>
 
       <div className="divide-y overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         {filtered.length === 0 ? (
           <div className="p-10 text-center text-sm text-slate-500">
-            No samples match. Clear filters or try another process.
+            No samples match. Clear filters or try another company / type.
           </div>
         ) : (
           filtered.map((d) => (
@@ -385,7 +407,7 @@ function SamplesInner() {
                   onClick={() => openPreview(d.id)}
                   className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium hover:bg-white"
                 >
-                  Preview
+                  Preview / Review
                 </button>
                 <button
                   type="button"
@@ -424,11 +446,7 @@ function SamplesInner() {
           >
             <div className="flex items-center justify-between border-b bg-emerald-50/50 px-5 py-3">
               <h3 className="text-sm font-semibold text-slate-900">{preview.title}</h3>
-              <button
-                type="button"
-                className="text-sm text-slate-500"
-                onClick={() => setPreview(null)}
-              >
+              <button type="button" className="text-sm text-slate-500" onClick={() => setPreview(null)}>
                 Close
               </button>
             </div>

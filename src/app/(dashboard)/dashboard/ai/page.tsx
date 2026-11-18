@@ -11,12 +11,12 @@ type Message = {
 };
 
 const suggestions = [
-  "Prepare March close checklist",
-  "Generate cash flow statement",
-  "Analyze revenue trends",
-  "Create audit program for inventory",
-  "Show unpaid invoices over 60 days",
-  "Detect risks in payroll",
+  "Where do I start the month-end close?",
+  "How do I import a trial balance?",
+  "How do I reconcile a bank statement?",
+  "Where can I create PBC requests?",
+  "How do I review a workpaper?",
+  "Where do I upload client documents?",
 ];
 
 export default function AIPage() {
@@ -25,7 +25,7 @@ export default function AIPage() {
       id: "1",
       role: "assistant",
       content:
-        "Hello! Im your Finova Assistant. I can help with close tasks, financial statements, audit workpapers, risk detection, and more. Everything I propose will require your approval before posting. How can I help you today?",
+        "Hello! I’m the Finova workflow guide. I can explain where existing features live and describe their current steps. I do not yet analyze your live ledger data, run audit procedures, create transactions, or execute approvals.",
     },
   ]);
   const [input, setInput] = useState("");
@@ -71,9 +71,12 @@ export default function AIPage() {
           <Bot className="h-7 w-7 text-isaca-medium" />
           AI Assistant
         </h1>
-        <p className="text-sm text-slate-500 mt-1">
-          Guided help for Finova workflows · Review outputs before use
+        <p className="mt-1 text-sm text-slate-500">
+          Built-in workflow guidance for the current Finova release
         </p>
+        <div className="mt-3 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm leading-6 text-sky-950">
+          <strong>Current capability:</strong> this is a rule-based help guide, not a connected generative AI model. It does not read client records, calculate financial results, or perform actions. AI data analysis and task-specific assistants are part of the planned enterprise roadmap.
+        </div>
       </div>
 
       {/* Messages */}

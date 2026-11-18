@@ -13,8 +13,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     const access = await authorizeClientAccess(document.clientId);
     if (!access.ok) return access.response;
 
-    const root = path.resolve(process.cwd(), "uploads");
-    const filePath = path.resolve(root, document.storageKey);
+    const root = path.resolve(process.cwd(), "uploads", access.client.id);
+    const filePath = path.resolve(process.cwd(), "uploads", document.storageKey);
     if (!filePath.startsWith(root + path.sep)) {
       return NextResponse.json({ error: "Invalid file path" }, { status: 400 });
     }

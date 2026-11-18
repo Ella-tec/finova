@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Upload,
   FileText,
@@ -12,6 +12,8 @@ import {
   Download,
   ExternalLink,
 } from "lucide-react";
+
+type ClientOption = { id: string; name: string };
 
 type Doc = {
   id: string;
@@ -38,12 +40,14 @@ type Analysis = {
 
 export default function DocumentsPage() {
   const [docs, setDocs] = useState<Doc[]>([]);
+  const [clients, setClients] = useState<ClientOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [analyzing, setAnalyzing] = useState<string | null>(null);
   const [analysis, setAnalysis] = useState<Record<string, Analysis>>({});
   const [clientId, setClientId] = useState("");
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [previewDoc, setPreviewDoc] = useState<Doc | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileUrl = (doc: Doc) => `/api/documents/${doc.id}/file`;
@@ -53,28 +57,61 @@ export default function DocumentsPage() {
     doc.mimeType.startsWith("text/") ||
     doc.mimeType === "application/json";
 
-  const load = async () => {
+  const load = useCallback(async (selectedClientId: string) => {
+    if (!selectedClientId) {
+      setDocs([]);
+      setLoading(false);
+      setLoadError("Select an authorized client workspace to view its documents.");
+      return;
+    }
     setLoading(true);
     try {
-      const res = await fetch("/api/documents");
+      const res = await fetch(`/api/documents?clientId=${encodeURIComponent(selectedClientId)}`, { cache: "no-store" });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "Could not load documents");
-      setClientId(data.clientId || "");
+      setClientId(data.clientId || selectedClientId);
       setDocs(data.documents || []);
-      setLoadError(
-        data.clientId ? null : "No client workspace is assigned to this account yet."
-      );
+      setLoadError(null);
     } catch (error) {
       setDocs([]);
       setLoadError(error instanceof Error ? error.message : "Could not load documents");
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    void load();
+    let active = true;
+    (async () => {
+      try {
+        const res = await fetch("/api/clients", { cache: "no-store" });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Could not load authorized clients.");
+        const rows: ClientOption[] = data.clients || [];
+        if (!active) return;
+        setClients(rows);
+        if (rows.length === 1) setClientId(rows[0].id);
+        else {
+          setLoading(false);
+          if (!rows.length) setLoadError("No client workspace is assigned to this account.");
+        }
+      } catch (error) {
+        if (active) {
+          setLoadError(error instanceof Error ? error.message : "Could not load client workspaces.");
+          setLoading(false);
+        }
+      }
+    })();
+    return () => { active = false; };
   }, []);
+
+  useEffect(() => {
+    if (clientId) void load(clientId);
+    else if (clients.length > 1) {
+      setDocs([]);
+      setLoading(false);
+    }
+  }, [clientId, clients.length, load]);
 
   const handleUpload = async (files: FileList | null) => {
     if (!files?.length) return;
@@ -86,6 +123,7 @@ export default function DocumentsPage() {
     }
 
     setLoadError(null);
+    setNotice(null);
     setUploading(true);
 
     try {
@@ -105,27 +143,8 @@ export default function DocumentsPage() {
             throw new Error(uploaded.error || `Could not upload ${file.name}`);
           }
 
-          setAnalyzing(uploaded.id);
-          try {
-            const analysisResponse = await fetch("/api/documents/analyze", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ documentId: uploaded.id }),
-            });
-            const result = await analysisResponse.json().catch(() => ({}));
-
-            if (!analysisResponse.ok) {
-              throw new Error(result.error || `Analysis failed for ${file.name}`);
-            }
-            if (result.analysis) {
-              setAnalysis((previous) => ({
-                ...previous,
-                [uploaded.id]: result.analysis,
-              }));
-            }
-          } finally {
-            setAnalyzing(null);
-          }
+          // Upload only. The server requires a passing File Sanitizer audit event before analysis.
+          setNotice("Upload complete. Run File Sanitizer on the stored document before requesting AI analysis.");
         } catch (error) {
           setLoadError(
             error instanceof Error
@@ -137,7 +156,7 @@ export default function DocumentsPage() {
       }
     } finally {
       setUploading(false);
-      await load();
+      await load(clientId);
     }
   };
 
@@ -162,7 +181,7 @@ export default function DocumentsPage() {
       setLoadError(error instanceof Error ? error.message : "Document analysis failed");
     } finally {
       setAnalyzing(null);
-      await load();
+      await load(clientId);
     }
   };
 
@@ -177,6 +196,8 @@ export default function DocumentsPage() {
         </div>
       )}
 
+      {notice && <div role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{notice}</div>}
+
       <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <Link
@@ -187,8 +208,8 @@ export default function DocumentsPage() {
           </Link>
           <h1 className="text-2xl font-bold text-slate-900">Document Inbox</h1>
           <p className="mt-1 text-sm text-slate-600">
-            Upload invoices, bills, receipts, and statements. Finova will analyze each file and
-            prepare its details for review.
+            Upload invoices, bills, receipts, and statements. Scan the stored file in File Sanitizer
+            before requesting AI analysis and review of extracted details.
           </p>
           <p className="mt-2 text-sm">
             <Link href="/dashboard/security" className="font-medium text-teal-700 hover:underline">
@@ -198,14 +219,22 @@ export default function DocumentsPage() {
           </p>
         </div>
 
+        <label className="text-xs font-semibold text-slate-600">
+          Client workspace
+          <select aria-label="Client workspace" value={clientId} onChange={(event) => setClientId(event.target.value)} disabled={clients.length === 0} className="mt-1 block min-w-48 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm font-normal text-slate-900">
+            <option value="">{clients.length ? "Select a client" : "No client workspaces"}</option>
+            {clients.map((client) => <option key={client.id} value={client.id}>{client.name}</option>)}
+          </select>
+        </label>
+
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
-          disabled={uploading}
+          disabled={uploading || !clientId}
           className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-teal-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-          {uploading ? "Uploading and analyzing…" : "Upload documents"}
+          {uploading ? "Uploading…" : "Upload documents"}
         </button>
         <input
           ref={inputRef}
@@ -234,8 +263,8 @@ export default function DocumentsPage() {
         <h2 className="mt-3 font-semibold text-slate-900">Drop documents here</h2>
         <p className="mt-1 text-sm text-slate-600">PDF, JPG, PNG, CSV, Excel, and Word files</p>
         <p className="mt-2 text-xs text-slate-500">
-          Files are analyzed into suggested records. Review and approve before anything is posted to
-          the ledger.
+          Upload stores the original only. Run File Sanitizer first, then use Analyze on the document
+          after the server confirms a passing scan. Suggestions remain drafts for human review.
         </p>
       </section>
 
@@ -249,7 +278,7 @@ export default function DocumentsPage() {
           </div>
           <button
             type="button"
-            onClick={() => void load()}
+            onClick={() => void load(clientId)}
             className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
           >
             Refresh
@@ -266,7 +295,7 @@ export default function DocumentsPage() {
             <FileText className="mx-auto h-9 w-9 text-slate-300" />
             <p className="mt-3 font-medium text-slate-800">Your inbox is empty</p>
             <p className="mt-1 text-sm text-slate-500">
-              Upload an invoice or receipt to start extracting its details.
+              Upload a file, scan it in File Sanitizer, then request analysis from its document row.
             </p>
           </div>
         ) : (
