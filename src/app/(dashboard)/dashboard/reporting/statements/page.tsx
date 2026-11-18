@@ -187,6 +187,17 @@ export default function StatementsPage() {
     setMessage("");
   };
 
+  const addLine = () => {
+    setLines((current) => [
+      ...current,
+      { accountCode: "", accountName: "", debit: 0, credit: 0 },
+    ]);
+    setDirty(true);
+    setStatements(null);
+    setMessage("");
+    setError("");
+  };
+
   const importFile = async (file?: File) => {
     if (!file) return;
     setError("");
