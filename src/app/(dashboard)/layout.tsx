@@ -6,7 +6,7 @@ import { useSession, signOut } from "next-auth/react";
 import {
   LayoutDashboard, BookOpen, FileText, Library, ClipboardCheck, Users,
   BarChart3, Bot, Settings, LogOut, ChevronRight, GraduationCap, Building2, Shield,
-  Menu, X, ArrowLeft,
+  Menu, X, ArrowLeft, Wallet,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -16,53 +16,24 @@ import { ThemeSwitcher } from "@/components/brand/ThemeSwitcher";
 import { DarkModeToggle } from "@/components/brand/DarkModeToggle";
 
 const navigation = [
-  {
-    label: "Workspace",
-    items: [
-      { name: "Home", href: "/dashboard", match: "/dashboard", icon: LayoutDashboard },
-    ],
-  },
-  {
-    label: "Accounting & Finance",
-    items: [
-      { name: "Accounting", href: "/dashboard/operations#accounting", match: "/dashboard/operations", icon: BookOpen },
-      { name: "Bank Rec", href: "/dashboard/bank-rec", match: "/dashboard/bank-rec", icon: Building2 },
-      { name: "Financial Reporting", href: "/dashboard/reporting", match: "/dashboard/reporting", icon: BarChart3 },
-      { name: "Consolidation", href: "/dashboard/consolidation", match: "/dashboard/consolidation", icon: Building2 },
-      { name: "Entities", href: "/dashboard/entities", match: "/dashboard/entities", icon: Building2 },
-      { name: "Market Pulse", href: "/dashboard/market", match: "/dashboard/market", icon: BarChart3 },
-    ],
-  },
-  {
-    label: "Close & Assurance",
-    items: [
-      { name: "Month-End Close", href: "/dashboard/close", match: "/dashboard/close", icon: ClipboardCheck },
-      { name: "Audit / PBC", href: "/dashboard/audit", match: "/dashboard/audit", icon: ClipboardCheck },
-    ],
-  },
-  {
-    label: "Documents & Learning",
-    items: [
-      { name: "Documents", href: "/dashboard/documents", match: "/dashboard/documents", icon: FileText },
-      { name: "Sample Library", href: "/dashboard/samples", match: "/dashboard/samples", icon: Library },
-      { name: "File Sanitizer", href: "/dashboard/security", match: "/dashboard/security", icon: Shield },
-      { name: "Learning Center", href: "/dashboard/learning", match: "/dashboard/learning", icon: GraduationCap },
-    ],
-  },
-  {
-    label: "Clients & Intelligence",
-    items: [
-      { name: "Client Portal", href: "/dashboard/clients", match: "/dashboard/clients", icon: Users },
-      { name: "AI Assistant", href: "/dashboard/ai", match: "/dashboard/ai", icon: Bot },
-    ],
-  },
-  {
-    label: "Firm Administration",
-    items: [
-      { name: "Users", href: "/dashboard/admin/users", match: "/dashboard/admin/users", icon: Users },
-      { name: "Administration", href: "/dashboard/admin", match: "/dashboard/admin", icon: Settings },
-    ],
-  },
+  { name: "Home", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Documents", href: "/dashboard/documents", icon: FileText },
+  { name: "Sample Library", href: "/dashboard/samples", icon: Library },
+  { name: "File Sanitizer", href: "/dashboard/security", icon: Shield },
+  { name: "Accounting", href: "/dashboard/operations", icon: BookOpen },
+  { name: "AR Aging", href: "/dashboard/ar", icon: Wallet },
+  { name: "Bank Rec", href: "/dashboard/bank-rec", icon: BookOpen },
+  { name: "Financial Reporting", href: "/dashboard/reporting", icon: BarChart3 },
+  { name: "Consolidation", href: "/dashboard/consolidation", icon: Building2 },
+  { name: "Entities", href: "/dashboard/entities", icon: Building2 },
+  { name: "Market Pulse", href: "/dashboard/market", icon: BarChart3 },
+  { name: "Month-End Close", href: "/dashboard/close", icon: ClipboardCheck },
+  { name: "Audit / PBC", href: "/dashboard/audit", icon: ClipboardCheck },
+  { name: "Client Portal", href: "/dashboard/clients", icon: Users },
+  { name: "AI Assistant", href: "/dashboard/ai", icon: Bot },
+  { name: "Users", href: "/dashboard/admin/users", icon: Users },
+  { name: "Learning Center", href: "/dashboard/learning", icon: GraduationCap },
+  { name: "Administration", href: "/dashboard/admin", icon: Settings },
 ];
 
 const allItems = navigation.flatMap((section) => section.items);
@@ -151,24 +122,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-30 flex h-[76px] items-center gap-3 border-b border-[#e5ebe7] bg-white/90 px-3 backdrop-blur-xl sm:px-4 lg:px-7">
-          <button type="button" aria-label="Open navigation" className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 lg:hidden" onClick={() => setMobileOpen(true)}>
-            <Menu className="h-5 w-5" />
-          </button>
+          <button type="button" aria-label="Open navigation" className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 lg:hidden" onClick={() => setMobileOpen(true)}><Menu className="h-5 w-5" /></button>
           <div className="flex shrink-0 items-center gap-1 text-sm text-[#87958f]">
-            <button type="button" aria-label="Go back" title="Go back" onClick={() => { if (window.history.length > 1) window.history.back(); else window.location.assign("/dashboard"); }} className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#71817b] transition hover:bg-[#edf5f0] hover:text-[#087f68] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0b8b70]">
-              <ArrowLeft className="h-[18px] w-[18px]" />
-            </button>
-            <Link href="/dashboard" title="Go to dashboard" aria-label="Go to dashboard" className={cn("hidden transition-colors hover:text-[#087f68] sm:inline", pathname === "/dashboard" ? "font-semibold text-[#087f68]" : "text-[#87958f]")}>
-              Finova
-            </Link>
+            <button type="button" aria-label="Go back" title="Go back" onClick={() => { if (window.history.length > 1) window.history.back(); else window.location.assign("/dashboard"); }} className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#71817b] transition hover:bg-[#edf5f0] hover:text-[#087f68] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0b8b70]" ><ArrowLeft className="h-[18px] w-[18px]" /></button>
+            <Link href="/dashboard" title="Go to dashboard" aria-label="Go to dashboard" className={cn("hidden sm:inline transition-colors hover:text-[#087f68]", pathname === "/dashboard" ? "font-semibold text-[#087f68]" : "text-[#87958f]")}>Dashboard</Link>
             <ChevronRight className="h-4 w-4" />
-            <span className="font-semibold text-[#263e4a]">{activeItem?.name || pathname.split("/").filter(Boolean).pop() || "Workspace"}</span>
+            <span className="font-semibold capitalize text-[#263e4a]">{pathname.split("/").filter(Boolean).pop() || "Home"}</span>
           </div>
           <div className="min-w-0 flex-1"><GlobalSearch /></div>
           <div className="hidden items-center gap-2 md:flex"><ThemeSwitcher /><DarkModeToggle /></div>
-          <Link href="/dashboard/ai" className="flex shrink-0 items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-isaca-light/50">
-            <Bot className="h-4 w-4 text-isaca-medium" /><span className="hidden sm:inline">Ask AI</span>
-          </Link>
+          <Link href="/dashboard/ai" className="flex shrink-0 items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50"><Bot className="h-4 w-4 text-emerald-700" /><span className="hidden sm:inline">Ask AI</span></Link>
         </header>
         <div className="flex items-center justify-between border-b border-[#e5ebe7] bg-white px-4 py-2 md:hidden">
           <ThemeSwitcher /><DarkModeToggle />

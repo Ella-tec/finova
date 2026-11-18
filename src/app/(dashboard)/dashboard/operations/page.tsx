@@ -249,15 +249,7 @@ export default function OperationsPage() {
         </button>
       </header>
 
-      <div role="note" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-        <strong>Draft capture workspace:</strong> records saved here are retained for preparation and review. They do not yet post double-entry journal lines or change the General Ledger or Trial Balance.
-        <Link href="/dashboard/reporting/statements" className="ml-1 font-semibold underline underline-offset-2">Open financial statements</Link> to review the separate trial-balance workflow.
-      </div>
-
-      <nav
-        aria-label="Accounting work areas"
-        className="grid grid-cols-2 gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm lg:grid-cols-4"
-      >
+      <nav aria-label="Accounting work areas" className="grid grid-cols-2 gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm lg:grid-cols-4">
         {groups.map((g) => {
           const Icon = g.icon;
           const activeTab = selected === g.id;
@@ -268,17 +260,10 @@ export default function OperationsPage() {
               aria-pressed={activeTab}
               className={
                 "flex min-h-[62px] items-center gap-3 rounded-xl px-3 py-3 text-left transition " +
-                (activeTab
-                  ? "bg-teal-700 text-white shadow-sm"
-                  : "text-slate-600 hover:bg-teal-50 hover:text-teal-800")
+                (activeTab ? "bg-teal-700 text-white shadow-sm" : "text-slate-600 hover:bg-teal-50 hover:text-teal-800")
               }
             >
-              <span
-                className={
-                  "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg " +
-                  (activeTab ? "bg-white/15" : "bg-teal-50 text-teal-700")
-                }
-              >
+              <span className={"flex h-9 w-9 shrink-0 items-center justify-center rounded-lg " + (activeTab ? "bg-white/15" : "bg-teal-50 text-teal-700")}>
                 <Icon className="h-5 w-5" />
               </span>
               <span className="min-w-0 flex-1">
@@ -293,20 +278,8 @@ export default function OperationsPage() {
       </nav>
 
       {notice && (
-        <div
-          role="status"
-          className={
-            "flex items-start gap-2 rounded-xl border px-4 py-3 text-sm " +
-            (notice.ok
-              ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-              : "border-rose-200 bg-rose-50 text-rose-800")
-          }
-        >
-          {notice.ok ? (
-            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
-          ) : (
-            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-          )}
+        <div role="status" className={"flex items-start gap-2 rounded-xl border px-4 py-3 text-sm " + (notice.ok ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-rose-200 bg-rose-50 text-rose-800")}>
+          {notice.ok ? <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" /> : <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />}
           {notice.text}
         </div>
       )}
@@ -316,10 +289,7 @@ export default function OperationsPage() {
           <div>
             <div className="flex items-center gap-2">
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-teal-700">
-                {(() => {
-                  const Icon = group.icon;
-                  return <Icon className="h-5 w-5" />;
-                })()}
+                {(() => { const Icon = group.icon; return <Icon className="h-5 w-5" />; })()}
               </span>
               <h2 className="text-xl font-semibold text-slate-900">{group.title}</h2>
             </div>
@@ -329,18 +299,13 @@ export default function OperationsPage() {
         </div>
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {group.items.map((item) => (
-            <article
-              key={item.kind}
-              className="flex flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-teal-200 hover:shadow-md"
-            >
+            <article key={item.kind} className="flex flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-teal-200 hover:shadow-md">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h3 className="font-semibold text-slate-900">{item.label}</h3>
                   <p className="mt-1 text-xs leading-5 text-slate-500">{item.hint}</p>
                 </div>
-                <span className="rounded-lg bg-slate-50 p-2 text-slate-500">
-                  <FileText className="h-4 w-4" />
-                </span>
+                <span className="rounded-lg bg-slate-50 p-2 text-slate-500"><FileText className="h-4 w-4" /></span>
               </div>
               <button
                 onClick={() => {
@@ -362,16 +327,11 @@ export default function OperationsPage() {
         <div className="flex flex-col gap-3 border-b border-slate-100 p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="font-semibold text-slate-900">Saved workspace records</h2>
-            <p className="mt-1 text-xs text-slate-500">Draft records across all four work areas.</p>
+            <p className="mt-1 text-xs text-slate-500">Click a row to open it. Draft records can be approved by senior roles.</p>
           </div>
           <div className="relative w-full sm:max-w-xs">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search records…"
-              className={inputClass + " pl-9"}
-            />
+            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search records…" className={inputClass + " pl-9"} />
           </div>
         </div>
         <div className="overflow-x-auto">
@@ -389,36 +349,32 @@ export default function OperationsPage() {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filtered.map((r) => (
-                <tr key={r.id} className="hover:bg-slate-50/70">
+                <tr
+                  key={r.id}
+                  className="cursor-pointer hover:bg-teal-50/50"
+                  onClick={() => {
+                    setActive({ area: r.area as Area, kind: r.kind, label: r.title, id: r.id, record: r });
+                    setAttachments([]);
+                    setNotice(null);
+                  }}
+                >
                   <td className="px-5 py-3.5">
                     <p className="font-semibold text-slate-800">{r.title}</p>
-                    <p className="mt-0.5 text-xs text-slate-400">
-                      {r.kind.replaceAll("_", " ")} · {new Date(r.createdAt).toLocaleDateString()}
-                    </p>
+                    <p className="mt-0.5 text-xs text-slate-400">{r.kind.replaceAll("_", " ")} · {new Date(r.createdAt).toLocaleDateString()}</p>
                   </td>
                   <td className="px-5 py-3.5 text-slate-600">{r.area}</td>
                   <td className="px-5 py-3.5 text-slate-500">{r.reference || "—"}</td>
                   <td className="px-5 py-3.5 text-slate-500">{r.counterparty || "—"}</td>
-                  <td className="px-5 py-3.5 text-right font-medium tabular-nums text-slate-800">
-                    {r.amount == null ? "—" : money(r.amount, r.currency)}
-                  </td>
+                  <td className="px-5 py-3.5 text-right font-medium tabular-nums text-slate-800">{r.amount == null ? "—" : money(r.amount, r.currency)}</td>
                   <td className="px-5 py-3.5">
-                    <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">
-                      {r.status}
-                    </span>
+                    <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">{r.status}</span>
                   </td>
-                  <td className="px-5 py-3.5">
+                  <td className="px-5 py-3.5" onClick={(e) => e.stopPropagation()}>
                     {(() => {
                       const attachment = getAttachment(r.payload);
                       return attachment ? (
-                        <a
-                          href={"/api/documents/" + attachment.documentId + "/file"}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-teal-200 bg-teal-50 px-3 py-2 text-xs font-semibold text-teal-800 hover:bg-teal-100"
-                        >
-                          <FileText className="h-3.5 w-3.5" />
-                          Open attachment
+                        <a href={"/api/documents/" + attachment.documentId + "/file"} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg border border-teal-200 bg-teal-50 px-3 py-2 text-xs font-semibold text-teal-800 hover:bg-teal-100">
+                          <FileText className="h-3.5 w-3.5" /> Open attachment
                         </a>
                       ) : (
                         <span className="text-xs text-slate-400">—</span>
@@ -429,9 +385,7 @@ export default function OperationsPage() {
               ))}
               {!loading && filtered.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-5 py-12 text-center text-sm text-slate-400">
-                    No records yet. Create one above to get started.
-                  </td>
+                  <td colSpan={7} className="px-5 py-12 text-center text-sm text-slate-400">No records yet. Create one above to get started.</td>
                 </tr>
               )}
             </tbody>
@@ -441,169 +395,80 @@ export default function OperationsPage() {
       </section>
 
       {active && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="record-modal-title"
-        >
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl">
-            <div className="flex items-start justify-between gap-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm" role="dialog" aria-modal="true">
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
+            <div className="mb-4 flex items-start justify-between gap-3">
               <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-teal-700">{active.area}</p>
-                <h2 id="record-modal-title" className="mt-1 text-xl font-semibold text-slate-900">
-                  Create {active.label}
-                </h2>
-                <p className="mt-1 text-sm text-slate-500">
-                  Enter the record details and optionally attach a supporting PDF, image, spreadsheet, or document.
-                </p>
+                <h2 className="text-lg font-semibold text-slate-900">{active.id ? "View · " : "Create · "}{active.label}</h2>
+                {active.record && (
+                  <p className="mt-1 text-xs text-slate-500">Status: <span className="font-semibold text-amber-700">{active.record.status}</span></p>
+                )}
               </div>
-              <button onClick={() => setActive(null)} className="rounded-lg px-3 py-1 text-slate-500 hover:bg-slate-100">
-                Close
-              </button>
+              <button type="button" onClick={() => setActive(null)} className="rounded-lg p-2 text-slate-400 hover:bg-slate-100"><X className="h-5 w-5" /></button>
             </div>
-            <form onSubmit={submit} className="mt-6 grid gap-4 sm:grid-cols-2">
-              <label className="sm:col-span-2 text-sm font-medium text-slate-700">
-                Name / description *
-                <input
-                  name="title"
-                  required
-                  maxLength={180}
-                  className={inputClass + " mt-1"}
-                  placeholder={
-                    active.kind === "COMPANY"
-                      ? "Company legal name"
-                      : active.kind === "CUSTOMER"
-                        ? "Customer name"
-                        : active.kind === "VENDOR"
-                          ? "Vendor name"
-                          : "Enter a clear record name"
-                  }
-                />
-              </label>
-              <label className="text-sm font-medium text-slate-700">
-                Reference / ID
-                <input name="reference" className={inputClass + " mt-1"} placeholder="Invoice no., account code, EIN…" />
-              </label>
-              <label className="text-sm font-medium text-slate-700">
-                Customer / vendor / bank
-                <input
-                  name="counterparty"
-                  className={inputClass + " mt-1"}
-                  placeholder="Related party or institution"
-                />
-              </label>
-              <label className="text-sm font-medium text-slate-700">
-                Amount
-                <input name="amount" type="number" min="0" step="0.01" className={inputClass + " mt-1"} placeholder="0.00" />
-              </label>
-              <label className="text-sm font-medium text-slate-700">
-                Currency
-                <select name="currency" defaultValue="USD" className={inputClass + " mt-1"}>
-                  <option>USD</option>
-                  <option>EUR</option>
-                  <option>GBP</option>
-                  <option>CAD</option>
-                </select>
-              </label>
-              <label className="text-sm font-medium text-slate-700">
-                Record date
-                <input name="recordDate" type="date" className={inputClass + " mt-1"} />
-              </label>
-              <label className="text-sm font-medium text-slate-700">
-                Due date
-                <input name="dueDate" type="date" className={inputClass + " mt-1"} />
-              </label>
-              <div className="sm:col-span-2 rounded-2xl border border-dashed border-teal-200 bg-teal-50/40 p-4">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-teal-700 shadow-sm">
-                      <Paperclip className="h-5 w-5" />
-                    </span>
-                    <div>
-                      <p className="text-sm font-semibold text-slate-800">Supporting documents</p>
-                      <p className="text-xs text-slate-500">
-                        Attach invoices, receipts, statements, Excel, CSV, PDFs or images (up to 25 MB each).
-                      </p>
+            <form onSubmit={submit} className="grid gap-4 sm:grid-cols-2">
+              <label className="sm:col-span-2 text-sm font-medium text-slate-700">Title<input name="title" required defaultValue={active.record?.title || ""} className={inputClass + " mt-1"} placeholder="e.g. Acme Corp · October journal" /></label>
+              <label className="text-sm font-medium text-slate-700">Reference<input name="reference" defaultValue={active.record?.reference || ""} className={inputClass + " mt-1"} placeholder="JE-2026-001" /></label>
+              <label className="text-sm font-medium text-slate-700">Counterparty<input name="counterparty" defaultValue={active.record?.counterparty || ""} className={inputClass + " mt-1"} placeholder="Vendor or customer" /></label>
+              <label className="text-sm font-medium text-slate-700">Amount<input name="amount" type="number" min="0" step="0.01" defaultValue={active.record?.amount ?? ""} className={inputClass + " mt-1"} placeholder="0.00" /></label>
+              <label className="text-sm font-medium text-slate-700">Currency<select name="currency" defaultValue={active.record?.currency || "USD"} className={inputClass + " mt-1"}><option>USD</option><option>EUR</option><option>GBP</option><option>CAD</option></select></label>
+              <label className="text-sm font-medium text-slate-700">Record date<input name="recordDate" type="date" className={inputClass + " mt-1"} /></label>
+              <label className="text-sm font-medium text-slate-700">Due date<input name="dueDate" type="date" className={inputClass + " mt-1"} /></label>
+              {!active.id && (
+                <div className="sm:col-span-2 rounded-2xl border border-dashed border-teal-200 bg-teal-50/40 p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-teal-700 shadow-sm"><Paperclip className="h-5 w-5" /></span>
+                      <div>
+                        <p className="text-sm font-semibold text-slate-800">Supporting documents</p>
+                        <p className="text-xs text-slate-500">Attach invoices, receipts, statements (up to 25 MB each).</p>
+                      </div>
                     </div>
+                    <button type="button" onClick={() => attachmentInput.current?.click()} disabled={uploadingFiles || !clientId} className="inline-flex items-center gap-2 rounded-xl bg-teal-700 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-800 disabled:opacity-50">{uploadingFiles ? "Uploading…" : "Attach files"}</button>
+                    <input ref={attachmentInput} type="file" className="hidden" multiple onChange={(e) => void uploadAttachments(e.target.files)} />
                   </div>
+                  {attachments.length > 0 && (
+                    <ul className="mt-3 space-y-2">
+                      {attachments.map((doc) => (
+                        <li key={doc.id} className="flex items-center gap-2 rounded-lg bg-white px-3 py-2">
+                          <FileText className="h-4 w-4 text-teal-700" />
+                          <span className="min-w-0 flex-1 truncate text-xs font-medium text-slate-700">{doc.fileName}</span>
+                          <button type="button" onClick={() => setAttachments((c) => c.filter((x) => x.id !== doc.id))} className="rounded-lg p-1 text-slate-400 hover:bg-rose-50 hover:text-rose-600"><X className="h-4 w-4" /></button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
+              <label className="sm:col-span-2 text-sm font-medium text-slate-700">Notes<textarea name="description" rows={3} defaultValue={active.record?.description || ""} className={inputClass + " mt-1"} placeholder="Add context…" /></label>
+              <div className="sm:col-span-2 flex flex-wrap justify-end gap-2 border-t border-slate-100 pt-4">
+                <button type="button" onClick={() => setActive(null)} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50">Close</button>
+                {active.id && active.record && (active.record.status === "DRAFT" || active.record.status === "PENDING_REVIEW") && (
                   <button
                     type="button"
-                    onClick={() => attachmentInput.current?.click()}
-                    disabled={uploadingFiles || !clientId}
-                    className="inline-flex items-center gap-2 rounded-xl bg-teal-700 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-800 disabled:opacity-50"
-                  >
-                    {uploadingFiles ? "Uploading…" : "Attach files"}
-                  </button>
-                  <input
-                    ref={attachmentInput}
-                    type="file"
-                    multiple
-                    accept=".pdf,.png,.jpg,.jpeg,.csv,.txt,.docx,.xlsx"
-                    className="hidden"
-                    onChange={(e) => void uploadAttachments(e.currentTarget.files)}
-                  />
-                </div>
-                {!clientId && (
-                  <p className="mt-3 text-xs text-amber-700">
-                    A client workspace is required before files can be uploaded.
-                  </p>
+                    disabled={saving}
+                    onClick={async () => {
+                      setSaving(true);
+                      setNotice(null);
+                      try {
+                        const res = await fetch("/api/workspace-records", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: active.id }) });
+                        const data = await res.json();
+                        if (!res.ok) throw new Error(data.error || "Approve failed");
+                        setNotice({ ok: true, text: "Record approved." });
+                        setActive(null);
+                        await load();
+                      } catch (err) {
+                        setNotice({ ok: false, text: err instanceof Error ? err.message : "Could not approve." });
+                      } finally {
+                        setSaving(false);
+                      }
+                    }}
+                    className="rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-2.5 text-sm font-semibold text-emerald-800 hover:bg-emerald-100 disabled:opacity-60"
+                  >Approve</button>
                 )}
-                {attachments.length > 0 && (
-                  <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-                    {attachments.map((doc) => (
-                      <li
-                        key={doc.id}
-                        className="flex min-w-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2"
-                      >
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-50 text-teal-700">
-                          {doc.mimeType.includes("spreadsheet") || doc.fileName.match(/\.(xlsx|csv)$/i) ? (
-                            <FileSpreadsheet className="h-4 w-4" />
-                          ) : doc.mimeType.startsWith("image/") ? (
-                            <ImageIcon className="h-4 w-4" />
-                          ) : (
-                            <FileText className="h-4 w-4" />
-                          )}
-                        </span>
-                        <span className="min-w-0 flex-1 truncate text-xs font-medium text-slate-700" title={doc.fileName}>
-                          {doc.fileName}
-                        </span>
-                        <button
-                          type="button"
-                          aria-label={`Remove ${doc.fileName}`}
-                          onClick={() => setAttachments((current) => current.filter((x) => x.id !== doc.id))}
-                          className="rounded-lg p-1 text-slate-400 hover:bg-rose-50 hover:text-rose-600"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
+                {!active.id && (
+                  <button disabled={saving} className="rounded-xl bg-teal-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-teal-800 disabled:opacity-60">{saving ? "Saving…" : "Save draft record"}</button>
                 )}
-              </div>
-              <label className="sm:col-span-2 text-sm font-medium text-slate-700">
-                Notes
-                <textarea
-                  name="description"
-                  rows={3}
-                  className={inputClass + " mt-1"}
-                  placeholder="Add context, terms, or supporting details…"
-                />
-              </label>
-              <div className="sm:col-span-2 flex justify-end gap-2 border-t border-slate-100 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setActive(null)}
-                  className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  disabled={saving}
-                  className="rounded-xl bg-teal-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-teal-800 disabled:opacity-60"
-                >
-                  {saving ? "Saving…" : "Save draft record"}
-                </button>
               </div>
             </form>
           </div>

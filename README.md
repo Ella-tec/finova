@@ -1,6 +1,52 @@
-# Finova
+<p align="center">
+  <strong>FINOVA</strong><br />
+  AI-Powered Accounting · ERP · Audit · Analytics
+</p>
 
-Complete Accounting ERP + Audit Management + Client Portal + AI Copilot
+<p align="center">
+  Built by <strong>Eliyas Eshtea</strong> — Business Analyst · Software Engineer · CPA Candidate<br />
+  <em>Kansas City, MO · Business · Technology · Innovation</em>
+</p>
+
+<p align="center">
+  <a href="https://github.com/Ella-tec"><img src="https://img.shields.io/badge/GitHub-Ella--tec-181717?style=for-the-badge&logo=github" alt="GitHub" /></a>
+  <a href="https://www.linkedin.com/in/eliyas-eshtea-249728268"><img src="https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin" alt="LinkedIn" /></a>
+  <a href="mailto:tecaddis@gmail.com"><img src="https://img.shields.io/badge/Email-tecaddis%40gmail.com-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Email" /></a>
+</p>
+
+---
+
+## About the builder
+
+Kansas City professional with a background in **accounting, auditing, and technology**. Software Engineer Intern & Solution Analyst (ISACA AI) at **i.c.stars**, FIFA World Cup 2026 volunteer, and CPA candidate.
+
+> *“Innovation is the intersection of expertise, curiosity, and purposeful action.”*
+
+| Focus | |
+|-------|--|
+| Hybrid expertise | Accounting, audit, and financial process knowledge + modern software engineering |
+| Practical builder | From fiber / CCTV systems to full-stack apps and AI-assisted platforms |
+| Business mindset | Reliable solutions, clear communication, Agile delivery, real-world impact |
+
+**Open to:** Business Analyst · Software Engineer · Audit Technology · Data & Analytics · CPA-track roles.
+
+---
+
+## What is Finova?
+
+One workspace for:
+
+- Accounting operations (COA, journals, GL, trial balance)
+- Financial statements (Income Statement, Balance Sheet, Cash Flow)
+- Bank reconciliation with AI match simulation
+- Month-end close checklists
+- Audit / PBC requests & workpapers
+- Client portal & document collaboration
+- File sanitizer (pre-AI security gate)
+- Sample library (training packs for R2R, P2P, O2C, audit lifecycle)
+- AI assistant for close, statements, and audit support
+
+---
 
 ## Quick start (Windows PowerShell)
 
@@ -14,9 +60,9 @@ npm run db:seed
 npm run dev
 ```
 
-Open http://localhost:3000
+Open **http://localhost:3000**
 
-**Demo logins**
+### Demo logins
 
 | Email | Password | Role |
 |-------|----------|------|
@@ -24,60 +70,83 @@ Open http://localhost:3000
 | controller@finova.ai | Demo123! | Controller |
 | partner@finova.ai | Demo123! | Partner |
 | admin@finova.ai | Demo123! | Admin |
-| client@acme.com | Demo123! | Client (use /portal) |
+| client@acme.com | Demo123! | Client (`/portal`) |
+
+---
+
+## Financial Statements — full process
+
+Separate tabs (not trial balance only):
+
+| Tab | Actions |
+|-----|---------|
+| **Trial Balance** | Upload CSV · Load sample · Edit · Save · Download |
+| **Journal Entries** | Review sample adjusting/closing JEs · Download |
+| **Income Statement** | Generate / View · Download CSV |
+| **Balance Sheet** | Generate / View · Download CSV |
+| **Cash Flow** | Generate / View · Download CSV |
+
+Path: `/dashboard/reporting/statements`
+
+---
+
+## Sample Library
+
+- **Company dropdown** (ACME, NEXUS, PULSE, …) instead of a long row of pills
+- Quick filters: Trial Balance · Journal Entry · Balance Sheet · Income Statement · Cash Flow · AR/AP Aging · Bank Rec
+- Per file: **Preview / Review · Copy · Download**
+
+Path: `/dashboard/samples`
+
+---
 
 ## Main modules
 
-- Dashboard & tasks
-- Documents + OCR / AI analysis
-- Sample Library (40+ free audit & accounting samples)
-- File Sanitizer (pre-AI security gate)
-- Bank Reconciliation (AI matching)
-- Financial statements from trial balance
-- Month-end close checklist
-- Multi-entity consolidation (NCI)
-- Entities
-- Market Pulse (FX / benchmarks)
-- Audit / PBC / Workpapers
-- Client portal
-- AI Assistant
-- Users & invites
-- Learning Center (courses + progress)
-- Administration hub
+Dashboard · Documents · Sample Library · File Sanitizer · Bank Rec · Financial Statements · Month-End Close · Consolidation · Entities · Market Pulse · Audit / PBC · Client Portal · AI Assistant · Users · Learning · Administration
+
+---
 
 ## Stack
 
-Next.js 15 · TypeScript · Tailwind · Prisma · SQLite (demo) · NextAuth (Credentials + optional Entra ID)
+**Next.js 15 · TypeScript · Tailwind · Prisma · SQLite (demo) · NextAuth** (Credentials + optional Microsoft Entra ID)
 
-## Brand
+---
 
-**Finova** — professional accounting & audit platform with ISACA-inspired color system.
+## Skills (Eliyas)
 
-## Accounting workspace foundation
+`Python` `JavaScript` `TypeScript` `SQL` `React` `Next.js` `Node.js` `PostgreSQL` `Prisma` `Docker` `Git` · Business Analysis · Agile · Audit & Compliance · Financial Reporting · Networking · CCTV · Cybersecurity
 
-The `/dashboard/operations` workspace groups the next accounting workflows into four areas:
+---
 
-- **Accounting:** company setup, chart of accounts, journal entries, and general ledger records.
-- **Sales:** customers, invoices, and receipts.
-- **Purchasing:** vendors, bills, and expenses.
-- **Banking & Payroll:** bank accounts, statement records, employees, and payroll runs.
+## Experience highlights
 
-New entries are stored in the Prisma `WorkspaceRecord` table as **DRAFT** records and create an `AuditLog` event. This is an initial record-capture foundation; it does not yet post double-entry journals, calculate payroll/tax, process OCR, or replace the existing bank reconciliation and financial statement workflows.
+- Software Engineer Intern & Solution Analyst — i.c.stars (ISACA AI)
+- FIFA World Cup 2026 Volunteer
+- Internal Field Auditor — Q-Pharma
+- Cage Auditor — Ameristar Casino Hotel
+- Junior Staff Auditor / Accountant — CMA CPA Group
+- Fiber Optic Technician · Lead Satellite & Security Systems (Ethiopia)
 
-After pulling this branch locally, run:
+---
 
-```powershell
-npm install
-npx prisma generate
-npx prisma db push
-npm run build
-npm run dev
-```
+## Education
 
-Open `http://localhost:3000/dashboard/operations` after signing in.
+- Per Scholas — IT Support & Data Center Technician (in progress)
+- Goodwill Artemis Institute — Mini-Bridge to Technology
+- ALX (Holberton) — Software Engineering
+- National College, Addis Ababa — B.A. Accounting & Finance
 
-## Enterprise product direction
+Certifications: MedCerts CSS · Project Management · OSHA 10 · Google AI Essentials · Cisco · IT Support Specialist
 
-The proposed enterprise target state, detailed functional requirements, role and approval model, data architecture, 90-day roadmap, initial Jira epics, release gates, and current-state gap register are documented in [docs/ENTERPRISE-PRD.md](docs/ENTERPRISE-PRD.md).
+---
 
-The PRD is the target-state blueprint, not a claim that every listed workflow is already implemented. Accounting operations currently provide draft record capture; double-entry posting, production-grade PostgreSQL migration, full multi-step approvals, and other planned capabilities must be delivered and tested in phases.
+## Connect
+
+| | |
+|--|--|
+| GitHub | [@Ella-tec](https://github.com/Ella-tec) (previous: [@malu17](https://github.com/malu17)) |
+| LinkedIn | [eliyas-eshtea-249728268](https://www.linkedin.com/in/eliyas-eshtea-249728268) |
+| Email | [tecaddis@gmail.com](mailto:tecaddis@gmail.com) |
+| Location | Kansas City, MO |
+
+<p align="center"><em>Built with intention.</em></p>
