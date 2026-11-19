@@ -12,7 +12,6 @@ import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { LogoWordmark } from "@/components/brand/Logo";
 import { GlobalSearch } from "@/components/brand/GlobalSearch";
-import { ThemeSwitcher } from "@/components/brand/ThemeSwitcher";
 import { DarkModeToggle } from "@/components/brand/DarkModeToggle";
 
 // Keep the primary navigation focused on the daily business workflow.
@@ -74,8 +73,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             className={cn(
               "flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-all",
               isActive
-                ? "bg-[#e8f4ee] text-[#087f68] shadow-sm ring-1 ring-[#d3e9de]"
-                : "text-[#62736f] hover:bg-[#f1f6f3] hover:text-[#203b35]"
+                ? "finova-nav-active shadow-sm ring-1"
+                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
             )}
           >
             <item.icon className="h-5 w-5 shrink-0" />
@@ -87,8 +86,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   ));
 
   return (
-    <div className="min-h-screen flex bg-[#f5f7f5]">
-      <aside className="hidden lg:flex lg:flex-col w-[272px] shrink-0 border-r border-[#e4ebe6] bg-white text-[#203b35]">
+    <div className="finova-app-shell min-h-screen flex bg-slate-50">
+      <aside className="finova-sidebar hidden lg:flex lg:flex-col w-[272px] shrink-0 border-r bg-white text-slate-800">
         <div className="flex h-[76px] items-center gap-2 border-b border-[#edf1ee] px-5">
           <LogoWordmark />
         </div>
@@ -97,7 +96,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </nav>
         <div className="border-t border-[#edf1ee] p-4">
           <div className="mb-3 flex items-center gap-3 px-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e8f4ee] text-sm font-bold text-[#087f68]">
+            <div className="finova-avatar flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold">
               {status === "loading" ? "…" : initials}
             </div>
             <div className="min-w-0 flex-1">
@@ -129,8 +128,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </aside>
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-[76px] items-center gap-3 border-b border-[#e5ebe7] bg-white/90 px-3 backdrop-blur-xl sm:px-4 lg:px-7">
+      <div className="finova-workspace flex min-w-0 flex-1 flex-col">
+        <header className="finova-topbar sticky top-0 z-30 flex h-[76px] items-center gap-3 border-b bg-white/90 px-3 backdrop-blur-xl sm:px-4 lg:px-7">
           <button type="button" aria-label="Open navigation" className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 lg:hidden" onClick={() => setMobileOpen(true)}><Menu className="h-5 w-5" /></button>
           <div className="flex shrink-0 items-center gap-1 text-sm text-[#87958f]">
             <button type="button" aria-label="Go back" title="Go back" onClick={() => { if (window.history.length > 1) window.history.back(); else window.location.assign("/dashboard"); }} className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#71817b] transition hover:bg-[#edf5f0] hover:text-[#087f68] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0b8b70]" ><ArrowLeft className="h-[18px] w-[18px]" /></button>
@@ -139,13 +138,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <span className="font-semibold capitalize text-[#263e4a]">{pathname.split("/").filter(Boolean).pop() || "Home"}</span>
           </div>
           <div className="min-w-0 flex-1"><GlobalSearch /></div>
-          <div className="hidden items-center gap-2 md:flex"><ThemeSwitcher /><DarkModeToggle /></div>
+          <div className="hidden items-center gap-2 md:flex"><DarkModeToggle /></div>
           <Link href="/dashboard/ai" className="flex shrink-0 items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50"><Bot className="h-4 w-4 text-emerald-700" /><span className="hidden sm:inline">Ask AI</span></Link>
         </header>
-        <div className="flex items-center justify-between border-b border-[#e5ebe7] bg-white px-4 py-2 md:hidden">
-          <ThemeSwitcher /><DarkModeToggle />
+        <div className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-2 md:hidden">
+          <DarkModeToggle />
         </div>
-        <main className="min-h-0 flex-1 p-4 sm:p-5 lg:p-7">{children}</main>
+        <main className="finova-page min-h-0 flex-1 p-4 sm:p-5 lg:p-7">{children}</main>
       </div>
     </div>
   );
