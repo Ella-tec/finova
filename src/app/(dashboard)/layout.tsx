@@ -23,6 +23,7 @@ import {
   ArrowLeft,
   Wallet,
   CalendarCheck,
+  Phone,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -52,11 +53,17 @@ const navigation = [
     ],
   },
   {
-    label: "AUDIT & AI",
+    label: "AUDIT & CLIENTS",
     items: [
       { name: "Audit / PBC", href: "/dashboard/audit/pbc", match: "/dashboard/audit", icon: ClipboardCheck },
-      { name: "AI Assistant", href: "/dashboard/ai", match: "/dashboard/ai", icon: Bot },
       { name: "Clients", href: "/dashboard/clients", match: "/dashboard/clients", icon: Users },
+      {
+        name: "Contact Center",
+        href: "/dashboard/clients/contact-center",
+        match: "/dashboard/clients/contact-center",
+        icon: Phone,
+      },
+      { name: "AI Assistant", href: "/dashboard/ai", match: "/dashboard/ai", icon: Bot },
       { name: "Learning", href: "/dashboard/learning", match: "/dashboard/learning", icon: GraduationCap },
     ],
   },
@@ -83,9 +90,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     .toUpperCase();
   const activeItem = useMemo(() => {
     if (pathname === "/dashboard") return allItems[0];
-    return allItems.find(
+    // Prefer longest match so Contact Center wins over Clients
+    const matches = allItems.filter(
       (item) => pathname === item.match || pathname.startsWith(item.match + "/")
     );
+    return matches.sort((a, b) => b.match.length - a.match.length)[0];
   }, [pathname]);
 
   const navLinks = (mobile = false, dark = false) =>
@@ -131,7 +140,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="finova-app-shell flex min-h-screen">
-      {/* Desktop navy sidebar */}
       <aside className="finova-sidebar hidden w-[272px] shrink-0 flex-col bg-[#1d2d5c] text-white lg:flex">
         <div className="flex h-[76px] items-center gap-2 border-b border-white/10 px-5">
           <LogoWordmark light />
@@ -170,7 +178,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         />
       )}
 
-      {/* Mobile navy drawer */}
       <aside
         className={cn(
           "fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-[#1d2d5c] text-white shadow-2xl transition-transform lg:hidden",
@@ -212,7 +219,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <button
               type="button"
               aria-label="Go back"
-              title="Go back"
               onClick={() => {
                 if (window.history.length > 1) window.history.back();
                 else window.location.assign("/dashboard");
@@ -241,6 +247,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="hidden items-center gap-2 md:flex">
             <DarkModeToggle />
           </div>
+          <Link
+            href="/dashboard/clients/contact-center"
+            className="hidden shrink-0 items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 sm:flex"
+          >
+            <Phone className="h-4 w-4 text-[#07649d]" />
+            <span className="hidden lg:inline">Contact</span>
+          </Link>
           <Link
             href="/dashboard/ai"
             className="flex shrink-0 items-center gap-2 rounded-lg bg-[#1d2d5c] px-3 py-2 text-sm font-medium text-white hover:bg-[#162447]"
