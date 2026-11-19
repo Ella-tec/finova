@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Mail, Lock, Eye, EyeOff, AlertCircle, Loader2 } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, AlertCircle, Loader2, BookOpen } from "lucide-react";
 import { LogoWordmark } from "@/components/brand/Logo";
 
 export default function HomePage() {
@@ -43,7 +43,6 @@ export default function HomePage() {
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#0c1222] text-white">
-      {/* Ambient luxury backdrop */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -left-32 top-0 h-[420px] w-[420px] rounded-full bg-[#07649d]/20 blur-[120px]" />
         <div className="absolute bottom-0 right-0 h-[480px] w-[480px] rounded-full bg-[#c4a35a]/10 blur-[140px]" />
@@ -58,8 +57,18 @@ export default function HomePage() {
       </div>
 
       <header className="relative z-10 border-b border-white/10">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-          <LogoWordmark light />
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-6">
+          {/* Top-left: Logo + App Guide */}
+          <div className="flex items-center gap-4">
+            <LogoWordmark light />
+            <Link
+              href="/guide"
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-semibold tracking-wide text-[#e8d5a3] transition hover:border-[#e8d5a3]/40 hover:bg-white/10"
+            >
+              <BookOpen className="h-3.5 w-3.5" />
+              App Guide
+            </Link>
+          </div>
           <a
             href="#sign-in"
             className="text-sm font-medium tracking-wide text-white/70 transition hover:text-[#e8d5a3]"
@@ -166,7 +175,7 @@ export default function HomePage() {
           </form>
 
           <p className="mt-6 text-center text-xs text-white/30">
-            Protected firm access
+            Need help? Open <Link href="/guide" className="text-[#e8d5a3] hover:underline">App Guide</Link> (top left)
           </p>
         </div>
       </section>
