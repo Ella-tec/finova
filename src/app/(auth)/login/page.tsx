@@ -131,7 +131,7 @@ function LoginForm() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1.5">
+              <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-[#1f2933]">
                 Password
               </label>
               <div className="relative">
@@ -168,7 +168,7 @@ function LoginForm() {
 
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200" />
+              <div className="w-full border-t border-[#cbd2d9]" />
             </div>
             <div className="relative flex justify-center text-xs uppercase tracking-wide">
               <span className="bg-[#F7F8F5] px-3 text-slate-400">or</span>

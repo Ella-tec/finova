@@ -8,23 +8,65 @@ import {
   Wallet,
   Table2,
   Download,
+  BookOpen,
+  LineChart,
+  Landmark,
 } from "lucide-react";
+
+const processSteps = [
+  {
+    step: "1",
+    title: "Trial Balance",
+    href: "/dashboard/reporting/statements",
+    icon: Table2,
+    detail: "Import & validate",
+  },
+  {
+    step: "2",
+    title: "Journal Entries",
+    href: "/dashboard/operations",
+    icon: BookOpen,
+    detail: "Adjustments & posts",
+  },
+  {
+    step: "3",
+    title: "Income Statement",
+    href: "/dashboard/reporting/statements",
+    icon: TrendingUp,
+    detail: "P&L generate",
+  },
+  {
+    step: "4",
+    title: "Balance Sheet",
+    href: "/dashboard/reporting/statements",
+    icon: Landmark,
+    detail: "Position view",
+  },
+  {
+    step: "5",
+    title: "Cash Flow",
+    href: "/dashboard/reporting/statements",
+    icon: LineChart,
+    detail: "Operating / investing",
+  },
+];
 
 const links = [
   {
     href: "/dashboard/reporting/statements",
-    title: "Financial Statements",
+    title: "Financial Statements Workspace",
     description:
-      "Import trial balance and generate Balance Sheet, P&L, Cash Flow and notes.",
+      "Import trial balance and generate Balance Sheet, Income Statement, Cash Flow, and notes.",
     icon: FileText,
     badge: "Core",
   },
   {
-    href: "/dashboard/reporting/statements",
-    title: "Trial Balance",
-    description: "Load, edit, and validate account balances before reporting.",
-    icon: Table2,
-    badge: "Import",
+    href: "/dashboard/samples",
+    title: "Sample companies & packs",
+    description:
+      "18 demo companies with TB, JEs, invoices, bank statements, and statement packs.",
+    icon: Download,
+    badge: "Library",
   },
   {
     href: "/dashboard/market",
@@ -48,11 +90,11 @@ const links = [
     badge: "Workflow",
   },
   {
-    href: "/dashboard/samples",
-    title: "Sample statements",
-    description: "Download training trial balances and statement packs.",
-    icon: Download,
-    badge: "Library",
+    href: "/dashboard/operations",
+    title: "Accounting hub",
+    description: "Chart of accounts, journals, and ledger operations.",
+    icon: BookOpen,
+    badge: "Books",
   },
 ];
 
@@ -60,31 +102,50 @@ export default function ReportingPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <header>
-        <h1 className="text-2xl font-bold text-slate-900">Financial Reporting</h1>
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#07649d]">
+          Financial reporting
+        </p>
+        <h1 className="mt-1 text-2xl font-bold text-[#1d2d5c]">Statements & close package</h1>
         <p className="mt-1 text-slate-600">
-          Trial balance, statements, consolidation context, and management reports
+          Full process: Trial Balance → Journal Entries → Income Statement → Balance Sheet → Cash
+          Flow
         </p>
       </header>
 
-      <div className="grid gap-3 sm:grid-cols-3">
-        {[
-          { label: "Statements", value: "BS · P&L · CF", icon: TrendingUp },
-          { label: "Workflow", value: "Import → Validate → Export", icon: Table2 },
-          { label: "Security", value: "Role-based access", icon: Scale },
-        ].map((k) => (
-          <div
-            key={k.label}
-            className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+      <section className="grid gap-3 sm:grid-cols-5">
+        {processSteps.map((s) => (
+          <Link
+            key={s.step}
+            href={s.href}
+            className="group rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-[#00a4e4]/50 hover:shadow-md"
           >
-            <div className="flex items-center gap-2 text-emerald-700">
-              <k.icon className="h-4 w-4" />
-              <span className="text-xs font-semibold uppercase tracking-wide">
-                {k.label}
+            <div className="flex items-center justify-between">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#e7f0f5] text-xs font-bold text-[#07649d]">
+                {s.step}
               </span>
+              <s.icon className="h-4 w-4 text-[#36ac91]" />
             </div>
-            <p className="mt-2 text-sm font-medium text-slate-800">{k.value}</p>
-          </div>
+            <p className="mt-3 text-sm font-semibold text-[#1d2d5c] group-hover:text-[#07649d]">
+              {s.title}
+            </p>
+            <p className="mt-0.5 text-[11px] text-slate-500">{s.detail}</p>
+          </Link>
         ))}
+      </section>
+
+      <div className="flex flex-wrap gap-2">
+        <Link
+          href="/dashboard/reporting/statements"
+          className="inline-flex items-center gap-2 rounded-xl bg-[#1d2d5c] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#162447]"
+        >
+          Open statements workspace <ArrowRight className="h-4 w-4" />
+        </Link>
+        <Link
+          href="/dashboard/samples"
+          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-[#07649d] hover:bg-[#e7f0f5]"
+        >
+          Browse sample packs
+        </Link>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -92,21 +153,21 @@ export default function ReportingPage() {
           <Link
             key={item.title + item.href}
             href={item.href}
-            className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-emerald-300 hover:shadow-md"
+            className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-[#00a4e4]/40 hover:shadow-md"
           >
             <div className="flex items-start justify-between gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#e7f0f5] text-[#07649d]">
                 <item.icon className="h-5 w-5" />
               </div>
               <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-600">
                 {item.badge}
               </span>
             </div>
-            <h2 className="mt-3 font-semibold text-slate-900 group-hover:text-emerald-800">
+            <h2 className="mt-3 font-semibold text-[#1d2d5c] group-hover:text-[#07649d]">
               {item.title}
             </h2>
             <p className="mt-1 text-sm text-slate-600">{item.description}</p>
-            <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-emerald-700">
+            <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[#07649d]">
               Open <ArrowRight className="h-4 w-4" />
             </span>
           </Link>

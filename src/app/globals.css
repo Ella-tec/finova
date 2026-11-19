@@ -3,15 +3,13 @@
 @tailwind utilities;
 
 /*
- * FINOVA visual system — inspired by the ISACA palette and interaction
- * language used in IsaChatApp. Keep these brand primitives separate from
- * the selectable page themes below so every page can share the same
- * accessible foundation without losing its own accent color.
+ * FINOVA visual system — official ISACA palette.
+ * Route-based accents change --page-* tokens; utility bridges below
+ * remap common emerald/sky classes so every page looks different.
  */
 :root {
   color-scheme: light;
 
-  /* IsaChatApp / ISACA brand palette */
   --isa-navy: #1d2d5c;
   --isa-medium-blue: #07649d;
   --isa-bright-blue: #00a4e4;
@@ -24,7 +22,6 @@
   --isa-grey-7: #52606d;
   --isa-ink: #1f2933;
 
-  /* FINOVA semantic brand tokens */
   --brand-dark: var(--isa-navy);
   --brand-medium: var(--isa-medium-blue);
   --brand-blue: var(--isa-bright-blue);
@@ -35,6 +32,11 @@
   --brand-orange: #F97316;
   --brand-yellow: #F59E0B;
   --brand-purple: #7C3AED;
+
+  --page-primary: var(--isa-navy);
+  --page-accent: var(--isa-bright-blue);
+  --page-soft: var(--isa-light-blue);
+  --page-on-primary: #ffffff;
 
   --background: 210 17% 97%;
   --foreground: 210 22% 16%;
@@ -58,17 +60,57 @@
   --radius: 0.75rem;
 }
 
-/* Page-specific FINOVA accents remain selectable and independent. */
-:root[data-theme="dashboard-blue"] { --brand-medium:#0B63CE; --brand-blue:#3B82F6; --brand-teal:#60A5FA; --brand-light:#eff6ff; --primary:215 88% 43%; --ring:215 88% 43%; }
-:root[data-theme="green-focus"] { --brand-medium:#16A34A; --brand-blue:#22C55E; --brand-teal:#86EFAC; --brand-light:#f0fdf4; --primary:142 71% 36%; --ring:142 71% 36%; }
-:root[data-theme="teal-harmony"] { --brand-medium:#0891B2; --brand-blue:#06B6D4; --brand-teal:#67E8F9; --brand-light:#ecfeff; --primary:189 94% 37%; --ring:189 94% 37%; }
-:root[data-theme="purple-insight"] { --brand-medium:#7C3AED; --brand-blue:#A855F7; --brand-teal:#C084FC; --brand-light:#faf5ff; --primary:262 83% 58%; --ring:262 83% 58%; }
-:root[data-theme="red-energy"] { --brand-medium:#DC2626; --brand-blue:#EF4444; --brand-teal:#F87171; --brand-light:#fef2f2; --primary:0 72% 51%; --ring:0 72% 51%; }
-:root[data-theme="orange-success"] { --brand-medium:#F97316; --brand-blue:#FB923C; --brand-teal:#FDBA74; --brand-light:#fff7ed; --primary:24 95% 53%; --ring:24 95% 53%; }
-:root[data-theme="indigo-inspire"] { --brand-medium:#4F46E5; --brand-blue:#6366F1; --brand-teal:#818CF8; --brand-light:#eef2ff; --primary:243 75% 59%; --ring:243 75% 59%; }
-:root[data-theme="ocean-blend"] { --brand-medium:#0EA5E9; --brand-blue:#06B6D4; --brand-teal:#22D3EE; --brand-light:#f0f9ff; --primary:199 89% 48%; --ring:199 89% 48%; }
-:root[data-theme="modern-teal"] { --brand-medium:#059669; --brand-blue:#10B981; --brand-teal:#34D399; --brand-light:#ecfdf5; --primary:160 94% 30%; --ring:160 94% 30%; }
-:root[data-theme="premium-gold"] { --brand-medium:#D97706; --brand-blue:#F59E0B; --brand-teal:#FDE68A; --brand-light:#fffbeb; --primary:32 95% 44%; --ring:32 95% 44%; }
+/* Route-driven page accents (no user picker). */
+:root[data-theme="dashboard-blue"] {
+  --page-primary: #1d2d5c; --page-accent: #00a4e4; --page-soft: #e7f0f5;
+  --brand-medium: #07649d; --brand-blue: #00a4e4; --brand-teal: #36ac91; --brand-light: #e7f0f5;
+  --primary: 220 51% 24%; --ring: 197 100% 45%;
+}
+:root[data-theme="green-focus"] {
+  --page-primary: #4f922d; --page-accent: #6cb33f; --page-soft: #edf5e7;
+  --brand-medium: #6cb33f; --brand-blue: #36ac91; --brand-teal: #6cb33f; --brand-light: #edf5e7;
+  --primary: 96 49% 37%; --ring: 96 49% 47%;
+}
+:root[data-theme="teal-harmony"] {
+  --page-primary: #167d70; --page-accent: #36ac91; --page-soft: #e8f5f1;
+  --brand-medium: #36ac91; --brand-blue: #07649d; --brand-teal: #36ac91; --brand-light: #e8f5f1;
+  --primary: 166 52% 30%; --ring: 166 52% 44%;
+}
+:root[data-theme="purple-insight"] {
+  --page-primary: #51469a; --page-accent: #6558b1; --page-soft: #efedf8;
+  --brand-medium: #6558b1; --brand-blue: #1d2d5c; --brand-teal: #6558b1; --brand-light: #efedf8;
+  --primary: 247 38% 44%; --ring: 247 38% 52%;
+}
+:root[data-theme="red-energy"] {
+  --page-primary: #b9142d; --page-accent: #e31837; --page-soft: #fdecef;
+  --brand-medium: #e31837; --brand-blue: #1d2d5c; --brand-teal: #e31837; --brand-light: #fdecef;
+  --primary: 350 80% 40%; --ring: 350 80% 49%;
+}
+:root[data-theme="orange-success"] {
+  --page-primary: #b95b18; --page-accent: #e57524; --page-soft: #fff1e6;
+  --brand-medium: #e57524; --brand-blue: #1d2d5c; --brand-teal: #e57524; --brand-light: #fff1e6;
+  --primary: 25 78% 40%; --ring: 25 78% 52%;
+}
+:root[data-theme="indigo-inspire"] {
+  --page-primary: #07527f; --page-accent: #07649d; --page-soft: #e7f0f5;
+  --brand-medium: #07649d; --brand-blue: #00a4e4; --brand-teal: #07649d; --brand-light: #e7f0f5;
+  --primary: 201 91% 28%; --ring: 201 91% 32%;
+}
+:root[data-theme="ocean-blend"] {
+  --page-primary: #007eae; --page-accent: #00a4e4; --page-soft: #e5f5fb;
+  --brand-medium: #00a4e4; --brand-blue: #07649d; --brand-teal: #00a4e4; --brand-light: #e5f5fb;
+  --primary: 197 100% 34%; --ring: 197 100% 45%;
+}
+:root[data-theme="modern-teal"] {
+  --page-primary: #167d70; --page-accent: #36ac91; --page-soft: #e8f5f1;
+  --brand-medium: #36ac91; --brand-blue: #6cb33f; --brand-teal: #36ac91; --brand-light: #e8f5f1;
+  --primary: 166 52% 30%; --ring: 166 52% 44%;
+}
+:root[data-theme="premium-gold"] {
+  --page-primary: #7c570e; --page-accent: #fbb034; --page-soft: #fff5df;
+  --brand-medium: #d97706; --brand-blue: #1d2d5c; --brand-teal: #fbb034; --brand-light: #fff5df;
+  --primary: 40 80% 32%; --ring: 40 96% 59%;
+}
 
 .dark {
   color-scheme: dark;
@@ -100,7 +142,7 @@
     transition: color .18s ease, background-color .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;
   }
   :focus-visible {
-    outline: 3px solid color-mix(in srgb, var(--brand-blue) 55%, transparent);
+    outline: 3px solid color-mix(in srgb, var(--page-accent) 55%, transparent);
     outline-offset: 2px;
   }
   ::selection { background: var(--isa-teal); color: #fff; }
@@ -115,15 +157,14 @@
     background-clip: text;
     color: transparent;
   }
-  .bg-isaca-medium { background-color: var(--brand-medium) !important; }
-  .text-isaca-medium { color: var(--brand-medium) !important; }
-  .border-isaca-medium { border-color: var(--brand-medium) !important; }
-  .bg-isaca-light { background-color: color-mix(in srgb, var(--brand-medium) 10%, white) !important; }
-  .text-isaca-dark { color: color-mix(in srgb, var(--brand-medium) 75%, #10213c) !important; }
-  .ring-isaca-medium { --tw-ring-color: var(--brand-medium) !important; }
-  .shadow-brand { box-shadow: 0 10px 40px -10px color-mix(in srgb, var(--brand-medium) 35%, transparent); }
+  .bg-isaca-medium { background-color: var(--page-primary) !important; }
+  .text-isaca-medium { color: var(--page-primary) !important; }
+  .border-isaca-medium { border-color: var(--page-accent) !important; }
+  .bg-isaca-light { background-color: var(--page-soft) !important; }
+  .text-isaca-dark { color: var(--page-primary) !important; }
+  .ring-isaca-medium { --tw-ring-color: var(--page-accent) !important; }
+  .shadow-brand { box-shadow: 0 10px 40px -10px color-mix(in srgb, var(--page-primary) 35%, transparent); }
 
-  /* Explicit ISACA palette helpers for consistent page-level styling. */
   .bg-isa-navy { background-color: var(--isa-navy) !important; }
   .bg-isa-medium { background-color: var(--isa-medium-blue) !important; }
   .bg-isa-light { background-color: var(--isa-light-blue) !important; }
@@ -138,7 +179,7 @@
   }
   .surface-hover:hover {
     transform: translateY(-2px);
-    box-shadow: 0 14px 32px -18px color-mix(in srgb, var(--brand-medium) 45%, transparent);
+    box-shadow: 0 14px 32px -18px color-mix(in srgb, var(--page-primary) 45%, transparent);
   }
   .surface-card {
     background: hsl(var(--card));
@@ -146,60 +187,95 @@
     border-radius: var(--radius);
     box-shadow: 0 1px 2px rgba(29, 45, 92, .05);
   }
-  .hover\\:bg-isaca-medium:hover { background-color: var(--brand-medium) !important; }
-  .hover\\:text-isaca-medium:hover { color: var(--brand-medium) !important; }
 }
 
-/* Dark mode compatibility for existing utility-class screens. */
+/* App shell */
+.finova-app-shell { background: linear-gradient(180deg, var(--page-soft) 0%, #f7f9fb 180px); }
+.finova-sidebar { border-color: #e3e9ef; }
+.finova-sidebar nav a.finova-nav-active,
+.finova-nav-active {
+  background: var(--page-soft) !important;
+  color: var(--page-primary) !important;
+  box-shadow: inset 3px 0 0 var(--page-accent);
+}
+.finova-avatar { background: var(--page-soft); color: var(--page-primary); }
+.finova-topbar { border-color: #e3e9ef; }
+.finova-page { background: transparent; }
+.finova-workspace { min-width: 0; }
+
+/*
+ * Bridge: existing screens use emerald-* heavily.
+ * Remap those accents to the active route theme so the UI visibly changes.
+ */
+.finova-page .bg-emerald-50,
+.finova-page .bg-emerald-50\/80,
+.finova-page .bg-emerald-50\/60 { background-color: var(--page-soft) !important; }
+.finova-page .bg-emerald-100 { background-color: color-mix(in srgb, var(--page-accent) 18%, white) !important; }
+.finova-page .bg-emerald-400,
+.finova-page .bg-emerald-500,
+.finova-page .bg-emerald-600,
+.finova-page .bg-emerald-700,
+.finova-page .bg-emerald-800 {
+  background-color: var(--page-primary) !important;
+  color: var(--page-on-primary) !important;
+}
+.finova-page .text-emerald-300,
+.finova-page .text-emerald-600,
+.finova-page .text-emerald-700,
+.finova-page .text-emerald-800 {
+  color: var(--page-primary) !important;
+}
+.finova-page .border-emerald-200,
+.finova-page .border-emerald-300 {
+  border-color: color-mix(in srgb, var(--page-accent) 45%, #e2e8f0) !important;
+}
+.finova-page .hover\:border-emerald-200:hover,
+.finova-page .hover\:border-emerald-300:hover {
+  border-color: color-mix(in srgb, var(--page-accent) 55%, #cbd5e1) !important;
+}
+.finova-page .hover\:bg-emerald-50:hover,
+.finova-page .hover\:bg-emerald-50\/60:hover {
+  background-color: var(--page-soft) !important;
+}
+.finova-page .hover\:bg-emerald-300:hover,
+.finova-page .hover\:bg-emerald-700:hover {
+  background-color: color-mix(in srgb, var(--page-primary) 88%, black) !important;
+}
+.finova-page .hover\:text-emerald-600:hover,
+.finova-page .hover\:text-emerald-700:hover,
+.finova-page .hover\:text-emerald-800:hover {
+  color: var(--page-primary) !important;
+}
+.finova-page .ring-emerald-500,
+.finova-page .focus\:ring-emerald-500:focus {
+  --tw-ring-color: var(--page-accent) !important;
+}
+
+.finova-page .bg-sky-50,
+.finova-page .bg-sky-50\/80 { background-color: var(--page-soft) !important; }
+.finova-page .text-sky-700,
+.finova-page .text-sky-800,
+.finova-page .text-sky-900 { color: var(--page-primary) !important; }
+.finova-page .border-sky-100,
+.finova-page .border-sky-200 { border-color: color-mix(in srgb, var(--page-accent) 30%, #e2e8f0) !important; }
+
+.finova-page :is(input, select, textarea):focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--page-accent) 38%, transparent);
+  outline-offset: 1px;
+}
+
 .dark body { background-color: hsl(var(--background)); color: hsl(var(--foreground)); }
 .dark .bg-white { background-color: hsl(var(--card)); }
 .dark .bg-slate-50, .dark .bg-slate-100 { background-color: hsl(var(--secondary)); }
 .dark .text-slate-900, .dark .text-slate-800, .dark .text-slate-700 { color: hsl(var(--foreground)); }
 .dark .text-slate-600, .dark .text-slate-500 { color: hsl(var(--muted-foreground)); }
 .dark .border-slate-200, .dark .border-slate-100, .dark .border { border-color: hsl(var(--border)); }
-.dark input, .dark select, .dark textarea { background-color: hsl(var(--card)); color: hsl(var(--foreground)); border-color: hsl(var(--border)); }
-.dark .bg-isaca-light { background-color: color-mix(in srgb, var(--brand-medium) 18%, hsl(var(--card))); }
-.dark .hover\\:bg-slate-50:hover { background-color: hsl(var(--secondary)); }
-
-
-/* Route-driven ISACA page accents: refined, accessible and consistent. */
-:root {
-  --page-primary: var(--isa-navy);
-  --page-accent: var(--isa-bright-blue);
-  --page-soft: var(--isa-light-blue);
+.dark input, .dark select, .dark textarea {
+  background-color: hsl(var(--card));
+  color: hsl(var(--foreground));
+  border-color: hsl(var(--border));
 }
-:root[data-theme="dashboard-blue"] { --page-primary:#1d2d5c; --page-accent:#00a4e4; --page-soft:#e7f0f5; --primary:220 51% 24%; --ring:197 100% 45%; }
-:root[data-theme="green-focus"] { --page-primary:#4f922d; --page-accent:#6cb33f; --page-soft:#edf5e7; --primary:96 49% 47%; --ring:96 49% 47%; }
-:root[data-theme="teal-harmony"] { --page-primary:#167d70; --page-accent:#36ac91; --page-soft:#e8f5f1; --primary:166 52% 44%; --ring:166 52% 44%; }
-:root[data-theme="purple-insight"] { --page-primary:#51469a; --page-accent:#6558b1; --page-soft:#efedf8; --primary:247 38% 52%; --ring:247 38% 52%; }
-:root[data-theme="red-energy"] { --page-primary:#b9142d; --page-accent:#e31837; --page-soft:#fdecef; --primary:350 80% 49%; --ring:350 80% 49%; }
-:root[data-theme="orange-success"] { --page-primary:#b95b18; --page-accent:#e57524; --page-soft:#fff1e6; --primary:25 78% 52%; --ring:25 78% 52%; }
-:root[data-theme="indigo-inspire"] { --page-primary:#07527f; --page-accent:#07649d; --page-soft:#e7f0f5; --primary:201 91% 32%; --ring:201 91% 32%; }
-:root[data-theme="ocean-blend"] { --page-primary:#007eae; --page-accent:#00a4e4; --page-soft:#e5f5fb; --primary:197 100% 45%; --ring:197 100% 45%; }
-:root[data-theme="modern-teal"] { --page-primary:#167d70; --page-accent:#36ac91; --page-soft:#e8f5f1; --primary:166 52% 44%; --ring:166 52% 44%; }
-:root[data-theme="premium-gold"] { --page-primary:#7c570e; --page-accent:#fbb034; --page-soft:#fff5df; --primary:40 96% 59%; --ring:40 96% 59%; }
 
-.finova-app-shell { background: #f7f9fb; }
-.finova-sidebar { border-color: #e3e9ef; }
-.finova-sidebar nav a.finova-nav-link { color: #52606d; }
-.finova-sidebar nav a.finova-nav-link:hover { background: var(--page-soft); color: var(--page-primary); }
-.finova-sidebar nav a.finova-nav-active {
-  background: var(--page-soft);
-  color: var(--page-primary);
-  border-color: color-mix(in srgb, var(--page-accent) 24%, transparent);
-}
-.finova-avatar { background: var(--page-soft); color: var(--page-primary); }
-.finova-topbar { border-color: #e3e9ef; }
-.finova-page { background: transparent; }
-.finova-workspace { min-width: 0; }
-.finova-page button:not([data-variant="plain"]) { --tw-ring-color: var(--page-accent); }
-.finova-page :is(.bg-primary, .bg-brand, .bg-isaca-medium) { background-color: var(--page-primary); }
-.finova-page :is(.text-primary, .text-isaca-medium) { color: var(--page-primary); }
-.finova-page :is(.border-primary, .border-isaca-medium) { border-color: var(--page-accent); }
-.finova-page :is(input, select, textarea):focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--page-accent) 38%, transparent);
-  outline-offset: 1px;
-}
 @media (prefers-reduced-motion: reduce) {
   .finova-sidebar a, .finova-page button, .finova-page a { transition: none !important; }
 }

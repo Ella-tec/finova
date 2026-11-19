@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 export function Logo({ className, size = 40 }: { className?: string; size?: number }) {
@@ -21,7 +22,13 @@ export function Logo({ className, size = 40 }: { className?: string; size?: numb
   );
 }
 
-export function LogoWordmark({ className, light = false }: { className?: string; light?: boolean }) {
+export function LogoWordmark({
+  className,
+  light = false,
+}: {
+  className?: string;
+  light?: boolean;
+}) {
   return (
     <div className={cn("flex items-center gap-2.5", className)}>
       <Logo size={36} />
@@ -31,7 +38,10 @@ export function LogoWordmark({ className, light = false }: { className?: string;
           light ? "text-white" : "text-slate-900"
         )}
       >
-        Finova
+        Finova{" "}
+        <span className={cn("font-semibold", light ? "text-[#a8e6ff]" : "text-[#07649d]")}>
+          AI
+        </span>
       </span>
     </div>
   );

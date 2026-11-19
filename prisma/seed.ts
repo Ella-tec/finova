@@ -3,6 +3,19 @@ import { hash } from "bcryptjs";
 
 const prisma = new PrismaClient();
 
+const DEMO_CLIENTS = [
+  { id: "demo-client-001", name: "Acme Corporation", legalName: "Acme Corporation Inc.", taxId: "12-3456789" },
+  { id: "demo-client-002", name: "Nexus Retail Group", legalName: "Nexus Retail Group LLC", taxId: "12-3456790" },
+  { id: "demo-client-003", name: "Orbit Software LLC", legalName: "Orbit Software LLC", taxId: "12-3456791" },
+  { id: "demo-client-004", name: "Pulse Health Clinics", legalName: "Pulse Health Clinics PC", taxId: "12-3456792" },
+  { id: "demo-client-005", name: "Granite Construction Partners", legalName: "Granite Construction Partners LP", taxId: "12-3456793" },
+  { id: "demo-client-006", name: "Leaf & Co Foods", legalName: "Leaf & Co Foods Inc.", taxId: "12-3456794" },
+  { id: "demo-client-007", name: "Atlas Logistics Inc", legalName: "Atlas Logistics Inc.", taxId: "12-3456795" },
+  { id: "demo-client-008", name: "Summit Energy Holdings", legalName: "Summit Energy Holdings Corp.", taxId: "12-3456796" },
+  { id: "demo-client-009", name: "BrightPath Education Inc", legalName: "BrightPath Education Inc.", taxId: "12-3456797" },
+  { id: "demo-client-010", name: "Finova Parent Co (Demo Group)", legalName: "Finova Parent Co", taxId: "12-3456798" },
+];
+
 async function main() {
   if (process.env.NODE_ENV === "production") {
     throw new Error("The Finova demo seed is disabled in production.");
@@ -10,7 +23,9 @@ async function main() {
 
   const demoPassword = process.env.FINOVA_DEMO_PASSWORD;
   if (!demoPassword || demoPassword.length < 14) {
-    throw new Error("Set FINOVA_DEMO_PASSWORD to a unique password of at least 14 characters before running the demo seed.");
+    throw new Error(
+      "Set FINOVA_DEMO_PASSWORD to a unique password of at least 14 characters before running the demo seed."
+    );
   }
 
   console.log("Seeding Finova demo data...");
@@ -21,24 +36,34 @@ async function main() {
     create: { name: "Demo CPA Firm", slug: "demo-firm" },
   });
 
-  const client = await prisma.client.upsert({
-    where: { id: "demo-client-001" },
-    update: {},
-    create: {
-      id: "demo-client-001",
-      name: "Acme Corporation",
-      legalName: "Acme Corporation Inc.",
-      taxId: "12-3456789",
-      firmId: firm.id,
-    },
-  });
+  for (const c of DEMO_CLIENTS) {
+    await prisma.client.upsert({
+      where: { id: c.id },
+      update: { name: c.name, legalName: c.legalName, taxId: c.taxId, firmId: firm.id },
+      create: {
+        id: c.id,
+        name: c.name,
+        legalName: c.legalName,
+        taxId: c.taxId,
+        firmId: firm.id,
+      },
+    });
+  }
+
+  const primaryClient = DEMO_CLIENTS[0];
 
   const passwordHash = await hash(demoPassword, 12);
   const users = [
     { email: "demo@finova.ai", name: "Demo Accountant", role: Role.STAFF_ACCOUNTANT, firmId: firm.id },
     { email: "controller@finova.ai", name: "Demo Controller", role: Role.CONTROLLER, firmId: firm.id },
     { email: "partner@finova.ai", name: "Demo Partner", role: Role.PARTNER, firmId: firm.id },
-    { email: "client@acme.com", name: "Demo Client User", role: Role.CLIENT, firmId: firm.id, clientId: client.id },
+    {
+      email: "client@acme.com",
+      name: "Demo Client User",
+      role: Role.CLIENT,
+      firmId: firm.id,
+      clientId: primaryClient.id,
+    },
     { email: "admin@finova.ai", name: "Demo Administrator", role: Role.ADMIN, firmId: firm.id },
   ];
 
@@ -58,8 +83,20 @@ async function main() {
   }
 
   const folderNames = [
-    "Corporate Docs", "Trial Balance", "General Ledger", "Bank Statements",
-    "Payroll", "Fixed Assets", "Tax", "Audit", "Final Statements", "Archive",
+    "Corporate Docs",
+    "Trial Balance",
+    "Journal Entries",
+    "Income Statement",
+    "Balance Sheet",
+    "Cash Flow",
+    "General Ledger",
+    "Bank Statements",
+    "Payroll",
+    "Fixed Assets",
+    "Tax",
+    "Audit",
+    "Final Statements",
+    "Archive",
   ];
 
   for (const name of folderNames) {
@@ -69,13 +106,15 @@ async function main() {
       create: {
         id: `demo-folder-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
         name,
-        path: `/${name.toLowerCase().replace(/\\s+/g, "-")}`,
-        clientId: client.id,
+        path: `/${name.toLowerCase().replace(/\s+/g, "-")}`,
+        clientId: primaryClient.id,
       },
     });
   }
 
-  console.log("Finova demo data seeded. Demo password was read from FINOVA_DEMO_PASSWORD and was not printed.");
+  console.log(
+    `Finova demo data seeded (${DEMO_CLIENTS.length} clients). Demo password was read from FINOVA_DEMO_PASSWORD and was not printed.`
+  );
 }
 
 main()

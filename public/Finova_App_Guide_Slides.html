@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Finova App Guide — slides</title>
+<style>
+  :root { --navy:#0c1222; --gold:#e8d5a3; --gold2:#c4a35a; --muted:#a8b0c0; --card:#151b2e; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Georgia, "Times New Roman", serif; background: #070b14; color: #fff; }
+  .deck { max-width: 960px; margin: 0 auto; padding: 24px 16px 80px; }
+  .toolbar {
+    position: sticky; top: 0; z-index: 20; display: flex; flex-wrap: wrap; gap: 8px;
+    align-items: center; justify-content: space-between;
+    background: rgba(12,18,34,.95); border-bottom: 1px solid rgba(255,255,255,.08);
+    padding: 12px 8px; margin-bottom: 20px; font-family: Arial, sans-serif;
+  }
+  .toolbar h1 { font-size: 14px; letter-spacing: .12em; color: var(--gold); text-transform: uppercase; }
+  .toolbar a, .toolbar button {
+    font-size: 13px; font-weight: 600; border: 1px solid rgba(232,213,163,.35);
+    background: transparent; color: var(--gold); border-radius: 999px; padding: 8px 14px;
+    cursor: pointer; text-decoration: none;
+  }
+  .slide {
+    background: var(--navy); border: 1px solid rgba(255,255,255,.08); border-radius: 16px;
+    padding: 40px 44px; margin-bottom: 28px; min-height: 420px; page-break-after: always;
+  }
+  .kicker { font-family: Arial, sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .2em; color: var(--gold); margin-bottom: 12px; }
+  h2 { font-size: 32px; line-height: 1.2; margin-bottom: 18px; font-weight: 500; }
+  p, li { font-family: Arial, sans-serif; font-size: 16px; line-height: 1.55; color: var(--muted); }
+  ul { padding-left: 18px; } li { margin: 8px 0; }
+  .hero { display: flex; flex-direction: column; justify-content: center; min-height: 340px; }
+  .hero h2 { font-size: 40px; }
+  .sub { color: var(--muted); margin-top: 12px; font-size: 18px; }
+  .foot { margin-top: 28px; font-family: Arial, sans-serif; font-size: 13px; color: var(--gold2); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 18px; }
+  .card { background: var(--card); border-radius: 12px; padding: 16px; }
+  .card strong { display: block; color: var(--gold); font-family: Arial, sans-serif; font-size: 14px; margin-bottom: 8px; }
+  .card span { font-family: Arial, sans-serif; font-size: 13px; color: var(--muted); }
+  .flow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 20px; }
+  .chip { background: var(--card); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; padding: 12px 14px; font-family: Arial, sans-serif; font-size: 13px; font-weight: 600; color: #fff; }
+  .arrow { color: var(--gold); }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 16px; }
+  .two h3 { font-family: Arial, sans-serif; font-size: 13px; letter-spacing: .16em; color: var(--gold); margin-bottom: 10px; }
+  .steps { list-style: none; padding: 0; }
+  .steps li { background: var(--card); border-radius: 10px; padding: 10px 14px; margin: 8px 0; color: #fff; font-size: 14px; font-family: Arial, sans-serif; }
+  .steps li b { color: var(--gold); margin-right: 8px; }
+  .note { margin-top: 22px; text-align: center; font-family: Arial, sans-serif; font-size: 15px; color: var(--gold); }
+  @media print { .toolbar { display: none; } .slide { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+</style>
+</head>
+<body>
+<div class="deck">
+  <div class="toolbar">
+    <h1>Finova · App Guide Slides</h1>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button type="button" onclick="window.print()">Print / Save as PDF</button>
+      <a href="#s1">1</a><a href="#s2">2</a><a href="#s3">3</a><a href="#s4">4</a>
+      <a href="#s5">5</a><a href="#s6">6</a><a href="#s7">7</a><a href="#s8">8</a>
+    </div>
+  </div>
+
+  <section class="slide hero" id="s1">
+    <div class="kicker">FINOVA</div>
+    <h2>App Guide & Wireframe Paths</h2>
+    <p class="sub">From first file → recording → statements → close → audit</p>
+    <p class="foot">Eliyas Eshtea · Audience training deck</p>
+  </section>
+
+  <section class="slide" id="s2">
+    <div class="kicker">01 · ACCESS</div>
+    <h2>Sign-in + Guide top left</h2>
+    <ul>
+      <li>Logo + <strong style="color:var(--gold)">App Guide</strong> on sign-in (top left — not sidebar)</li>
+      <li>Public guide: <strong style="color:#fff">/guide</strong> (no login)</li>
+      <li>After login: <strong style="color:#fff">/dashboard/guide</strong></li>
+      <li>Demo: demo@finova.ai · client@acme.com</li>
+    </ul>
+  </section>
+
+  <section class="slide" id="s3">
+    <div class="kicker">02 · FILE SOURCES</div>
+    <h2>Where files come from</h2>
+    <div class="grid">
+      <div class="card"><strong>Client Portal</strong><span>Bank statements, invoices, payroll</span></div>
+      <div class="card"><strong>Staff Documents</strong><span>Upload · view · download</span></div>
+      <div class="card"><strong>Sample Library</strong><span>Practice packs by company</span></div>
+      <div class="card"><strong>Bank Rec</strong><span>CSV / statement files</span></div>
+      <div class="card"><strong>File Sanitizer</strong><span>Clean before AI</span></div>
+    </div>
+  </section>
+
+  <section class="slide" id="s4">
+    <div class="kicker">03 · RECORDING</div>
+    <h2>Transactions from scratch</h2>
+    <ol class="steps">
+      <li><b>1</b> Company / entity setup</li>
+      <li><b>2</b> Chart of Accounts</li>
+      <li><b>3</b> Source document</li>
+      <li><b>4</b> Journal entry</li>
+      <li><b>5</b> General Ledger post</li>
+      <li><b>6</b> AR · Bank Rec</li>
+      <li><b>7</b> Trial Balance</li>
+    </ol>
+  </section>
+
+  <section class="slide" id="s5">
+    <div class="kicker">04 · STATEMENTS</div>
+    <h2>TB → CF (upload · review · download)</h2>
+    <div class="flow">
+      <span class="chip">Trial Balance</span><span class="arrow">→</span>
+      <span class="chip">Journal Entries</span><span class="arrow">→</span>
+      <span class="chip">Income Statement</span><span class="arrow">→</span>
+      <span class="chip">Balance Sheet</span><span class="arrow">→</span>
+      <span class="chip">Cash Flow</span>
+    </div>
+    <p class="note">Every step: Upload · Review · Download</p>
+  </section>
+
+  <section class="slide" id="s6">
+    <div class="kicker">05 · CLOSE & AUDIT</div>
+    <h2>Close checklist → PBC → workpapers</h2>
+    <div class="two">
+      <div>
+        <h3>CLOSE</h3>
+        <ol class="steps">
+          <li><b>1</b> Open Month-End Close</li>
+          <li><b>2</b> Checklist tasks</li>
+          <li><b>3</b> Attach evidence</li>
+          <li><b>4</b> Approvals</li>
+          <li><b>5</b> Lock period</li>
+        </ol>
+      </div>
+      <div>
+        <h3>AUDIT</h3>
+        <ol class="steps">
+          <li><b>1</b> New PBC Request</li>
+          <li><b>2</b> Client portal upload</li>
+          <li><b>3</b> Staff review</li>
+          <li><b>4</b> Workpapers</li>
+          <li><b>5</b> Findings & report</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" id="s7">
+    <div class="kicker">06 · MASTER WIREFRAME</div>
+    <h2>One path through the app</h2>
+    <div class="flow">
+      <span class="chip">Files</span><span class="arrow">→</span>
+      <span class="chip">Sanitize</span><span class="arrow">→</span>
+      <span class="chip">Record</span><span class="arrow">→</span>
+      <span class="chip">Bank Rec</span><span class="arrow">→</span>
+      <span class="chip">TB</span><span class="arrow">→</span>
+      <span class="chip">JE</span>
+    </div>
+    <div class="flow" style="margin-top:12px">
+      <span class="chip">P&L</span><span class="arrow">→</span>
+      <span class="chip">BS</span><span class="arrow">→</span>
+      <span class="chip">CF</span><span class="arrow">→</span>
+      <span class="chip">Close</span><span class="arrow">→</span>
+      <span class="chip">PBC</span><span class="arrow">→</span>
+      <span class="chip">Report</span>
+    </div>
+  </section>
+
+  <section class="slide" id="s8">
+    <div class="kicker">07 · DEMO ORDER</div>
+    <h2>Audience demo path A→I</h2>
+    <div class="two">
+      <ol class="steps">
+        <li><b>A</b> Sign in (Guide top left)</li>
+        <li><b>B</b> Sample Library</li>
+        <li><b>C</b> Documents upload</li>
+        <li><b>D</b> Statements TB→CF</li>
+        <li><b>E</b> Bank Rec match & lock</li>
+      </ol>
+      <ol class="steps">
+        <li><b>F</b> Month-End Close</li>
+        <li><b>G</b> New PBC Request</li>
+        <li><b>H</b> Contact Center</li>
+        <li><b>I</b> Client portal</li>
+      </ol>
+    </div>
+  </section>
+</div>
+</body>
+</html>
