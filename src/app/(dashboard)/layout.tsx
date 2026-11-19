@@ -20,7 +20,6 @@ import {
   Shield,
   Menu,
   X,
-  ArrowLeft,
   Wallet,
   CalendarCheck,
   Phone,
@@ -30,6 +29,7 @@ import { cn } from "@/lib/utils";
 import { LogoWordmark } from "@/components/brand/Logo";
 import { GlobalSearch } from "@/components/brand/GlobalSearch";
 import { DarkModeToggle } from "@/components/brand/DarkModeToggle";
+import { BackNav } from "@/components/brand/BackNav";
 
 const navigation = [
   {
@@ -90,7 +90,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     .toUpperCase();
   const activeItem = useMemo(() => {
     if (pathname === "/dashboard") return allItems[0];
-    // Prefer longest match so Contact Center wins over Clients
     const matches = allItems.filter(
       (item) => pathname === item.match || pathname.startsWith(item.match + "/")
     );
@@ -161,7 +160,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
           <button
             type="button"
-            onClick={() => signOut({ callbackUrl: "/login" })}
+            onClick={() => signOut({ callbackUrl: "/" })}
             className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm text-white/70 hover:bg-white/10 hover:text-white"
           >
             <LogOut className="h-4 w-4" />
@@ -196,7 +195,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="border-t border-white/10 p-4">
           <button
             type="button"
-            onClick={() => signOut({ callbackUrl: "/login" })}
+            onClick={() => signOut({ callbackUrl: "/" })}
             className="flex items-center gap-2 text-sm text-white/70"
           >
             <LogOut className="h-4 w-4" />
@@ -206,7 +205,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </aside>
 
       <div className="finova-workspace flex min-w-0 flex-1 flex-col">
-        <header className="finova-topbar sticky top-0 z-30 flex h-[76px] items-center gap-3 border-b border-[#d7e3ec] bg-white/95 px-3 backdrop-blur-xl sm:px-4 lg:px-7">
+        <header className="finova-topbar sticky top-0 z-30 flex h-[76px] items-center gap-2 border-b border-[#d7e3ec] bg-white/95 px-3 backdrop-blur-xl sm:gap-3 sm:px-4 lg:px-7">
           <button
             type="button"
             aria-label="Open navigation"
@@ -215,32 +214,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           >
             <Menu className="h-5 w-5" />
           </button>
-          <div className="flex shrink-0 items-center gap-1 text-sm text-[#87958f]">
-            <button
-              type="button"
-              aria-label="Go back"
-              onClick={() => {
-                if (window.history.length > 1) window.history.back();
-                else window.location.assign("/dashboard");
-              }}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#71817b] transition hover:bg-[#e7f0f5] hover:text-[#07649d]"
-            >
-              <ArrowLeft className="h-[18px] w-[18px]" />
-            </button>
-            <Link
-              href="/dashboard"
-              className={cn(
-                "hidden transition-colors hover:text-[#07649d] sm:inline",
-                pathname === "/dashboard" ? "font-semibold text-[#07649d]" : "text-[#87958f]"
-              )}
-            >
-              Dashboard
-            </Link>
+
+          {/* Back + Home on every dashboard page */}
+          <BackNav homeHref="/dashboard" homeLabel="Home" />
+
+          <div className="hidden items-center gap-1 text-sm text-[#87958f] sm:flex">
             <ChevronRight className="h-4 w-4" />
             <span className="font-semibold capitalize text-[#1d2d5c]">
               {activeItem?.name || pathname.split("/").filter(Boolean).pop() || "Home"}
             </span>
           </div>
+
           <div className="min-w-0 flex-1">
             <GlobalSearch />
           </div>
