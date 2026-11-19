@@ -39,19 +39,19 @@ export default function RegisterPage() {
         <Link href="/" className="inline-flex mb-8"><LogoWordmark /></Link>
         <div className="rounded-2xl border border-slate-200/80 bg-white p-8 shadow-xl shadow-slate-200/50">
           <h1 className="text-2xl font-bold text-slate-900">Create your firm workspace</h1>
-          <p className="mt-1 text-sm text-slate-500">Set up your Finova accounting workspace.</p>
+          <p className="mt-1 text-sm text-slate-500">Set up your FINOVA accounting workspace. You will be the administrator of your new firm workspace.</p>
           {error && <div role="alert" className="mt-4 flex items-center gap-2 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700"><AlertCircle className="h-4 w-4 shrink-0" />{error}</div>}
           {success && <div role="status" className="mt-4 flex items-center gap-2 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-700"><CheckCircle2 className="h-4 w-4 shrink-0" />Account created.</div>}
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             {[
               { key: "name", label: "Full name", type: "text", ph: "Jane Smith" },
               { key: "email", label: "Work email", type: "email", ph: "jane@firm.com" },
-              { key: "password", label: "Password", type: "password", ph: "Min. 8 characters" },
-              { key: "firmName", label: "Firm name (optional)", type: "text", ph: "Smith & Co CPA" },
+              { key: "password", label: "Password", type: "password", ph: "At least 12 characters" },
+              { key: "firmName", label: "Firm or organization name", type: "text", ph: "Smith & Co CPA" },
             ].map((f) => (
               <div key={f.key}>
                 <label htmlFor={f.key} className="mb-1 block text-sm font-medium text-slate-700">{f.label}</label>
-                <input id={f.key} type={f.type} required={f.key !== "firmName"} minLength={f.key === "password" ? 8 : undefined}
+                <input id={f.key} type={f.type} required minLength={f.key === "password" ? 12 : 2} maxLength={f.key === "password" ? 128 : 120}
                   value={form[f.key as keyof typeof form]} onChange={(e) => setForm({ ...form, [f.key]: e.target.value })}
                   placeholder={f.ph} className="w-full rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2.5 text-sm focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/30" />
               </div>
