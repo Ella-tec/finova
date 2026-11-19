@@ -15,6 +15,7 @@ import {
   Eraser,
   BadgeCheck,
   Database,
+  Shield,
 } from "lucide-react";
 
 function LoginForm() {
@@ -67,33 +68,40 @@ function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-2 bg-white">
-      {/* Left — Enterprise Sign In */}
-      <div className="flex flex-col justify-center px-6 sm:px-12 lg:px-16 xl:px-24 py-12">
+    <div className="grid min-h-screen lg:grid-cols-2">
+      {/* Left panel — form on soft ISACA light */}
+      <div className="flex flex-col justify-center bg-[#f6f9fc] px-6 py-12 sm:px-12 lg:px-16 xl:px-24">
         <div className="mx-auto w-full max-w-md">
-          <Link href="/" className="inline-flex mb-10"><LogoWordmark /></Link>
+          <Link href="/" className="mb-10 inline-flex">
+            <LogoWordmark />
+          </Link>
 
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">
-            Enterprise Sign In
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-[#e7f0f5] px-3 py-1 text-xs font-semibold text-[#07649d]">
+            <Shield className="h-3.5 w-3.5" />
+            Secure firm workspace
+          </div>
+
+          <h1 className="text-2xl font-bold tracking-tight text-[#1d2d5c] sm:text-3xl">
+            Sign in to Finova
           </h1>
-          <p className="mt-2 text-slate-500 text-sm">
-            Secure access for accounting firms, auditors, and controllers
+          <p className="mt-2 text-sm text-[#52606d]">
+            Accounting, audit, and client collaboration for modern firms
           </p>
 
           {error && (
             <div className="mt-6 flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
               {error}
             </div>
           )}
 
           <form onSubmit={handleCredentialsLogin} className="mt-8 space-y-5">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1.5">
-                Enterprise Email
+              <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-[#1f2933]">
+                Work email
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#52606d]" />
                 <input
                   id="email"
                   type="email"
@@ -102,17 +110,17 @@ function LoginForm() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@firm.com"
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50/80 pl-10 pr-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-600/30 focus:border-teal-600 transition"
+                  className="w-full rounded-xl border border-[#cbd2d9] bg-white py-3 pl-10 pr-4 text-sm text-[#1f2933] placeholder:text-[#9aa5b1] transition focus:border-[#07649d] focus:outline-none focus:ring-2 focus:ring-[#00a4e4]/30"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1.5">
+              <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-[#1f2933]">
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#52606d]" />
                 <input
                   id="password"
                   type={showPw ? "text" : "password"}
@@ -121,12 +129,12 @@ function LoginForm() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50/80 pl-10 pr-11 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-600/30 focus:border-teal-600 transition"
+                  className="w-full rounded-xl border border-[#cbd2d9] bg-white py-3 pl-10 pr-11 text-sm text-[#1f2933] placeholder:text-[#9aa5b1] transition focus:border-[#07649d] focus:outline-none focus:ring-2 focus:ring-[#00a4e4]/30"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPw(!showPw)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#52606d] hover:text-[#1d2d5c]"
                   aria-label={showPw ? "Hide password" : "Show password"}
                 >
                   {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -137,18 +145,18 @@ function LoginForm() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3 text-sm shadow-lg shadow-slate-300/40 transition disabled:opacity-60"
+              className="w-full rounded-xl bg-[#1d2d5c] py-3 text-sm font-semibold text-white shadow-lg shadow-[#1d2d5c]/25 transition hover:bg-[#162447] disabled:opacity-60"
             >
-              {loading ? "Signing in…" : "Sign In"}
+              {loading ? "Signing in…" : "Sign in"}
             </button>
           </form>
 
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200" />
+              <div className="w-full border-t border-[#cbd2d9]" />
             </div>
             <div className="relative flex justify-center text-xs uppercase tracking-wide">
-              <span className="bg-white px-3 text-slate-400">or</span>
+              <span className="bg-[#f6f9fc] px-3 text-[#9aa5b1]">or</span>
             </div>
           </div>
 
@@ -156,7 +164,7 @@ function LoginForm() {
             type="button"
             onClick={handleEntraIdLogin}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 py-3 text-sm font-semibold text-slate-800 transition disabled:opacity-60"
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#cbd2d9] bg-white py-3 text-sm font-semibold text-[#1f2933] transition hover:bg-[#e7f0f5] disabled:opacity-60"
           >
             <svg className="h-5 w-5" viewBox="0 0 23 23" aria-hidden>
               <path fill="#f35325" d="M1 1h10v10H1z" />
@@ -167,62 +175,59 @@ function LoginForm() {
             Sign in with Microsoft Entra ID
           </button>
 
-          <p className="mt-6 text-center text-xs text-slate-500 leading-relaxed">
-            Multi-Factor Authentication (MFA) Required
-            <br />
-            Protected by Azure Sentinel
+          <p className="mt-6 text-center text-xs leading-relaxed text-[#52606d]">
+            MFA supported · Protected firm access
           </p>
 
-          <p className="mt-8 text-center text-sm text-slate-500">
+          <p className="mt-8 text-center text-sm text-[#52606d]">
             New firm?{" "}
-            <Link href="/register" className="font-semibold text-teal-700 hover:text-teal-800">
+            <Link href="/register" className="font-semibold text-[#07649d] hover:text-[#1d2d5c]">
               Create an account
             </Link>
           </p>
         </div>
       </div>
 
-      {/* Right — Secure Document Gateway Pipeline */}
-      <div className="hidden lg:flex relative overflow-hidden bg-gradient-to-br from-slate-50 via-teal-50/40 to-emerald-50/60 items-center justify-center p-12">
-        {/* subtle network dots */}
+      {/* Right panel — ISACA navy brand story */}
+      <div className="relative hidden overflow-hidden bg-gradient-to-br from-[#1d2d5c] via-[#07649d] to-[#36ac91] lg:flex lg:items-center lg:justify-center lg:p-12">
         <div
-          className="absolute inset-0 opacity-40"
+          className="absolute inset-0 opacity-20"
           style={{
-            backgroundImage: "radial-gradient(circle at 1px 1px, #94a3b8 1px, transparent 0)",
+            backgroundImage:
+              "radial-gradient(circle at 1px 1px, rgba 1.5px, transparent 0)",
             backgroundSize: "28px 28px",
           }}
         />
-        <div className="relative z-10 max-w-md w-full">
-          <h2 className="text-center text-lg font-semibold text-slate-700 mb-10">
-            Secure Document Gateway Pipeline
+        <div className="relative z-10 w-full max-w-md text-white">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#a8e6ff]">
+            Finova platform
+          </p>
+          <h2 className="mt-3 text-3xl font-bold leading-tight">
+            Accounting, audit & secure collaboration
           </h2>
+          <p className="mt-4 text-sm leading-relaxed text-white/85">
+            One workspace for trial balance, statements, bank rec, month-end close,
+            PBC requests, and AI-assisted document workflows.
+          </p>
 
-          <div className="flex flex-col items-center gap-0">
+          <div className="mt-10 space-y-4">
             {[
-              { icon: FileSearch, label: "File Scan", color: "from-teal-400 to-teal-600" },
-              { icon: Eraser, label: "Redaction", color: "from-emerald-400 to-emerald-600" },
-              { icon: BadgeCheck, label: "Compliance Check", color: "from-cyan-400 to-cyan-600" },
-              { icon: Database, label: "Storage", color: "from-slate-500 to-slate-700" },
-            ].map((step, i, arr) => (
-              <div key={step.label} className="flex flex-col items-center">
-                <div className="flex items-center gap-4 w-full max-w-xs">
-                  <div
-                    className={`h-14 w-14 rounded-full bg-gradient-to-br ${step.color} flex items-center justify-center shadow-lg shadow-teal-200/50 ring-4 ring-white`}
-                  >
-                    <step.icon className="h-6 w-6 text-white" />
-                  </div>
-                  <span className="text-sm font-semibold text-slate-700">{step.label}</span>
-                </div>
-                {i < arr.length - 1 && (
-                  <div className="h-8 w-0.5 bg-gradient-to-b from-teal-300 to-teal-200 my-1 ml-[-8.5rem] self-center" />
-                )}
+              { icon: FileSearch, label: "File scan & intake" },
+              { icon: Eraser, label: "Sanitize & redact" },
+              { icon: BadgeCheck, label: "Compliance checks" },
+              { icon: Database, label: "Secure firm storage" },
+            ].map((step) => (
+              <div
+                key={step.label}
+                className="flex items-center gap-3 rounded-xl bg-white/10 px-4 py-3 backdrop-blur-sm"
+              >
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15">
+                  <step.icon className="h-5 w-5" />
+                </span>
+                <span className="text-sm font-semibold">{step.label}</span>
               </div>
             ))}
           </div>
-
-          <p className="mt-12 text-center text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
-            Every file passes scan → redaction → compliance → secure storage before AI or audit use.
-          </p>
         </div>
       </div>
     </div>
@@ -231,7 +236,13 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-slate-500">Loading…</div>}>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-[#f6f9fc] text-[#52606d]">
+          Loading…
+        </div>
+      }
+    >
       <LoginForm />
     </Suspense>
   );
