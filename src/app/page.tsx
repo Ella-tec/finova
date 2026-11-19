@@ -5,64 +5,18 @@ import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
-  ArrowUpRight,
-  BarChart3,
-  ShieldCheck,
-  Landmark,
-  ClipboardCheck,
-  Sparkles,
-  FileStack,
-  Wallet,
-  CheckCircle2,
-  Clock3,
   Mail,
   Lock,
   Eye,
   EyeOff,
   AlertCircle,
   Loader2,
+  TrendingUp,
+  PieChart,
+  Wallet,
+  Shield,
 } from "lucide-react";
 import { LogoWordmark } from "@/components/brand/Logo";
-
-const features = [
-  {
-    icon: Landmark,
-    title: "Accounting workspace",
-    text: "Entities, banking, journals, and close tasks in one place.",
-  },
-  {
-    icon: BarChart3,
-    title: "Financial reporting",
-    text: "Trial Balance → Journals → Income Statement → Balance Sheet → Cash Flow.",
-  },
-  {
-    icon: ClipboardCheck,
-    title: "Audit & PBC",
-    text: "Request evidence, track status, and keep an auditable history.",
-  },
-  {
-    icon: FileStack,
-    title: "Document control",
-    text: "Upload, sanitize, review, and download client files securely.",
-  },
-  {
-    icon: Sparkles,
-    title: "AI-assisted work",
-    text: "Drafts and analysis with human approval before posting.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Governance",
-    text: "Roles, MFA-ready sign-in, and clear ownership of each step.",
-  },
-];
-
-const metrics = [
-  { label: "Cash position", value: "$482,600", note: "Illustrative", icon: Wallet },
-  { label: "Open invoices", value: "42", note: "Active clients", icon: FileStack },
-  { label: "Close progress", value: "76%", note: "Current period", icon: CheckCircle2 },
-  { label: "Due this week", value: "11", note: "Tasks", icon: Clock3 },
-];
 
 export default function HomePage() {
   const router = useRouter();
@@ -99,58 +53,99 @@ export default function HomePage() {
   };
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#f4f7fb] text-[#1f2933]">
-      <header className="sticky top-0 z-20 border-b border-[#d7e3ec] bg-white/90 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-          <Link href="/" aria-label="Finova home">
-            <LogoWordmark />
-          </Link>
-          <nav className="flex items-center gap-4 text-sm font-medium">
-            <a href="#features" className="hidden text-slate-600 hover:text-[#07649d] md:inline">
-              Features
-            </a>
-            <a href="#sign-in" className="rounded-xl bg-[#1d2d5c] px-4 py-2.5 font-semibold text-white hover:bg-[#162447]">
-              Sign in
-            </a>
-          </nav>
+    <main className="min-h-screen bg-[#f0f4f8]">
+      <header className="border-b border-white/60 bg-white/80 backdrop-blur">
+        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
+          <LogoWordmark />
+          <a
+            href="#sign-in"
+            className="rounded-lg bg-[#1d2d5c] px-3.5 py-2 text-sm font-semibold text-white"
+          >
+            Sign in
+          </a>
         </div>
       </header>
 
-      <section className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:py-16">
+      <section className="mx-auto grid max-w-5xl items-center gap-10 px-4 py-14 lg:grid-cols-2 lg:py-20">
+        {/* Left — short message + visuals */}
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#c5dceb] bg-white px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#07649d]">
-            Accounting · Audit · Finance
-          </div>
-          <h1 className="mt-5 text-4xl font-bold tracking-tight text-[#1d2d5c] sm:text-5xl">
-            Clarity for every number.
-            <span className="block text-[#07649d]">Confidence in every close.</span>
-          </h1>
-          <p className="mt-5 max-w-xl text-base leading-7 text-slate-600">
-            Finova connects trial balance, journals, financial statements, bank reconciliation,
-            month-end close, PBC requests, and secure document workflows in one firm workspace.
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#07649d]">
+            Finance · Audit · Close
           </p>
-          <ul className="mt-6 space-y-2 text-sm text-slate-600">
-            <li className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-[#36ac91]" /> Full statement process with upload &
-              download
-            </li>
-            <li className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-[#36ac91]" /> Sample companies & audit documents
-            </li>
-            <li className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-[#36ac91]" /> Role-aware access for staff and clients
-            </li>
-          </ul>
+          <h1 className="mt-4 text-4xl font-bold leading-tight text-[#1d2d5c] sm:text-5xl">
+            Numbers clear.
+            <br />
+            <span className="text-[#07649d]">Close faster.</span>
+          </h1>
+          <p className="mt-4 max-w-md text-base text-slate-500">
+            Books, statements, and client work — one calm workspace.
+          </p>
+
+          {/* Finance visual cards */}
+          <div className="mt-8 grid grid-cols-2 gap-3">
+            <div className="rounded-2xl bg-gradient-to-br from-[#1d2d5c] to-[#07649d] p-4 text-white shadow-lg">
+              <Wallet className="h-5 w-5 text-[#a8e6ff]" />
+              <p className="mt-6 text-2xl font-bold">$4.2M</p>
+              <p className="text-xs text-white/70">Cash position</p>
+              <div className="mt-3 flex h-8 items-end gap-1">
+                {[40, 55, 35, 70, 50, 80, 65].map((h, i) => (
+                  <span
+                    key={i}
+                    className="flex-1 rounded-sm bg-white/30"
+                    style={{ height: `${h}%` }}
+                  />
+                ))}
+              </div>
+            </div>
+            <div className="rounded-2xl border border-[#d7e3ec] bg-white p-4 shadow-sm">
+              <TrendingUp className="h-5 w-5 text-[#36ac91]" />
+              <p className="mt-6 text-2xl font-bold text-[#1d2d5c]">+12%</p>
+              <p className="text-xs text-slate-500">Revenue trend</p>
+              <svg viewBox="0 0 120 36" className="mt-3 w-full text-[#36ac91]" aria-hidden>
+                <polyline
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  points="0,28 20,22 40,24 60,14 80,16 100,8 120,10"
+                />
+              </svg>
+            </div>
+            <div className="rounded-2xl border border-[#d7e3ec] bg-white p-4 shadow-sm">
+              <PieChart className="h-5 w-5 text-[#07649d]" />
+              <p className="mt-6 text-2xl font-bold text-[#1d2d5c]">76%</p>
+              <p className="text-xs text-slate-500">Month-end close</p>
+              <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
+                <div className="h-full w-[76%] rounded-full bg-[#07649d]" />
+              </div>
+            </div>
+            <div className="rounded-2xl border border-[#d7e3ec] bg-white p-4 shadow-sm">
+              <Shield className="h-5 w-5 text-[#6cb33f]" />
+              <p className="mt-6 text-2xl font-bold text-[#1d2d5c]">Secure</p>
+              <p className="text-xs text-slate-500">Roles · MFA ready</p>
+              <div className="mt-3 flex gap-1">
+                {["TB", "P&L", "BS", "CF"].map((t) => (
+                  <span
+                    key={t}
+                    className="rounded-md bg-[#e7f0f5] px-2 py-1 text-[10px] font-bold text-[#07649d]"
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Sign in on the same page */}
-        <div id="sign-in" className="rounded-3xl border border-[#d7e3ec] bg-white p-6 shadow-xl shadow-[#1d2d5c]/10 sm:p-8">
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#07649d]">Secure access</p>
-          <h2 className="mt-1 text-2xl font-bold text-[#1d2d5c]">Sign in to Finova</h2>
-          <p className="mt-1 text-sm text-slate-500">Firm staff and client portal users</p>
+        {/* Right — sign in only */}
+        <div
+          id="sign-in"
+          className="rounded-3xl border border-[#d7e3ec] bg-white p-7 shadow-xl shadow-[#1d2d5c]/8"
+        >
+          <h2 className="text-xl font-bold text-[#1d2d5c]">Sign in</h2>
+          <p className="mt-1 text-sm text-slate-500">Your firm workspace</p>
 
           {error && (
-            <div className="mt-4 flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-700">
+            <div className="mt-4 flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
               {error}
             </div>
@@ -158,8 +153,8 @@ export default function HomePage() {
 
           <form onSubmit={onSubmit} className="mt-6 space-y-4">
             <div>
-              <label htmlFor="home-email" className="mb-1.5 block text-sm font-medium text-slate-700">
-                Work email
+              <label htmlFor="home-email" className="mb-1 block text-sm font-medium text-slate-700">
+                Email
               </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -170,13 +165,13 @@ export default function HomePage() {
                   autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="demo@finova.ai"
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3 text-sm focus:border-[#07649d] focus:outline-none focus:ring-2 focus:ring-[#00a4e4]/30"
+                  placeholder="you@firm.com"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3 text-sm focus:border-[#07649d] focus:outline-none focus:ring-2 focus:ring-[#00a4e4]/25"
                 />
               </div>
             </div>
             <div>
-              <label htmlFor="home-password" className="mb-1.5 block text-sm font-medium text-slate-700">
+              <label htmlFor="home-password" className="mb-1 block text-sm font-medium text-slate-700">
                 Password
               </label>
               <div className="relative">
@@ -189,12 +184,12 @@ export default function HomePage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-11 text-sm focus:border-[#07649d] focus:outline-none focus:ring-2 focus:ring-[#00a4e4]/30"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-11 text-sm focus:border-[#07649d] focus:outline-none focus:ring-2 focus:ring-[#00a4e4]/25"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPw((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
                   aria-label={showPw ? "Hide password" : "Show password"}
                 >
                   {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -207,61 +202,14 @@ export default function HomePage() {
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#1d2d5c] py-3 text-sm font-semibold text-white hover:bg-[#162447] disabled:opacity-60"
             >
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              {loading ? "Signing in…" : "Sign in"}
+              {loading ? "Signing in…" : "Continue"}
             </button>
           </form>
-
-          <p className="mt-4 text-center text-xs text-slate-500">
-            Prefer a dedicated page?{" "}
-            <Link href="/login" className="font-semibold text-[#07649d] hover:underline">
-              Open full sign-in
-            </Link>
-          </p>
         </div>
       </section>
 
-      <section className="border-y border-[#d7e3ec] bg-white">
-        <div className="mx-auto grid max-w-6xl gap-3 px-4 py-8 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
-          {metrics.map(({ label, value, note, icon: Icon }) => (
-            <div key={label} className="rounded-2xl border border-[#e7f0f5] bg-[#f8fbfd] p-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-slate-500">{label}</span>
-                <Icon className="h-4 w-4 text-[#07649d]" />
-              </div>
-              <p className="mt-2 text-2xl font-bold text-[#1d2d5c]">{value}</p>
-              <p className="text-[11px] text-slate-400">{note}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section id="features" className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-        <h2 className="text-2xl font-bold text-[#1d2d5c]">Built for modern finance teams</h2>
-        <p className="mt-2 max-w-2xl text-sm text-slate-600">
-          From daily books to audit evidence — with clear buttons to upload, review, and download at
-          every step.
-        </p>
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {features.map(({ icon: Icon, title, text }) => (
-            <article
-              key={title}
-              className="rounded-2xl border border-[#e7f0f5] bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-            >
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#e7f0f5] text-[#07649d]">
-                <Icon className="h-5 w-5" />
-              </span>
-              <h3 className="mt-4 font-semibold text-[#1d2d5c]">{title}</h3>
-              <p className="mt-1 text-sm text-slate-600">{text}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <footer className="border-t border-[#d7e3ec] bg-white px-4 py-8">
-        <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-3 text-sm text-slate-500 sm:flex-row sm:items-center">
-          <LogoWordmark />
-          <p>Finova · Accounting, audit, and finance workflows.</p>
-        </div>
+      <footer className="border-t border-[#d7e3ec] py-6 text-center text-xs text-slate-400">
+        Finova
       </footer>
     </main>
   );
