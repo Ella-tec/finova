@@ -1,406 +1,175 @@
 "use client";
 
 import {
-  CheckCircle2,
-  Clock3,
-  AlertTriangle,
-  FileText,
-  Users,
-  Bot,
-  ArrowRight,
-  ArrowUpRight,
-  Wallet,
-  CalendarDays,
-  Sparkles,
-  TrendingUp,
-  Receipt,
-  DollarSign,
-  Building2,
+  ArrowRight, ArrowUpRight, AlertTriangle, BarChart3, Bot, Building2,
+  CalendarDays, CheckCircle2, Clock3, FileText, Receipt, Sparkles,
+  TrendingUp, Users, Wallet, DollarSign, BookOpen, ShieldCheck,
 } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 
 const moneyKpis = [
-  {
-    label: "Cash",
-    value: "$4.2M",
-    detail: "Across operating accounts",
-    icon: Wallet,
-    href: "/dashboard/bank-rec",
-    tone: "green" as const,
-  },
-  {
-    label: "Income",
-    value: "$8.5M",
-    detail: "YTD revenue",
-    icon: TrendingUp,
-    href: "/dashboard/reporting/statements",
-    tone: "blue" as const,
-  },
-  {
-    label: "Bills",
-    value: "$220K",
-    detail: "Open payables",
-    icon: Receipt,
-    href: "/dashboard/operations#accounting",
-    tone: "amber" as const,
-  },
-  {
-    label: "Profit",
-    value: "$2.3M",
-    detail: "YTD net income",
-    icon: DollarSign,
-    href: "/dashboard/reporting/statements",
-    tone: "green" as const,
-  },
+  { label: "Cash position", value: "$4.2M", detail: "Across operating accounts", icon: Wallet, href: "/dashboard/bank-rec", tone: "green" },
+  { label: "YTD revenue", value: "$8.5M", detail: "Current financial year", icon: TrendingUp, href: "/dashboard/reporting/statements", tone: "blue" },
+  { label: "Open bills", value: "$220K", detail: "Awaiting payment", icon: Receipt, href: "/dashboard/operations#accounting", tone: "orange" },
+  { label: "Net income", value: "$2.3M", detail: "Year to date", icon: DollarSign, href: "/dashboard/reporting/statements", tone: "purple" },
 ];
 
 const workStats = [
-  {
-    label: "Open tasks",
-    value: "12",
-    detail: "Across engagements",
-    icon: Clock3,
-    tone: "amber" as const,
-    href: "/dashboard/close",
-  },
-  {
-    label: "Approvals",
-    value: "5",
-    detail: "Ready for review",
-    icon: CheckCircle2,
-    tone: "green" as const,
-    href: "/dashboard/close",
-  },
-  {
-    label: "Client requests",
-    value: "8",
-    detail: "Waiting on response",
-    icon: Users,
-    tone: "blue" as const,
-    href: "/dashboard/audit/pbc",
-  },
-  {
-    label: "Exceptions",
-    value: "3",
-    detail: "Bank & books",
-    icon: AlertTriangle,
-    tone: "rose" as const,
-    href: "/dashboard/bank-rec",
-  },
+  { label: "Open tasks", value: "12", detail: "Across engagements", icon: Clock3, href: "/dashboard/close", tone: "orange" },
+  { label: "Approvals", value: "5", detail: "Ready for review", icon: CheckCircle2, href: "/dashboard/close", tone: "green" },
+  { label: "Client requests", value: "8", detail: "Waiting on response", icon: Users, href: "/dashboard/audit/pbc", tone: "blue" },
+  { label: "Exceptions", value: "3", detail: "Bank & books", icon: AlertTriangle, href: "/dashboard/bank-rec", tone: "red" },
 ];
 
 const tasks = [
-  {
-    title: "Bank reconciliation — October",
-    client: "Acme Corp",
-    due: "Today",
-    status: "In progress",
-    href: "/dashboard/bank-rec",
-    tone: "blue",
-  },
-  {
-    title: "Review AP accruals",
-    client: "TechStart LLC",
-    due: "Tomorrow",
-    status: "Needs review",
-    href: "/dashboard/close",
-    tone: "amber",
-  },
-  {
-    title: "Prepare trial balance",
-    client: "Green Energy Inc",
-    due: "Nov 18",
-    status: "Not started",
-    href: "/dashboard/reporting/statements",
-    tone: "slate",
-  },
-  {
-    title: "PBC — bank statements",
-    client: "Acme Corp",
-    due: "Nov 20",
-    status: "Client response",
-    href: "/dashboard/audit/pbc",
-    tone: "blue",
-  },
+  { title: "Bank reconciliation — October", client: "Acme Corp", due: "Today", status: "In progress", href: "/dashboard/bank-rec", tone: "blue" },
+  { title: "Review AP accruals", client: "TechStart LLC", due: "Tomorrow", status: "Needs review", href: "/dashboard/close", tone: "orange" },
+  { title: "Prepare trial balance", client: "Green Energy Inc", due: "Nov 20", status: "Not started", href: "/dashboard/reporting/statements", tone: "slate" },
+  { title: "PBC — bank statements", client: "Acme Corp", due: "Nov 21", status: "Client response", href: "/dashboard/audit/pbc", tone: "teal" },
 ];
 
 const insights = [
-  "Revenue up ~12% vs prior period (demo sample).",
-  "3 bank items still need review before close.",
-  "2 PBC requests are past suggested due date.",
+  "Revenue is trending above the prior period in this demo dataset.",
+  "Three bank items need review before the close can be completed.",
+  "Two PBC requests are approaching their target due dates.",
+];
+
+const quickActions = [
+  { label: "Create journal entry", href: "/dashboard/operations#accounting", icon: Receipt },
+  { label: "Import trial balance", href: "/dashboard/reporting/statements", icon: BarChart3 },
+  { label: "Match bank transactions", href: "/dashboard/bank-rec", icon: Wallet },
+  { label: "Start month-end close", href: "/dashboard/close", icon: CalendarDays },
+  { label: "Create PBC request", href: "/dashboard/audit/pbc", icon: FileText },
 ];
 
 function toneClasses(tone: string) {
-  if (tone === "green") return "bg-emerald-50 text-emerald-700";
-  if (tone === "amber") return "bg-amber-50 text-amber-700";
-  if (tone === "blue") return "bg-sky-50 text-sky-700";
-  if (tone === "rose") return "bg-rose-50 text-rose-700";
-  return "bg-slate-100 text-slate-600";
+  const tones: Record<string, string> = {
+    green: "finova-tone-green",
+    blue: "finova-tone-blue",
+    orange: "finova-tone-orange",
+    purple: "finova-tone-purple",
+    red: "finova-tone-red",
+    teal: "finova-tone-teal",
+    slate: "finova-tone-slate",
+  };
+  return tones[tone] || tones.slate;
 }
 
-export default function DashboardPage() {
-  const { data: session } = useSession();
-  const firstName =
-    session?.user?.name?.split(" ")[0] ||
-    session?.user?.email?.split("@")[0] ||
-    "there";
-
-  const hour = new Date().getHours();
-  const hello =
-    hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
-
-  const today = new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-  });
-
+function AccountingVisual() {
   return (
-    <div className="mx-auto max-w-[1400px] space-y-6">
-      {/* Friendly header — QuickBooks style */}
-      <section className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-            {hello}, {firstName}
-          </h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Here&apos;s what&apos;s happening with your business today.
-          </p>
-        </div>
-        <div className="inline-flex items-center gap-2 self-start rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600 sm:self-auto">
-          <CalendarDays className="h-4 w-4 text-emerald-600" />
-          {today}
-        </div>
-      </section>
-
-      <div className="rounded-xl border border-sky-100 bg-sky-50/80 px-4 py-2.5 text-xs text-sky-900">
-        Demo snapshot — KPI amounts and task names are sample data for product
-        design, not live books.
+    <div className="finova-hero-art" aria-hidden="true">
+      <div className="finova-art-orbit finova-art-orbit-one" />
+      <div className="finova-art-orbit finova-art-orbit-two" />
+      <div className="finova-art-glow" />
+      <div className="finova-art-chart">
+        <div className="finova-art-chart-head"><span /><span /><span /></div>
+        <div className="finova-art-bars"><i /><i /><i /><i /><i /><i /><i /></div>
+        <svg viewBox="0 0 260 100" className="finova-art-line" fill="none">
+          <path d="M8 78 C38 72 45 50 76 56 S120 69 148 38 S202 43 250 8" stroke="#75e0c1" strokeWidth="4" strokeLinecap="round" />
+          <path d="M8 78 C38 72 45 50 76 56 S120 69 148 38 S202 43 250 8 L250 100 L8 100Z" fill="url(#chartFill)" opacity=".2" />
+          <defs><linearGradient id="chartFill" x1="130" y1="0" x2="130" y2="100"><stop stopColor="#75e0c1"/><stop offset="1" stopColor="#75e0c1" stopOpacity="0"/></linearGradient></defs>
+        </svg>
       </div>
-
-      {/* Business money KPIs — like QuickBooks */}
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {moneyKpis.map(({ label, value, detail, icon: Icon, href, tone }) => (
-          <Link
-            key={label}
-            href={href}
-            className="group rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-md"
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-slate-500">{label}</span>
-              <span
-                className={`flex h-9 w-9 items-center justify-center rounded-xl ${toneClasses(tone)}`}
-              >
-                <Icon className="h-4 w-4" />
-              </span>
-            </div>
-            <p className="mt-3 text-3xl font-semibold tracking-tight text-slate-900">
-              {value}
-            </p>
-            <div className="mt-1 flex items-center justify-between">
-              <span className="text-xs text-slate-400">{detail}</span>
-              <ArrowUpRight className="h-4 w-4 text-slate-300 transition group-hover:text-emerald-600" />
-            </div>
-          </Link>
-        ))}
-      </section>
-
-      {/* Work queue stats */}
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {workStats.map(({ label, value, detail, icon: Icon, tone, href }) => (
-          <Link
-            key={label}
-            href={href}
-            className="flex items-center gap-4 rounded-2xl border border-slate-200/80 bg-white px-4 py-3.5 shadow-sm transition hover:border-emerald-200"
-          >
-            <span
-              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${toneClasses(tone)}`}
-            >
-              <Icon className="h-5 w-5" />
-            </span>
-            <div className="min-w-0">
-              <p className="text-xs font-medium text-slate-500">{label}</p>
-              <p className="text-xl font-semibold text-slate-900">{value}</p>
-              <p className="truncate text-[11px] text-slate-400">{detail}</p>
-            </div>
-          </Link>
-        ))}
-      </section>
-
-      <section className="grid gap-5 xl:grid-cols-[1.5fr_0.9fr]">
-        {/* My work */}
-        <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
-          <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-            <div>
-              <h2 className="font-semibold text-slate-800">To do</h2>
-              <p className="text-xs text-slate-400">Priorities and deadlines</p>
-            </div>
-            <Link
-              href="/dashboard/close"
-              className="inline-flex items-center gap-1 text-sm font-semibold text-emerald-700 hover:text-emerald-800"
-            >
-              View all <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-          <div className="divide-y divide-slate-100">
-            {tasks.map((task) => (
-              <Link
-                key={task.title}
-                href={task.href}
-                className="flex flex-col gap-2 px-5 py-3.5 transition hover:bg-slate-50 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-slate-800">
-                    {task.title}
-                  </p>
-                  <p className="mt-0.5 text-xs text-slate-400">{task.client}</p>
-                </div>
-                <div className="flex shrink-0 items-center gap-3">
-                  <span className="text-xs text-slate-400">Due {task.due}</span>
-                  <span
-                    className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${toneClasses(task.tone)}`}
-                  >
-                    {task.status}
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        <div className="space-y-5">
-          {/* AI */}
-          <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 p-5 text-white shadow-sm">
-            <div className="flex items-center gap-2">
-              <Bot className="h-5 w-5 text-emerald-300" />
-              <Sparkles className="h-4 w-4 text-emerald-300" />
-              <span className="text-sm font-semibold">Ask Finova AI</span>
-            </div>
-            <p className="mt-3 text-sm leading-relaxed text-slate-300">
-              Draft journals, explain balances, find close gaps, or summarize a
-              workpaper — always with your approval.
-            </p>
-            <Link
-              href="/dashboard/ai"
-              className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-emerald-300"
-            >
-              Open AI <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-
-          {/* Insights */}
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
-            <h2 className="font-semibold text-slate-800">Insights</h2>
-            <ul className="mt-3 space-y-2.5">
-              {insights.map((line) => (
-                <li
-                  key={line}
-                  className="flex gap-2 text-sm text-slate-600"
-                >
-                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
-                  {line}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Quick actions */}
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
-            <h2 className="font-semibold text-slate-800">Quick actions</h2>
-            <div className="mt-3 space-y-1">
-              {[
-                {
-                  label: "Create journal entry",
-                  href: "/dashboard/operations#accounting",
-                },
-                {
-                  label: "Import trial balance",
-                  href: "/dashboard/reporting/statements",
-                },
-                { label: "Match bank transactions", href: "/dashboard/bank-rec" },
-                { label: "Start month-end close", href: "/dashboard/close" },
-                { label: "New PBC request", href: "/dashboard/audit/pbc" },
-              ].map((item) => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className="flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-emerald-50 hover:text-emerald-800"
-                >
-                  {item.label}
-                  <ArrowUpRight className="h-4 w-4 text-slate-300" />
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Recent activity — soft rows */}
-      <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="font-semibold text-slate-800">Recent activity</h2>
-            <p className="text-xs text-slate-400">
-              Open the related workspace to continue
-            </p>
-          </div>
-          <Building2 className="h-5 w-5 text-emerald-600" />
-        </div>
-        <div className="mt-4 grid gap-3 md:grid-cols-3">
-          {[
-            {
-              title: "Document uploaded",
-              detail: "October Bank Statement.pdf · Acme",
-              time: "12 min ago",
-              action: "Documents",
-              href: "/dashboard/documents",
-            },
-            {
-              title: "Journal approved",
-              detail: "JE-2026-1042 · Accrued expenses",
-              time: "1 hour ago",
-              action: "Accounting",
-              href: "/dashboard/operations#accounting",
-            },
-            {
-              title: "AI draft ready",
-              detail: "Four proposed close entries",
-              time: "2 hours ago",
-              action: "Review AI",
-              href: "/dashboard/ai",
-            },
-          ].map((item) => (
-            <article
-              key={item.title}
-              className="flex flex-col rounded-xl border border-slate-100 bg-slate-50/50 p-4 transition hover:border-emerald-200 hover:bg-white"
-            >
-              <div className="flex gap-3">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
-                  <FileText className="h-4 w-4" />
-                </span>
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-slate-800">
-                    {item.title}
-                  </p>
-                  <p className="mt-0.5 text-xs text-slate-500">{item.detail}</p>
-                  <p className="mt-1 text-[11px] text-slate-400">{item.time}</p>
-                </div>
-              </div>
-              <Link
-                href={item.href}
-                className="mt-3 inline-flex w-fit items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50"
-              >
-                {item.action} <ArrowUpRight className="h-3.5 w-3.5" />
-              </Link>
-            </article>
-          ))}
-        </div>
-      </section>
+      <div className="finova-art-book">
+        <div className="finova-book-left"><span /><span /><span /></div>
+        <div className="finova-book-right"><span /><span /><span /></div>
+        <div className="finova-book-spine" />
+      </div>
+      <div className="finova-art-float finova-art-float-top"><ShieldCheck size={17} /> Close controls</div>
+      <div className="finova-art-float finova-art-float-bottom"><TrendingUp size={17} /> Financial clarity</div>
     </div>
   );
 }
 
-function LandmarkIcon() {
-  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="h-[18px] w-[18px]" aria-hidden="true"><path d="m3 9 9-6 9 6M4 10h16M6 10v8m4-8v8m4-8v8m4-8v8M3 20h18M2 22h20" /></svg>;
+export default function DashboardPage() {
+  const { data: session } = useSession();
+  const firstName = session?.user?.name?.split(" ")[0] || session?.user?.email?.split("@")[0] || "there";
+  const hour = new Date().getHours();
+  const hello = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+
+  return (
+    <div className="mx-auto max-w-[1480px] space-y-6">
+      <section className="finova-welcome-hero">
+        <div className="finova-welcome-copy">
+          <div className="finova-eyebrow"><span className="finova-eyebrow-dot" /> YOUR FINANCIAL WORKSPACE</div>
+          <h1>{hello}, {firstName}<span>.</span></h1>
+          <p>Bring your accounting, reporting, and client work together. See what needs attention and move the business forward with confidence.</p>
+          <div className="finova-hero-actions">
+            <Link href="/dashboard/operations#accounting" className="finova-button-primary">Open accounting <ArrowRight size={16} /></Link>
+            <Link href="/dashboard/reporting" className="finova-button-quiet">Explore reports <ArrowUpRight size={16} /></Link>
+          </div>
+          <div className="finova-hero-trust"><ShieldCheck size={15} /> Organized workflows · Clear approvals · Audit-ready activity</div>
+        </div>
+        <AccountingVisual />
+        <div className="finova-hero-date"><CalendarDays size={15} /> {today}</div>
+      </section>
+
+      <div className="finova-demo-note"><span /> Demo snapshot — figures and activity below are sample data, not live books.</div>
+
+      <section aria-label="Financial overview" className="space-y-3">
+        <div className="finova-section-heading"><div><h2>Financial overview</h2><p>A quick view of the numbers that matter.</p></div><Link href="/dashboard/reporting/statements">View reports <ArrowRight size={15}/></Link></div>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {moneyKpis.map(({ label, value, detail, icon: Icon, href, tone }) => (
+            <Link key={label} href={href} className="finova-kpi-card group">
+              <div className="flex items-center justify-between"><span className="finova-card-label">{label}</span><span className={`finova-icon-tile ${toneClasses(tone)}`}><Icon size={19}/></span></div>
+              <p className="finova-kpi-value">{value}</p>
+              <div className="flex items-center justify-between"><span className="finova-card-detail">{detail}</span><ArrowUpRight size={17} className="text-slate-300 transition group-hover:text-[var(--page-primary)]"/></div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section aria-label="Work overview" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {workStats.map(({ label, value, detail, icon: Icon, href, tone }) => (
+          <Link key={label} href={href} className="finova-work-stat group">
+            <span className={`finova-icon-tile h-11 w-11 ${toneClasses(tone)}`}><Icon size={20}/></span>
+            <span className="min-w-0 flex-1"><span className="finova-card-label">{label}</span><strong>{value}</strong><span className="finova-card-detail">{detail}</span></span>
+            <ArrowUpRight size={16} className="text-slate-300 transition group-hover:text-[var(--page-primary)]"/>
+          </Link>
+        ))}
+      </section>
+
+      <section className="grid gap-5 xl:grid-cols-[1.45fr_.85fr]">
+        <div className="finova-panel overflow-hidden">
+          <div className="finova-panel-heading"><div><h2>Work to move forward</h2><p>Your priorities and upcoming deadlines.</p></div><Link href="/dashboard/close">View all <ArrowRight size={15}/></Link></div>
+          <div className="divide-y divide-slate-100">
+            {tasks.map(task => <Link key={task.title} href={task.href} className="finova-task-row">
+              <span className="min-w-0"><strong>{task.title}</strong><small>{task.client}</small></span>
+              <span className="flex shrink-0 items-center gap-3"><small>Due {task.due}</small><span className={`finova-status ${toneClasses(task.tone)}`}>{task.status}</span></span>
+            </Link>)}
+          </div>
+        </div>
+        <div className="space-y-5">
+          <div className="finova-ai-card">
+            <div className="flex items-center gap-2"><span className="finova-ai-mark"><Bot size={19}/></span><span className="font-semibold">Finova AI</span><Sparkles size={15} className="text-amber-300"/></div>
+            <h2>Make the next decision with clarity.</h2>
+            <p>Explore balances, summarize workpapers, prepare journal drafts, and identify close gaps — with your review and approval.</p>
+            <Link href="/dashboard/ai" className="finova-ai-button">Ask Finova AI <ArrowRight size={16}/></Link>
+          </div>
+          <div className="finova-panel p-5"><div className="finova-panel-heading !border-0 !p-0"><div><h2>Insights</h2><p>Signals worth a closer look.</p></div><Sparkles size={17} className="text-[var(--page-accent)]"/></div>
+            <ul className="mt-4 space-y-3">{insights.map(line => <li key={line} className="flex gap-2.5 text-sm leading-6 text-slate-600"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--page-accent)]"/>{line}</li>)}</ul>
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-5 xl:grid-cols-[.9fr_1.1fr]">
+        <div className="finova-panel p-5">
+          <div className="finova-panel-heading !border-0 !p-0"><div><h2>Quick actions</h2><p>Get straight to the work.</p></div><Sparkles size={17} className="text-[var(--page-accent)]"/></div>
+          <div className="mt-3 grid gap-1 sm:grid-cols-2 xl:grid-cols-1">{quickActions.map(({label,href,icon:Icon})=><Link key={label} href={href} className="finova-quick-link"><span><Icon size={17}/>{label}</span><ArrowUpRight size={16}/></Link>)}</div>
+        </div>
+        <div className="finova-panel p-5">
+          <div className="finova-panel-heading !border-0 !p-0"><div><h2>Recent activity</h2><p>A connected view of the work happening across your firm.</p></div><Building2 size={19} className="text-[var(--page-accent)]"/></div>
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            {[
+              {title:"Document uploaded",detail:"October Bank Statement.pdf · Acme",time:"12 min ago",action:"Open documents",href:"/dashboard/documents",icon:FileText},
+              {title:"Journal approved",detail:"JE-2026-1042 · Accrued expenses",time:"1 hour ago",action:"Open accounting",href:"/dashboard/operations#accounting",icon:CheckCircle2},
+              {title:"AI draft ready",detail:"Four proposed close entries",time:"2 hours ago",action:"Review AI",href:"/dashboard/ai",icon:Bot},
+            ].map(item=><article key={item.title} className="finova-activity-card"><span className="finova-icon-tile finova-tone-teal"><item.icon size={18}/></span><strong>{item.title}</strong><p>{item.detail}</p><small>{item.time}</small><Link href={item.href}>{item.action}<ArrowUpRight size={14}/></Link></article>)}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
 }
