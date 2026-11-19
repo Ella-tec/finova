@@ -23,6 +23,7 @@ import {
   Wallet,
   CalendarCheck,
   Phone,
+  BookMarked,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -36,6 +37,7 @@ const navigation = [
     label: "WORKSPACE",
     items: [
       { name: "Home", href: "/dashboard", match: "/dashboard", icon: LayoutDashboard },
+      { name: "App Guide", href: "/dashboard/guide", match: "/dashboard/guide", icon: BookMarked },
       { name: "Documents", href: "/dashboard/documents", match: "/dashboard/documents", icon: FileText },
       { name: "Sample Library", href: "/dashboard/samples", match: "/dashboard/samples", icon: Library },
       { name: "File Sanitizer", href: "/dashboard/security", match: "/dashboard/security", icon: Shield },
@@ -215,7 +217,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <Menu className="h-5 w-5" />
           </button>
 
-          {/* Back + Home on every dashboard page */}
           <BackNav homeHref="/dashboard" homeLabel="Home" />
 
           <div className="hidden items-center gap-1 text-sm text-[#87958f] sm:flex">
@@ -231,6 +232,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="hidden items-center gap-2 md:flex">
             <DarkModeToggle />
           </div>
+          <Link
+            href="/dashboard/guide"
+            className="hidden shrink-0 items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 sm:flex"
+            title="App Guide"
+          >
+            <BookMarked className="h-4 w-4 text-[#07649d]" />
+            <span className="hidden lg:inline">Guide</span>
+          </Link>
           <Link
             href="/dashboard/clients/contact-center"
             className="hidden shrink-0 items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 sm:flex"
