@@ -18,8 +18,22 @@ jobs:
     name: Typecheck and production build
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: finova_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d finova_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     env:
-      DATABASE_URL: "file:./ci.db"
+      DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/finova_ci?schema=public"
       NEXTAUTH_SECRET: "ci-only-not-a-production-secret"
       NEXTAUTH_URL: "http://localhost:3000"
     steps:
