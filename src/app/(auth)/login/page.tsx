@@ -4,19 +4,33 @@ import { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { LogoWordmark } from "@/components/brand/Logo";
 import {
   Lock,
   Mail,
   AlertCircle,
   Eye,
   EyeOff,
-  FileSearch,
-  Eraser,
-  BadgeCheck,
-  Database,
-  Shield,
+  BarChart3,
+  FileSpreadsheet,
+  Landmark,
+  ShieldCheck,
+  BookOpen,
+  TrendingUp,
 } from "lucide-react";
+
+function FinovaMark({ className = "h-16 w-16" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 80 80" fill="none" aria-hidden>
+      <rect width="80" height="80" rx="20" fill="#0F766E" />
+      <path
+        d="M22 52V28h10.5c6.2 0 10.2 3.2 10.2 8.1 0 3.2-1.7 5.7-4.6 6.9L46 52h-8.2l-6.6-8.4H30V52H22zm8-13.2h2.4c2.6 0 4.1-1.2 4.1-3.2s-1.5-3.1-4.1-3.1H30v6.3z"
+        fill="white"
+      />
+      <path d="M48 52V28h14v6.2H56v3.6h5.2v5.6H56V52h-8z" fill="white" opacity="0.92" />
+      <circle cx="62" cy="22" r="5" fill="#99F6E4" />
+    </svg>
+  );
+}
 
 function LoginForm() {
   const router = useRouter();
@@ -68,40 +82,41 @@ function LoginForm() {
   };
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-2">
-      {/* Left panel — form on soft ISACA light */}
-      <div className="flex flex-col justify-center bg-[#f6f9fc] px-6 py-12 sm:px-12 lg:px-16 xl:px-24">
-        <div className="mx-auto w-full max-w-md">
-          <Link href="/" className="mb-10 inline-flex">
-            <LogoWordmark />
+    <div className="min-h-screen grid lg:grid-cols-2 bg-[#F7F8F5]">
+      <div className="flex flex-col justify-center px-6 sm:px-12 lg:px-16 xl:px-20 py-12 relative">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_#E8F5F1_0%,_transparent_55%)]" />
+        <div className="relative mx-auto w-full max-w-[420px]">
+          <Link href="/" className="inline-flex items-center gap-3 mb-10">
+            <FinovaMark className="h-14 w-14 shadow-lg shadow-teal-900/10 rounded-[18px]" />
+            <div>
+              <p className="text-2xl font-semibold tracking-tight text-slate-900">Finova</p>
+              <p className="text-xs font-medium tracking-[0.14em] uppercase text-teal-700">
+                Accounting · Audit · AI
+              </p>
+            </div>
           </Link>
 
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-[#e7f0f5] px-3 py-1 text-xs font-semibold text-[#07649d]">
-            <Shield className="h-3.5 w-3.5" />
-            Secure firm workspace
-          </div>
-
-          <h1 className="text-2xl font-bold tracking-tight text-[#1d2d5c] sm:text-3xl">
-            Sign in to Finova
+          <h1 className="text-3xl font-semibold tracking-tight text-slate-900 leading-tight">
+            Sign in to your firm workspace
           </h1>
-          <p className="mt-2 text-sm text-[#52606d]">
-            Accounting, audit, and client collaboration for modern firms
+          <p className="mt-3 text-slate-500 text-[15px] leading-relaxed">
+            Clear books. Confident close. Secure collaboration for modern finance teams.
           </p>
 
           {error && (
-            <div className="mt-6 flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+            <div className="mt-6 flex items-start gap-2 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
+              <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
               {error}
             </div>
           )}
 
-          <form onSubmit={handleCredentialsLogin} className="mt-8 space-y-5">
+          <form onSubmit={handleCredentialsLogin} className="mt-8 space-y-4">
             <div>
-              <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-[#1f2933]">
+              <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1.5">
                 Work email
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#52606d]" />
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <input
                   id="email"
                   type="email"
@@ -110,7 +125,7 @@ function LoginForm() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@firm.com"
-                  className="w-full rounded-xl border border-[#cbd2d9] bg-white py-3 pl-10 pr-4 text-sm text-[#1f2933] placeholder:text-[#9aa5b1] transition focus:border-[#07649d] focus:outline-none focus:ring-2 focus:ring-[#00a4e4]/30"
+                  className="w-full rounded-2xl border border-slate-200 bg-white pl-11 pr-4 py-3.5 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-600/25 focus:border-teal-600 transition"
                 />
               </div>
             </div>
@@ -120,7 +135,7 @@ function LoginForm() {
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#52606d]" />
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <input
                   id="password"
                   type={showPw ? "text" : "password"}
@@ -128,13 +143,13 @@ function LoginForm() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full rounded-xl border border-[#cbd2d9] bg-white py-3 pl-10 pr-11 text-sm text-[#1f2933] placeholder:text-[#9aa5b1] transition focus:border-[#07649d] focus:outline-none focus:ring-2 focus:ring-[#00a4e4]/30"
+                  placeholder="••••••••••••"
+                  className="w-full rounded-2xl border border-slate-200 bg-white pl-11 pr-11 py-3.5 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-600/25 focus:border-teal-600 transition"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPw(!showPw)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#52606d] hover:text-[#1d2d5c]"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                   aria-label={showPw ? "Hide password" : "Show password"}
                 >
                   {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -145,7 +160,7 @@ function LoginForm() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl bg-[#1d2d5c] py-3 text-sm font-semibold text-white shadow-lg shadow-[#1d2d5c]/25 transition hover:bg-[#162447] disabled:opacity-60"
+              className="w-full rounded-2xl bg-teal-700 hover:bg-teal-800 text-white font-semibold py-3.5 text-sm shadow-lg shadow-teal-900/15 transition disabled:opacity-60"
             >
               {loading ? "Signing in…" : "Sign in"}
             </button>
@@ -156,7 +171,7 @@ function LoginForm() {
               <div className="w-full border-t border-[#cbd2d9]" />
             </div>
             <div className="relative flex justify-center text-xs uppercase tracking-wide">
-              <span className="bg-[#f6f9fc] px-3 text-[#9aa5b1]">or</span>
+              <span className="bg-[#F7F8F5] px-3 text-slate-400">or</span>
             </div>
           </div>
 
@@ -164,7 +179,7 @@ function LoginForm() {
             type="button"
             onClick={handleEntraIdLogin}
             disabled={loading}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#cbd2d9] bg-white py-3 text-sm font-semibold text-[#1f2933] transition hover:bg-[#e7f0f5] disabled:opacity-60"
+            className="w-full flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 py-3.5 text-sm font-semibold text-slate-800 shadow-sm transition disabled:opacity-60"
           >
             <svg className="h-5 w-5" viewBox="0 0 23 23" aria-hidden>
               <path fill="#f35325" d="M1 1h10v10H1z" />
@@ -172,59 +187,52 @@ function LoginForm() {
               <path fill="#05a6f0" d="M1 12h10v10H1z" />
               <path fill="#ffba08" d="M12 12h10v10H12z" />
             </svg>
-            Sign in with Microsoft Entra ID
+            Continue with Microsoft
           </button>
 
-          <p className="mt-6 text-center text-xs leading-relaxed text-[#52606d]">
-            MFA supported · Protected firm access
-          </p>
-
-          <p className="mt-8 text-center text-sm text-[#52606d]">
-            New firm?{" "}
-            <Link href="/register" className="font-semibold text-[#07649d] hover:text-[#1d2d5c]">
-              Create an account
+          <p className="mt-8 text-center text-sm text-slate-500">
+            Need help?{" "}
+            <Link href="/guide" className="font-semibold text-teal-700 hover:text-teal-800">
+              App Guide
             </Link>
           </p>
         </div>
       </div>
 
-      {/* Right panel — ISACA navy brand story */}
-      <div className="relative hidden overflow-hidden bg-gradient-to-br from-[#1d2d5c] via-[#07649d] to-[#36ac91] lg:flex lg:items-center lg:justify-center lg:p-12">
-        <div
-          className="absolute inset-0 opacity-20"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 1px 1px, rgba 1.5px, transparent 0)",
-            backgroundSize: "28px 28px",
-          }}
-        />
-        <div className="relative z-10 w-full max-w-md text-white">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#a8e6ff]">
-            Finova platform
-          </p>
-          <h2 className="mt-3 text-3xl font-bold leading-tight">
-            Accounting, audit & secure collaboration
+      <div className="hidden lg:flex relative overflow-hidden bg-gradient-to-br from-white via-[#EEF7F3] to-[#E4F0EA] items-center justify-center p-12">
+        <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-teal-200/30 blur-3xl" />
+        <div className="absolute -left-16 bottom-10 h-64 w-64 rounded-full bg-emerald-100/80 blur-3xl" />
+
+        <div className="relative z-10 w-full max-w-lg">
+          <div className="flex justify-center mb-8">
+            <FinovaMark className="h-24 w-24 shadow-xl shadow-teal-900/10 rounded-[28px]" />
+          </div>
+
+          <h2 className="text-center text-2xl font-semibold tracking-tight text-slate-800">
+            Finance, close and audit — one workspace
           </h2>
-          <p className="mt-4 text-sm leading-relaxed text-white/85">
-            One workspace for trial balance, statements, bank rec, month-end close,
-            PBC requests, and AI-assisted document workflows.
+          <p className="mt-3 text-center text-sm text-slate-500 leading-relaxed max-w-md mx-auto">
+            Trial balance to statements, bank rec, month-end close, PBC, and client collaboration.
           </p>
 
-          <div className="mt-10 space-y-4">
+          <div className="mt-10 grid grid-cols-2 gap-3">
             {[
-              { icon: FileSearch, label: "File scan & intake" },
-              { icon: Eraser, label: "Sanitize & redact" },
-              { icon: BadgeCheck, label: "Compliance checks" },
-              { icon: Database, label: "Secure firm storage" },
-            ].map((step) => (
+              { icon: FileSpreadsheet, title: "Statements", text: "TB → P&L → BS → CF" },
+              { icon: Landmark, title: "Banking", text: "Reconcile & lock" },
+              { icon: BookOpen, title: "Close", text: "Checklists & approvals" },
+              { icon: ShieldCheck, title: "Audit", text: "PBC & workpapers" },
+              { icon: BarChart3, title: "Reporting", text: "Firm-ready views" },
+              { icon: TrendingUp, title: "AI assist", text: "Drafts you approve" },
+            ].map(({ icon: Icon, title, text }) => (
               <div
-                key={step.label}
-                className="flex items-center gap-3 rounded-xl bg-white/10 px-4 py-3 backdrop-blur-sm"
+                key={title}
+                className="rounded-2xl border border-white/80 bg-white/80 backdrop-blur p-4 shadow-sm"
               >
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15">
-                  <step.icon className="h-5 w-5" />
-                </span>
-                <span className="text-sm font-semibold">{step.label}</span>
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-teal-700">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <p className="mt-3 text-sm font-semibold text-slate-800">{title}</p>
+                <p className="mt-0.5 text-xs text-slate-500">{text}</p>
               </div>
             ))}
           </div>
@@ -238,7 +246,7 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-[#f6f9fc] text-[#52606d]">
+        <div className="min-h-screen flex items-center justify-center bg-[#F7F8F5] text-slate-500">
           Loading…
         </div>
       }
