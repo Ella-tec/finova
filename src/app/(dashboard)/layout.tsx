@@ -23,7 +23,6 @@ import {
   Wallet,
   CalendarCheck,
   Phone,
-  BookMarked,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -37,7 +36,6 @@ const navigation = [
     label: "WORKSPACE",
     items: [
       { name: "Home", href: "/dashboard", match: "/dashboard", icon: LayoutDashboard },
-      { name: "App Guide", href: "/dashboard/guide", match: "/dashboard/guide", icon: BookMarked },
       { name: "Documents", href: "/dashboard/documents", match: "/dashboard/documents", icon: FileText },
       { name: "Sample Library", href: "/dashboard/samples", match: "/dashboard/samples", icon: Library },
       { name: "File Sanitizer", href: "/dashboard/security", match: "/dashboard/security", icon: Shield },
@@ -71,9 +69,7 @@ const navigation = [
   },
   {
     label: "ADMINISTRATION",
-    items: [
-      { name: "Settings", href: "/dashboard/admin", match: "/dashboard/admin", icon: Settings },
-    ],
+    items: [{ name: "Settings", href: "/dashboard/admin", match: "/dashboard/admin", icon: Settings }],
   },
 ];
 
@@ -195,11 +191,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {navLinks(true, true)}
         </nav>
         <div className="border-t border-white/10 p-4">
-          <button
-            type="button"
-            onClick={() => signOut({ callbackUrl: "/" })}
-            className="flex items-center gap-2 text-sm text-white/70"
-          >
+          <button type="button" onClick={() => signOut({ callbackUrl: "/" })} className="flex items-center gap-2 text-sm text-white/70">
             <LogOut className="h-4 w-4" />
             Sign out
           </button>
@@ -232,14 +224,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="hidden items-center gap-2 md:flex">
             <DarkModeToggle />
           </div>
-          <Link
-            href="/dashboard/guide"
-            className="hidden shrink-0 items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 sm:flex"
-            title="App Guide"
-          >
-            <BookMarked className="h-4 w-4 text-[#07649d]" />
-            <span className="hidden lg:inline">Guide</span>
-          </Link>
           <Link
             href="/dashboard/clients/contact-center"
             className="hidden shrink-0 items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 sm:flex"
