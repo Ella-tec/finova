@@ -19,6 +19,11 @@ import {
   Eye,
   EyeOff,
   AlertCircle,
+  PieChart,
+  Calculator,
+  LineChart,
+  Building2,
+  Sparkles,
 } from "lucide-react";
 
 function FinovaMark({ className = "h-16 w-16" }: { className?: string }) {
@@ -70,18 +75,31 @@ export default function HomePage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#F4F7F5] text-slate-900">
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -left-32 -top-24 h-[420px] w-[420px] rounded-full bg-[#D8EFE6] blur-3xl opacity-80" />
-        <div className="absolute right-0 top-40 h-[380px] w-[380px] rounded-full bg-[#E8EEF5] blur-3xl opacity-70" />
-        <div className="absolute bottom-0 left-1/3 h-[300px] w-[300px] rounded-full bg-[#F0EADF] blur-3xl opacity-50" />
+    <main className="relative min-h-screen overflow-hidden bg-[#F3F8F6] text-slate-900">
+      {/* Soft teal accounting pattern wash */}
+      <div className="pointer-events-none absolute inset-0 opacity-[0.07]">
+        <div
+          className="h-full w-full"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 20% 20%, #0f766e 1.5px, transparent 1.5px), radial-gradient(circle at 80% 40%, #0f766e 1px, transparent 1px), radial-gradient(circle at 40% 80%, #0f766e 1.2px, transparent 1.2px)",
+            backgroundSize: "48px 48px",
+          }}
+        />
       </div>
+      <div className="pointer-events-none absolute -left-24 -top-20 h-[460px] w-[460px] rounded-full bg-[#CDEADF] blur-3xl opacity-70" />
+      <div className="pointer-events-none absolute -right-16 top-24 h-[420px] w-[420px] rounded-full bg-[#D7E8F5] blur-3xl opacity-60" />
 
-      <header className="relative z-20 border-b border-white/60 bg-white/70 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
+      <header className="relative z-20 border-b border-teal-900/5 bg-white/75 backdrop-blur-xl">
+        <div className="mx-auto flex h-[72px] max-w-6xl items-center justify-between px-5">
           <Link href="/" className="flex items-center gap-3">
-            <FinovaMark className="h-10 w-10 rounded-xl shadow-md shadow-teal-900/10" />
-            <span className="text-lg font-semibold tracking-tight text-slate-900">Finova</span>
+            <FinovaMark className="h-11 w-11 rounded-2xl shadow-md shadow-teal-900/10" />
+            <div>
+              <p className="text-lg font-semibold tracking-tight text-slate-900">Finova</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-teal-700">
+                Accounting · Audit · AI
+              </p>
+            </div>
           </Link>
           <div className="flex items-center gap-3 text-sm">
             <Link href="/guide" className="hidden text-slate-600 hover:text-teal-700 sm:inline">
@@ -89,7 +107,7 @@ export default function HomePage() {
             </Link>
             <Link
               href="/login"
-              className="rounded-full bg-teal-700 px-4 py-2 font-semibold text-white shadow-sm hover:bg-teal-800"
+              className="rounded-full bg-teal-700 px-4 py-2.5 font-semibold text-white shadow-sm shadow-teal-900/10 hover:bg-teal-800"
             >
               Sign in
             </Link>
@@ -97,76 +115,127 @@ export default function HomePage() {
         </div>
       </header>
 
-      <section className="relative z-10 mx-auto grid max-w-6xl gap-10 px-5 py-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:py-16">
+      <section className="relative z-10 mx-auto grid max-w-6xl gap-10 px-5 py-12 lg:grid-cols-[1.08fr_0.92fr] lg:items-center lg:py-16">
+        {/* Left: modern finance story */}
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-teal-100 bg-white/90 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-teal-700">
-            Accounting · Audit · AI
+          <div className="inline-flex items-center gap-2 rounded-full border border-teal-200/80 bg-white/90 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-teal-700 shadow-sm">
+            <Sparkles className="h-3.5 w-3.5" />
+            Modern finance workspace
           </div>
-          <h1 className="mt-5 text-[clamp(2.4rem,4.5vw,3.6rem)] font-semibold leading-[1.08] tracking-[-0.04em] text-slate-900">
-            Clarity for every number.
-            <span className="block text-teal-700">Confidence in every close.</span>
+
+          <h1 className="mt-6 text-[clamp(2.5rem,4.8vw,3.75rem)] font-semibold leading-[1.05] tracking-[-0.045em] text-slate-900">
+            Accounting made
+            <span className="block bg-gradient-to-r from-teal-700 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
+              clear, calm, and capable.
+            </span>
           </h1>
-          <p className="mt-4 max-w-lg text-[15px] leading-7 text-slate-600">
-            One light, modern workspace for books, statements, bank rec, month-end close, audit PBC, and client collaboration.
+
+          <p className="mt-5 max-w-xl text-[15px] leading-7 text-slate-600">
+            Books, statements, bank reconciliation, month-end close, audit PBC, and client collaboration — in one elegant firm workspace.
           </p>
 
-          <div className="mt-8 overflow-hidden rounded-[28px] border border-white bg-white shadow-[0_30px_80px_-40px_rgba(15,118,110,0.35)]">
-            <div className="bg-gradient-to-br from-teal-50 via-white to-slate-50 p-5 sm:p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <FinovaMark className="h-12 w-12 rounded-2xl shadow-md" />
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-teal-700">Finance overview</p>
-                    <p className="text-sm font-semibold text-slate-800">Illustrative firm dashboard</p>
-                  </div>
-                </div>
-                <span className="rounded-full bg-teal-100 px-3 py-1 text-xs font-semibold text-teal-800">Live style</span>
+          {/* Big finance visual card inspired by charts + knowledge */}
+          <div className="mt-8 overflow-hidden rounded-[32px] border border-white bg-white shadow-[0_40px_100px_-48px_rgba(15,118,110,0.45)]">
+            <div className="relative bg-gradient-to-br from-[#0F766E] via-[#0D9488] to-[#155E75] p-6 text-white sm:p-7">
+              <div className="absolute inset-0 opacity-20">
+                <div
+                  className="h-full w-full"
+                  style={{
+                    backgroundImage:
+                      "radial-gradient(circle at 1px 1px, white 1px, transparent 0)",
+                    backgroundSize: "22px 22px",
+                  }}
+                />
               </div>
 
-              <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <div className="relative flex flex-wrap items-start justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/15 ring-1 ring-white/25 backdrop-blur">
+                    <BookOpen className="h-7 w-7 text-teal-50" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-teal-100">
+                      Finance intelligence
+                    </p>
+                    <p className="text-lg font-semibold tracking-tight">Trial balance → statements → close</p>
+                  </div>
+                </div>
+                <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-teal-50 ring-1 ring-white/20">
+                  Firm-ready
+                </span>
+              </div>
+
+              <div className="relative mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {[
                   { label: "Cash", value: "$4.2M", icon: Wallet },
                   { label: "Close", value: "76%", icon: ClipboardCheck },
                   { label: "Invoices", value: "42", icon: FileSpreadsheet },
                   { label: "PBC", value: "11", icon: ShieldCheck },
                 ].map(({ label, value, icon: Icon }) => (
-                  <div key={label} className="rounded-2xl border border-slate-100 bg-white p-3 shadow-sm">
+                  <div
+                    key={label}
+                    className="rounded-2xl border border-white/15 bg-white/10 p-3 backdrop-blur-sm"
+                  >
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-medium text-slate-500">{label}</span>
-                      <Icon className="h-3.5 w-3.5 text-teal-600" />
+                      <span className="text-[11px] font-medium text-teal-100">{label}</span>
+                      <Icon className="h-3.5 w-3.5 text-teal-100" />
                     </div>
-                    <p className="mt-2 text-xl font-semibold tracking-tight text-slate-900">{value}</p>
+                    <p className="mt-2 text-xl font-semibold tracking-tight">{value}</p>
                   </div>
                 ))}
               </div>
 
-              <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              <div className="relative mt-4 grid gap-2 sm:grid-cols-3">
                 {[
-                  { icon: Landmark, title: "Bank Rec", text: "Match & lock" },
-                  { icon: BookOpen, title: "Statements", text: "TB → CF" },
-                  { icon: TrendingUp, title: "Reporting", text: "Firm views" },
+                  { icon: PieChart, title: "Statements", text: "TB · P&L · BS · CF" },
+                  { icon: Calculator, title: "Bank Rec", text: "Match · review · lock" },
+                  { icon: LineChart, title: "Reporting", text: "KPIs & close views" },
                 ].map(({ icon: Icon, title, text }) => (
-                  <div key={title} className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-white/90 px-3 py-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-teal-700">
-                      <Icon className="h-5 w-5" />
+                  <div
+                    key={title}
+                    className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/10 px-3 py-3"
+                  >
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15">
+                      <Icon className="h-5 w-5 text-teal-50" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-slate-800">{title}</p>
-                      <p className="text-xs text-slate-500">{text}</p>
+                      <p className="text-sm font-semibold">{title}</p>
+                      <p className="text-xs text-teal-100/90">{text}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
+
+            <div className="grid gap-3 border-t border-slate-100 bg-white p-4 sm:grid-cols-3">
+              {[
+                { icon: Landmark, title: "Banking" },
+                { icon: Building2, title: "Entities" },
+                { icon: TrendingUp, title: "Insights" },
+              ].map(({ icon: Icon, title }) => (
+                <div
+                  key={title}
+                  className="flex items-center gap-2.5 rounded-xl border border-slate-100 bg-[#F7FBFA] px-3 py-2.5"
+                >
+                  <Icon className="h-4 w-4 text-teal-700" />
+                  <span className="text-sm font-medium text-slate-700">{title}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
-        <div className="rounded-[28px] border border-white bg-white p-6 shadow-[0_30px_80px_-42px_rgba(15,23,42,0.28)] sm:p-8">
+        {/* Right: elegant sign-in */}
+        <div className="rounded-[32px] border border-white bg-white/95 p-6 shadow-[0_40px_100px_-50px_rgba(15,23,42,0.35)] backdrop-blur sm:p-8">
           <div className="mb-6 flex justify-center">
-            <FinovaMark className="h-16 w-16 rounded-[20px] shadow-lg shadow-teal-900/10" />
+            <FinovaMark className="h-[72px] w-[72px] rounded-[22px] shadow-xl shadow-teal-900/15" />
           </div>
-          <h2 className="text-center text-2xl font-semibold tracking-tight text-slate-900">Sign in to Finova</h2>
-          <p className="mt-2 text-center text-sm text-slate-500">Secure firm workspace for accountants and auditors</p>
+          <h2 className="text-center text-2xl font-semibold tracking-tight text-slate-900">
+            Sign in to Finova
+          </h2>
+          <p className="mt-2 text-center text-sm text-slate-500">
+            Secure workspace for accountants, auditors, and controllers
+          </p>
 
           {error && (
             <div className="mt-5 flex items-start gap-2 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -189,7 +258,7 @@ export default function HomePage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="demo@finova.ai"
-                  className="w-full rounded-2xl border border-slate-200 bg-[#F8FAF9] py-3.5 pl-11 pr-4 text-sm text-slate-900 shadow-sm outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20"
+                  className="w-full rounded-2xl border border-slate-200 bg-[#F7FBFA] py-3.5 pl-11 pr-4 text-sm text-slate-900 shadow-sm outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20"
                 />
               </div>
             </div>
@@ -206,7 +275,7 @@ export default function HomePage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"
-                  className="w-full rounded-2xl border border-slate-200 bg-[#F8FAF9] py-3.5 pl-11 pr-11 text-sm text-slate-900 shadow-sm outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20"
+                  className="w-full rounded-2xl border border-slate-200 bg-[#F7FBFA] py-3.5 pl-11 pr-11 text-sm text-slate-900 shadow-sm outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20"
                 />
                 <button
                   type="button"
@@ -220,7 +289,7 @@ export default function HomePage() {
             <button
               type="submit"
               disabled={loading}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-teal-700 py-3.5 text-sm font-semibold text-white shadow-lg shadow-teal-900/15 transition hover:bg-teal-800 disabled:opacity-60"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-teal-700 to-teal-600 py-3.5 text-sm font-semibold text-white shadow-lg shadow-teal-900/15 transition hover:from-teal-800 hover:to-teal-700 disabled:opacity-60"
             >
               {loading ? "Signing in…" : "Enter workspace"}
               {!loading && <ArrowRight className="h-4 w-4" />}
@@ -233,7 +302,7 @@ export default function HomePage() {
               { icon: Landmark, label: "Banking" },
               { icon: ClipboardCheck, label: "Close" },
             ].map(({ icon: Icon, label }) => (
-              <div key={label} className="rounded-xl border border-slate-100 bg-[#F8FAF9] px-2 py-3">
+              <div key={label} className="rounded-xl border border-slate-100 bg-[#F7FBFA] px-2 py-3">
                 <Icon className="mx-auto h-4 w-4 text-teal-700" />
                 <p className="mt-1 text-[11px] font-medium text-slate-600">{label}</p>
               </div>
@@ -242,8 +311,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      <footer className="relative z-10 border-t border-white/70 bg-white/60 py-6 text-center text-sm text-slate-500">
-        Finova · Accounting, audit and finance workflows
+      <footer className="relative z-10 border-t border-teal-900/5 bg-white/70 py-6 text-center text-sm text-slate-500">
+        Finova · Modern accounting, audit, and finance workflows
       </footer>
     </main>
   );
