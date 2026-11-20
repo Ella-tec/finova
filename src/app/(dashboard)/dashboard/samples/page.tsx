@@ -103,10 +103,12 @@ function SamplesInner() {
       .catch(() => {});
   }, [sp]);
 
-  const types = useMemo(
-    () => Array.from(new Set(documents.map((d) => d.type))).sort(),
-    [documents]
-  );
+  const typeOptions = useMemo(() => {
+    const labels = new Map<string, string>();
+    documents.forEach((d) => labels.set(d.type, d.typeLabel));
+    return Array.from(labels.entries()).sort((a, b) => a[1].localeCompare(b[1]));
+  }, [documents]);
+  const types = typeOptions.length;
 
   const processKeywords: Record<string, string[]> = {
     r2r: ["trial", "journal", "ledger", "gl", "adjust", "close", "chart of account"],
@@ -230,7 +232,7 @@ function SamplesInner() {
             <ListTree className="h-4 w-4" />
             <span className="text-xs font-semibold uppercase">Types</span>
           </div>
-          <p className="mt-2 text-2xl font-semibold text-slate-900">{types.length}</p>
+          <p className="mt-2 text-2xl font-semibold text-slate-900">{types}</p>
         </div>
       </div>
 
@@ -270,26 +272,22 @@ function SamplesInner() {
           </div>
         </div>
 
-        <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Financial documents — click to filter
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {QUICK_TYPES.map((t) => (
-              <button
-                key={t.id}
-                type="button"
-                onClick={() => setType(t.id)}
-                className={cn(
-                  "rounded-xl border px-3 py-2 text-xs font-semibold transition",
-                  type === t.id
-                    ? "border-emerald-600 bg-emerald-600 text-white shadow-sm"
-                    : "border-slate-200 bg-white text-slate-700 hover:border-emerald-300"
-                )}
-              >
-                {t.label}
-              </button>
-            ))}
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div>
+            <label className="mb-1.5 block text-sm font-semibold text-slate-700">Document category</label>
+            <select
+              value={type}
+              onChange={(e) => setType(e.target.value)}
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+            >
+              <option value="all">All document categories ({documents.length})</option>
+              {typeOptions.map(([id, label]) => (
+                <option key={id} value={id}>{label}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-end">
+            <p className="text-xs leading-5 text-slate-500">Choose a category to narrow the library. Every sample remains available under “All document categories”.</p>
           </div>
         </div>
       </div>
@@ -378,59 +376,38 @@ function SamplesInner() {
         )}
       </p>
 
-      <div className="divide-y overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {filtered.length === 0 ? (
-          <div className="p-10 text-center text-sm text-slate-500">
-            No samples match. Clear filters or try another company / type.
+          <div className="col-span-full rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center text-sm text-slate-500">
+            No samples match. Clear filters or try another company, category, or process.
           </div>
         ) : (
           filtered.map((d) => (
-            <div
-              key={d.id}
-              className="flex flex-col gap-3 p-4 transition hover:bg-emerald-50/40 sm:flex-row sm:items-center"
-            >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50">
-                <FileText className="h-5 w-5 text-emerald-700" />
+            <article key={d.id} className="flex min-w-0 flex-col rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-md">
+              <div className="mb-3 flex items-start justify-between gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50">
+                  <FileText className="h-5 w-5 text-emerald-700" />
+                </div>
+                <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-800">{d.typeLabel}</span>
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="font-semibold text-slate-900">{d.title}</p>
-                <p className="text-xs text-slate-500">
-                  ID: <span className="font-mono">{d.id}</span> · {companyName(d.companyId)} ·{" "}
-                  {d.typeLabel} · {d.period}
-                </p>
-                <p className="mt-1 text-sm text-slate-600">{d.description}</p>
-                <p className="font-mono text-[11px] text-slate-400">{d.fileName}</p>
+              <h3 className="font-semibold leading-5 text-slate-900">{d.title}</h3>
+              <p className="mt-2 line-clamp-2 min-h-10 text-sm leading-5 text-slate-600">{d.description}</p>
+              <div className="mt-3 space-y-1 text-xs text-slate-500">
+                <p className="truncate">{companyName(d.companyId)} · {d.period}</p>
+                <p className="truncate font-mono text-[11px] text-slate-400">{d.fileName}</p>
+                <p className="font-mono text-[10px] text-slate-400">ID: {d.id}</p>
               </div>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => openPreview(d.id)}
-                  className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium hover:bg-white"
-                >
-                  Preview / Review
+              <div className="mt-auto flex flex-wrap gap-2 border-t border-slate-100 pt-3">
+                <button type="button" onClick={() => openPreview(d.id)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-700 hover:border-emerald-300 hover:bg-emerald-50">Preview</button>
+                <button type="button" onClick={() => copyContent(d.id)} className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">
+                  {copied === d.id ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
+                  {copied === d.id ? "Copied" : "Copy"}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => copyContent(d.id)}
-                  className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium hover:bg-white"
-                >
-                  {copied === d.id ? (
-                    <Check className="h-3.5 w-3.5 text-emerald-600" />
-                  ) : (
-                    <Copy className="h-3.5 w-3.5" />
-                  )}
-                  Copy
-                </button>
-                <button
-                  type="button"
-                  onClick={() => download(d.id)}
-                  className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700"
-                >
-                  <Download className="h-3.5 w-3.5" />
-                  Download
+                <button type="button" onClick={() => download(d.id)} className="ml-auto inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-700">
+                  <Download className="h-3.5 w-3.5" /> Download
                 </button>
               </div>
-            </div>
+            </article>
           ))
         )}
       </div>

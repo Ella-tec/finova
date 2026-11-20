@@ -190,6 +190,13 @@ function LoginForm() {
             Continue with Microsoft
           </button>
 
+          <p className="mt-5 text-center text-sm text-slate-500">
+            New to FINOVA?{" "}
+            <Link href="/register" className="font-semibold text-teal-700 hover:text-teal-800">
+              Create an account
+            </Link>
+          </p>
+
           <p className="mt-8 text-center text-sm text-slate-500">
             Need help?{" "}
             <Link href="/guide" className="font-semibold text-teal-700 hover:text-teal-800">
