@@ -3,23 +3,43 @@
 import {
   ArrowRight, ArrowUpRight, AlertTriangle, BarChart3, Bot, Building2,
   CalendarDays, CheckCircle2, Clock3, FileText, Receipt, Sparkles,
-  TrendingUp, Users, Wallet, DollarSign, BookOpen, ShieldCheck,
+  TrendingUp, Users, Wallet, DollarSign, BookOpen, ShieldCheck, ChevronLeft, ChevronRight, Landmark, Scale, Activity, FileSpreadsheet,
 } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import { useState } from "react";
 
-const moneyKpis = [
-  { label: "Cash position", value: "$4.2M", detail: "Across operating accounts", icon: Wallet, href: "/dashboard/bank-rec", tone: "green" },
-  { label: "YTD revenue", value: "$8.5M", detail: "Current financial year", icon: TrendingUp, href: "/dashboard/reporting/statements", tone: "blue" },
-  { label: "Open bills", value: "$220K", detail: "Awaiting payment", icon: Receipt, href: "/dashboard/operations#accounting", tone: "orange" },
-  { label: "Net income", value: "$2.3M", detail: "Year to date", icon: DollarSign, href: "/dashboard/reporting/statements", tone: "purple" },
-];
-
-const workStats = [
-  { label: "Open tasks", value: "12", detail: "Across engagements", icon: Clock3, href: "/dashboard/close", tone: "orange" },
-  { label: "Approvals", value: "5", detail: "Ready for review", icon: CheckCircle2, href: "/dashboard/close", tone: "green" },
-  { label: "Client requests", value: "8", detail: "Waiting on response", icon: Users, href: "/dashboard/audit/pbc", tone: "blue" },
-  { label: "Exceptions", value: "3", detail: "Bank & books", icon: AlertTriangle, href: "/dashboard/bank-rec", tone: "red" },
+const financialGroups = [
+  {
+    label: "Receivables & Payables",
+    description: "Working capital, customer balances, supplier obligations, and cash.",
+    cards: [
+      { label: "Accounts receivable", value: "$1.24M", detail: "Customer balances outstanding", icon: Users, href: "/dashboard/ar", tone: "blue" },
+      { label: "Accounts payable", value: "$684K", detail: "Supplier balances to settle", icon: Receipt, href: "/dashboard/operations#accounting", tone: "orange" },
+      { label: "Cash & bank", value: "$4.2M", detail: "Across operating accounts", icon: Wallet, href: "/dashboard/bank-rec", tone: "green" },
+      { label: "Open bills", value: "$220K", detail: "Awaiting payment", icon: FileText, href: "/dashboard/operations#accounting", tone: "purple" },
+    ],
+  },
+  {
+    label: "Financial Statements",
+    description: "Performance and position across the core financial statements.",
+    cards: [
+      { label: "Revenue", value: "$8.5M", detail: "Year to date", icon: TrendingUp, href: "/dashboard/reporting/statements", tone: "blue" },
+      { label: "Expenses", value: "$6.2M", detail: "Year to date", icon: Receipt, href: "/dashboard/reporting/statements", tone: "orange" },
+      { label: "Net income", value: "$2.3M", detail: "Year to date", icon: DollarSign, href: "/dashboard/reporting/statements", tone: "green" },
+      { label: "Operating cash flow", value: "$1.1M", detail: "Cash generated from operations", icon: Activity, href: "/dashboard/reporting/statements", tone: "teal" },
+    ],
+  },
+  {
+    label: "Accounting & Controls",
+    description: "Ledger integrity, trial balance, journal activity, and close readiness.",
+    cards: [
+      { label: "Trial balance", value: "Balanced", detail: "Debits equal credits", icon: Scale, href: "/dashboard/reporting/statements", tone: "green" },
+      { label: "General ledger", value: "128", detail: "Active accounts", icon: BookOpen, href: "/dashboard/operations#accounting", tone: "blue" },
+      { label: "Journal entries", value: "42", detail: "Posted this period", icon: FileSpreadsheet, href: "/dashboard/operations#accounting", tone: "purple" },
+      { label: "Bank reconciliation", value: "96%", detail: "Transactions matched", icon: Landmark, href: "/dashboard/bank-rec", tone: "teal" },
+    ],
+  },
 ];
 
 const tasks = [
@@ -84,6 +104,8 @@ function AccountingVisual() {
 
 export default function DashboardPage() {
   const { data: session } = useSession();
+  const [activeFinancialGroup, setActiveFinancialGroup] = useState(0);
+  const activeGroup = financialGroups[activeFinancialGroup];
   const firstName = session?.user?.name?.split(" ")[0] || session?.user?.email?.split("@")[0] || "there";
   const hour = new Date().getHours();
   const hello = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
@@ -108,27 +130,45 @@ export default function DashboardPage() {
 
       <div className="finova-demo-note"><span /> Demo snapshot — figures and activity below are sample data, not live books.</div>
 
-      <section aria-label="Financial overview" className="space-y-3">
-        <div className="finova-section-heading"><div><h2>Financial overview</h2><p>A quick view of the numbers that matter.</p></div><Link href="/dashboard/reporting/statements">View reports <ArrowRight size={15}/></Link></div>
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          {moneyKpis.map(({ label, value, detail, icon: Icon, href, tone }) => (
-            <Link key={label} href={href} className="finova-kpi-card group">
-              <div className="flex items-center justify-between"><span className="finova-card-label">{label}</span><span className={`finova-icon-tile ${toneClasses(tone)}`}><Icon size={19}/></span></div>
-              <p className="finova-kpi-value">{value}</p>
-              <div className="flex items-center justify-between"><span className="finova-card-detail">{detail}</span><ArrowUpRight size={17} className="text-slate-300 transition group-hover:text-[var(--page-primary)]"/></div>
+      <section aria-label="Financial dashboard" className="space-y-4">
+        <div className="finova-section-heading">
+          <div><h2>Financial dashboard</h2><p>12 essential measures, organized by accounting area.</p></div>
+          <span className="text-xs font-semibold text-slate-500">{activeFinancialGroup + 1} of {financialGroups.length} groups</span>
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap gap-2" role="tablist" aria-label="Financial KPI groups">
+            {financialGroups.map((group, index) => (
+              <button key={group.label} type="button" role="tab" aria-selected={activeFinancialGroup === index}
+                onClick={() => setActiveFinancialGroup(index)}
+                className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${activeFinancialGroup === index ? "border-[var(--page-primary)] bg-[var(--page-primary)] text-white shadow-sm" : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"}`}>
+                {group.label}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <button type="button" aria-label="Previous KPI group" onClick={() => setActiveFinancialGroup((activeFinancialGroup + financialGroups.length - 1) % financialGroups.length)}
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50"><ChevronLeft size={18}/></button>
+            <button type="button" aria-label="Next KPI group" onClick={() => setActiveFinancialGroup((activeFinancialGroup + 1) % financialGroups.length)}
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50"><ChevronRight size={18}/></button>
+          </div>
+        </div>
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-sm text-slate-500">{activeGroup.description}</p>
+          <span className="shrink-0 text-xs font-medium text-slate-400">4 cards · Demo data</span>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" role="tabpanel">
+          {activeGroup.cards.map(({ label, value, detail, icon: Icon, href, tone }) => (
+            <Link key={label} href={href} className="finova-kpi-card group min-h-[158px] rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:border-slate-200 hover:shadow-lg">
+              <div className="flex items-center justify-between gap-3"><span className="finova-card-label">{label}</span><span className={`finova-icon-tile ${toneClasses(tone)}`}><Icon size={19}/></span></div>
+              <p className="finova-kpi-value mt-4">{value}</p>
+              <div className="mt-3 flex items-center justify-between gap-2"><span className="finova-card-detail">{detail}</span><ArrowUpRight size={17} className="shrink-0 text-slate-300 transition group-hover:text-[var(--page-primary)]"/></div>
             </Link>
           ))}
         </div>
-      </section>
-
-      <section aria-label="Work overview" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {workStats.map(({ label, value, detail, icon: Icon, href, tone }) => (
-          <Link key={label} href={href} className="finova-work-stat group">
-            <span className={`finova-icon-tile h-11 w-11 ${toneClasses(tone)}`}><Icon size={20}/></span>
-            <span className="min-w-0 flex-1"><span className="finova-card-label">{label}</span><strong>{value}</strong><span className="finova-card-detail">{detail}</span></span>
-            <ArrowUpRight size={16} className="text-slate-300 transition group-hover:text-[var(--page-primary)]"/>
-          </Link>
-        ))}
+        <div className="flex justify-center gap-2" aria-label="KPI group slide position">
+          {financialGroups.map((group, index) => <button key={group.label} type="button" aria-label={`Show ${group.label}`} aria-pressed={activeFinancialGroup === index} onClick={() => setActiveFinancialGroup(index)}
+            className={`h-2 rounded-full transition-all ${activeFinancialGroup === index ? "w-8 bg-[var(--page-primary)]" : "w-2 bg-slate-300 hover:bg-slate-400"}`} />)}
+        </div>
       </section>
 
       <section className="grid gap-5 xl:grid-cols-[1.45fr_.85fr]">
