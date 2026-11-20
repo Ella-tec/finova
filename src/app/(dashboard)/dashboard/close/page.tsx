@@ -35,17 +35,23 @@ const statusColor = {
   SKIPPED: "text-slate-400",
 };
 
+async function readJson(res: Response) {
+  const text = await res.text();
+  if (!text) return {};
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { error: "Invalid response from server" };
+  }
+}
+
 export default function ClosePage() {
   const { data: session } = useSession();
   const role = (session?.user as { role?: string } | undefined)?.role;
   const isClient = role === "CLIENT";
-  const canApproveClose = ["CONTROLLER", "CFO", "PARTNER", "ADMIN"].includes(
-    role || ""
-  );
+  const canApproveClose = ["CONTROLLER", "CFO", "PARTNER", "ADMIN"].includes(role || "");
 
-  const [period, setPeriod] = useState(() =>
-    new Date().toISOString().slice(0, 7)
-  );
+  const [period, setPeriod] = useState(() => new Date().toISOString().slice(0, 7));
   const [clients, setClients] = useState<Client[]>([]);
   const [clientId, setClientId] = useState("");
   const [loadingClients, setLoadingClients] = useState(true);
@@ -64,9 +70,10 @@ export default function ClosePage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/close?period=${period}`);
-      const text = await res.text();
-      const data = text ? JSON.parse(text) : {};
+      const q = new URLSearchParams({ period });
+      if (clientId) q.set("clientId", clientId);
+      const res = await fetch(`/api/close?${q.toString()}`);
+      const data = await readJson(res);
       if (!res.ok) {
         setError(data.error || "Could not load close checklist");
         setClose(null);
@@ -75,34 +82,29 @@ export default function ClosePage() {
         if (!data.close) setError("No close period returned. Try Start Close.");
       }
     } catch {
-      setError("Network error loading close checklist");
+      setError("Network error loading close checklist. Check DATABASE_URL and re-seed.");
       setClose(null);
     } finally {
       setLoading(false);
     }
-  }, [isClient, period]);
+  }, [isClient, period, clientId]);
 
   useEffect(() => {
     let active = true;
     (async () => {
       try {
         const response = await fetch("/api/clients", { cache: "no-store" });
-        const data = await response.json();
-        if (!response.ok)
-          throw new Error(data.error || "Could not load authorized clients.");
+        const data = await readJson(response);
+        if (!response.ok) throw new Error(data.error || "Could not load authorized clients.");
         const rows: Client[] = data.clients || [];
         if (!active) return;
         setClients(rows);
         if (rows.length === 1) setClientId(rows[0].id);
         if (!rows.length && !isClient)
-          setError("No client workspaces are assigned to this firm account.");
+          setError("No client workspaces. Run prisma seed with a valid DATABASE_URL.");
       } catch (err) {
         if (active)
-          setError(
-            err instanceof Error
-              ? err.message
-              : "Could not load client workspaces."
-          );
+          setError(err instanceof Error ? err.message : "Could not load client workspaces.");
       } finally {
         if (active) setLoadingClients(false);
       }
@@ -122,13 +124,13 @@ export default function ClosePage() {
       const res = await fetch("/api/close", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ period, taskId, status }),
+        body: JSON.stringify({ period, taskId, status, clientId: clientId || undefined }),
       });
-      const text = await res.text();
-      const data = text ? JSON.parse(text) : {};
+      const data = await readJson(res);
       if (data.close) setClose(data.close);
+      else if (data.error) setError(data.error);
     } catch {
-      /* keep current state */
+      setError("Could not update task");
     } finally {
       setSavingId(null);
     }
@@ -140,10 +142,9 @@ export default function ClosePage() {
       const res = await fetch("/api/close", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ period, action: "start" }),
+        body: JSON.stringify({ period, action: "start", clientId: clientId || undefined }),
       });
-      const text = await res.text();
-      const data = text ? JSON.parse(text) : {};
+      const data = await readJson(res);
       if (data.close) {
         setClose(data.close);
         setError(null);
@@ -163,10 +164,9 @@ export default function ClosePage() {
       const res = await fetch("/api/close", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ period, action: "approve" }),
+        body: JSON.stringify({ period, action: "close", clientId: clientId || undefined }),
       });
-      const text = await res.text();
-      const data = text ? JSON.parse(text) : {};
+      const data = await readJson(res);
       if (data.close) {
         setClose(data.close);
         setError(null);
@@ -184,12 +184,9 @@ export default function ClosePage() {
     return (
       <div className="mx-auto mt-16 max-w-lg rounded-2xl border bg-white p-8 text-center shadow-sm">
         <Lock className="mx-auto mb-3 h-10 w-10 text-slate-400" />
-        <h2 className="text-lg font-semibold text-slate-900">
-          Month-end close is internal
-        </h2>
+        <h2 className="text-lg font-semibold text-slate-900">Month-end close is internal</h2>
         <p className="mt-2 text-sm text-slate-600">
-          Client portal users do not run firm close checklists. Contact your
-          accountant for period status.
+          Client portal users do not run firm close checklists. Contact your accountant for period status.
         </p>
       </div>
     );
@@ -208,27 +205,14 @@ export default function ClosePage() {
     return (
       <div className="mx-auto mt-16 max-w-lg rounded-2xl border bg-white p-8 text-center shadow-sm">
         <AlertCircle className="mx-auto mb-3 h-10 w-10 text-amber-500" />
-        <h2 className="text-lg font-semibold text-slate-900">
-          Close checklist unavailable
-        </h2>
-        <p className="mt-2 text-sm text-slate-600">
-          {error || "No data for this period."}
-        </p>
+        <h2 className="text-lg font-semibold text-slate-900">Close checklist unavailable</h2>
+        <p className="mt-2 text-sm text-slate-600">{error || "No data for this period."}</p>
         <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
           <label className="text-sm text-slate-600">Period</label>
-          <input
-            type="month"
-            value={period}
-            onChange={(e) => setPeriod(e.target.value)}
-            className="rounded-lg border px-3 py-1.5 text-sm"
-          />
+          <input type="month" value={period} onChange={(e) => setPeriod(e.target.value)} className="rounded-lg border px-3 py-1.5 text-sm" />
         </div>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <button
-            type="button"
-            onClick={() => void load()}
-            className="rounded-lg border px-4 py-2 text-sm font-medium hover:bg-slate-50"
-          >
+          <button type="button" onClick={() => void load()} className="rounded-lg border px-4 py-2 text-sm font-medium hover:bg-slate-50">
             Retry
           </button>
           <button
@@ -237,11 +221,7 @@ export default function ClosePage() {
             disabled={starting}
             className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
           >
-            {starting ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Play className="h-4 w-4" />
-            )}
+            {starting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
             Start Close for {period}
           </button>
         </div>
@@ -253,33 +233,19 @@ export default function ClosePage() {
     <div className="mx-auto max-w-6xl space-y-6">
       <header className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[.16em] text-emerald-700">
-            Accounting operations
-          </p>
-          <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-900">
-            Month-End Close
-          </h1>
+          <p className="text-xs font-bold uppercase tracking-[.16em] text-emerald-700">Accounting operations</p>
+          <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-900">Month-End Close</h1>
           <p className="mt-2 max-w-2xl text-sm text-slate-600">
-            Coordinate close tasks for the selected period. Complete tasks only
-            after the required work and evidence are ready.
+            Coordinate close tasks. Sample prior period may already be closed; current period has mixed progress.
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-3">
             <label className="text-sm text-slate-600">Period</label>
-            <input
-              type="month"
-              value={period}
-              onChange={(e) => setPeriod(e.target.value)}
-              className="rounded-lg border px-3 py-1.5 text-sm"
-            />
+            <input type="month" value={period} onChange={(e) => setPeriod(e.target.value)} className="rounded-lg border px-3 py-1.5 text-sm" />
             {clients.length > 0 && (
               <>
                 <label className="text-sm text-slate-600">Client</label>
-                <select
-                  value={clientId}
-                  onChange={(e) => setClientId(e.target.value)}
-                  className="rounded-lg border px-3 py-1.5 text-sm"
-                >
-                  <option value="">All / default</option>
+                <select value={clientId} onChange={(e) => setClientId(e.target.value)} className="rounded-lg border px-3 py-1.5 text-sm">
+                  <option value="">Default client</option>
                   {clients.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name}
@@ -293,44 +259,19 @@ export default function ClosePage() {
         <div className="flex items-center gap-3">
           <div className="text-right">
             <p className="text-sm text-slate-500">Progress</p>
-            <p className="text-2xl font-bold text-emerald-700">
-              {close.progress}%
-            </p>
+            <p className="text-2xl font-bold text-emerald-700">{close.progress}%</p>
           </div>
-          {close.status === "OPEN" && (
-            <button
-              type="button"
-              onClick={() => void startClose()}
-              disabled={starting}
-              className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
-            >
-              {starting ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Play className="h-4 w-4" />
-              )}
-              Start Close
+          {(close.status === "OPEN" || close.status === "IN_PROGRESS") && (
+            <button type="button" onClick={() => void startClose()} disabled={starting} className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60">
+              {starting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
+              {close.status === "OPEN" ? "Start Close" : "Refresh status"}
             </button>
           )}
           {close.status === "PENDING_APPROVAL" && canApproveClose && (
-            <button
-              type="button"
-              onClick={() => void approveClose()}
-              disabled={starting}
-              className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800 disabled:opacity-60"
-            >
-              {starting ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Lock className="h-4 w-4" />
-              )}
+            <button type="button" onClick={() => void approveClose()} disabled={starting} className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800 disabled:opacity-60">
+              {starting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
               Approve & lock
             </button>
-          )}
-          {close.status === "PENDING_APPROVAL" && !canApproveClose && (
-            <span className="rounded-full bg-amber-50 px-3 py-1.5 text-sm font-medium text-amber-800">
-              Awaiting approval
-            </span>
           )}
           {close.status === "CLOSED" && (
             <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-700">
@@ -341,33 +282,20 @@ export default function ClosePage() {
       </header>
 
       <div className="h-2 overflow-hidden rounded-full bg-slate-200">
-        <div
-          className="h-full bg-emerald-600 transition-all duration-500"
-          style={{ width: `${close.progress}%` }}
-        />
+        <div className="h-full bg-emerald-600 transition-all duration-500" style={{ width: `${close.progress}%` }} />
       </div>
 
       <div className="divide-y rounded-xl border bg-white shadow-sm">
         {close.tasks.map((task) => {
-          const Icon = statusIcon[task.status] || Circle;
+          const Icon = statusIcon[task.status as keyof typeof statusIcon] || Circle;
           const busy = savingId === task.id || close.status === "CLOSED";
           return (
-            <article
-              key={task.id}
-              className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center"
-            >
+            <article key={task.id} className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center">
               <div className="flex min-w-0 flex-1 items-start gap-3">
-                <Icon
-                  className={cn(
-                    "mt-0.5 h-6 w-6 shrink-0",
-                    statusColor[task.status] || "text-slate-400"
-                  )}
-                />
+                <Icon className={cn("mt-0.5 h-6 w-6 shrink-0", statusColor[task.status as keyof typeof statusColor] || "text-slate-400")} />
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-xs font-medium text-slate-400">
-                      Step {task.step}
-                    </span>
+                    <span className="text-xs font-medium text-slate-400">Step {task.step}</span>
                     {task.aiCanHelp && (
                       <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-800">
                         <Bot className="h-3 w-3" /> AI can help
@@ -375,46 +303,22 @@ export default function ClosePage() {
                     )}
                   </div>
                   <h3 className="font-semibold text-slate-900">{task.title}</h3>
-                  {task.description && (
-                    <p className="mt-0.5 text-sm text-slate-600">
-                      {task.description}
-                    </p>
-                  )}
-                  {task.ownerRole && (
-                    <p className="mt-1 text-xs text-slate-400">
-                      Owner: {task.ownerRole.replace(/_/g, " ")}
-                    </p>
-                  )}
+                  {task.description && <p className="mt-0.5 text-sm text-slate-600">{task.description}</p>}
                 </div>
               </div>
               <div className="flex items-center gap-2 sm:ml-auto">
-                {task.status !== "COMPLETED" &&
-                  task.status !== "SKIPPED" &&
-                  close.status !== "CLOSED" && (
-                    <>
-                      <button
-                        type="button"
-                        onClick={() => void updateTask(task.id, "IN_PROGRESS")}
-                        disabled={busy}
-                        className="rounded-lg border px-3 py-2 text-xs font-medium hover:bg-slate-50 disabled:opacity-50"
-                      >
-                        Start
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => void updateTask(task.id, "COMPLETED")}
-                        disabled={busy}
-                        className="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
-                      >
-                        Complete
-                      </button>
-                    </>
-                  )}
-                {task.status === "COMPLETED" && (
-                  <span className="text-sm font-medium text-emerald-600">
-                    Completed
-                  </span>
+                {task.status !== "COMPLETED" && task.status !== "SKIPPED" && close.status !== "CLOSED" && (
+                  <>
+                    <button type="button" onClick={() => void updateTask(task.id, "IN_PROGRESS")} disabled={busy} className="rounded-lg border px-3 py-2 text-xs font-medium hover:bg-slate-50 disabled:opacity-50">
+                      Start
+                    </button>
+                    <button type="button" onClick={() => void updateTask(task.id, "COMPLETED")} disabled={busy} className="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-medium text-white hover:bg-emerald-700 disabled:opacity-50">
+                      Complete
+                    </button>
+                  </>
                 )}
+                {task.status === "COMPLETED" && <span className="text-sm font-medium text-emerald-600">Completed</span>}
+                {task.status === "IN_PROGRESS" && <span className="text-sm font-medium text-amber-600">In progress</span>}
               </div>
             </article>
           );
