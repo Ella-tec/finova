@@ -3,11 +3,10 @@
 import {
   ArrowRight, ArrowUpRight, AlertTriangle, BarChart3, Bot, Building2,
   CalendarDays, CheckCircle2, Clock3, FileText, Receipt, Sparkles,
-  TrendingUp, Users, Wallet, DollarSign, BookOpen, ShieldCheck, ChevronLeft, ChevronRight, Landmark, Scale, Activity, FileSpreadsheet,
+  TrendingUp, Users, Wallet, DollarSign, BookOpen, ShieldCheck, Landmark, Scale, Activity, FileSpreadsheet,
 } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { useState } from "react";
 
 const financialGroups = [
   {
@@ -104,8 +103,6 @@ function AccountingVisual() {
 
 export default function DashboardPage() {
   const { data: session } = useSession();
-  const [activeFinancialGroup, setActiveFinancialGroup] = useState(0);
-  const activeGroup = financialGroups[activeFinancialGroup];
   const firstName = session?.user?.name?.split(" ")[0] || session?.user?.email?.split("@")[0] || "there";
   const hour = new Date().getHours();
   const hello = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
@@ -132,42 +129,23 @@ export default function DashboardPage() {
 
       <section aria-label="Financial dashboard" className="space-y-4">
         <div className="finova-section-heading">
-          <div><h2>Financial dashboard</h2><p>12 essential measures, organized by accounting area.</p></div>
-          <span className="text-xs font-semibold text-slate-500">{activeFinancialGroup + 1} of {financialGroups.length} groups</span>
+          <div><h2>Financial overview</h2><p>12 key accounting measures, each shown in its own card.</p></div>
+          <span className="text-xs font-semibold text-slate-500">12 financial measures</span>
         </div>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap gap-2" role="tablist" aria-label="Financial KPI groups">
-            {financialGroups.map((group, index) => (
-              <button key={group.label} type="button" role="tab" aria-selected={activeFinancialGroup === index}
-                onClick={() => setActiveFinancialGroup(index)}
-                className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${activeFinancialGroup === index ? "border-[var(--page-primary)] bg-[var(--page-primary)] text-white shadow-sm" : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"}`}>
-                {group.label}
-              </button>
-            ))}
-          </div>
-          <div className="flex items-center gap-2">
-            <button type="button" aria-label="Previous KPI group" onClick={() => setActiveFinancialGroup((activeFinancialGroup + financialGroups.length - 1) % financialGroups.length)}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50"><ChevronLeft size={18}/></button>
-            <button type="button" aria-label="Next KPI group" onClick={() => setActiveFinancialGroup((activeFinancialGroup + 1) % financialGroups.length)}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50"><ChevronRight size={18}/></button>
-          </div>
-        </div>
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-sm text-slate-500">{activeGroup.description}</p>
-          <span className="shrink-0 text-xs font-medium text-slate-400">4 cards · Demo data</span>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" role="tabpanel">
-          {activeGroup.cards.map(({ label, value, detail, icon: Icon, href, tone }) => (
-            <Link key={label} href={href} className="finova-kpi-card group min-h-[158px] rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:border-slate-200 hover:shadow-lg">
-              <div className="flex items-center justify-between gap-3"><span className="finova-card-label">{label}</span><span className={`finova-icon-tile ${toneClasses(tone)}`}><Icon size={19}/></span></div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {financialGroups.flatMap(group => group.cards).map(({ label, value, detail, icon: Icon, href, tone }) => (
+            <Link key={label} href={href} className="finova-kpi-card group min-h-[164px] rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:border-slate-200 hover:shadow-lg">
+              <div className="flex items-center justify-between gap-3">
+                <span className="finova-card-label">{label}</span>
+                <span className={`finova-icon-tile ${toneClasses(tone)}`}><Icon size={19}/></span>
+              </div>
               <p className="finova-kpi-value mt-4">{value}</p>
-              <div className="mt-3 flex items-center justify-between gap-2"><span className="finova-card-detail">{detail}</span><ArrowUpRight size={17} className="shrink-0 text-slate-300 transition group-hover:text-[var(--page-primary)]"/></div>
+              <div className="mt-3 flex items-center justify-between gap-2">
+                <span className="finova-card-detail">{detail}</span>
+                <ArrowUpRight size={17} className="shrink-0 text-slate-300 transition group-hover:text-[var(--page-primary)]"/>
+              </div>
             </Link>
           ))}
-        </div>
-        <div className="flex justify-center gap-2" aria-label="KPI group slide position">
-          {financialGroups.map((group, index) => <button key={group.label} type="button" aria-label={`Show ${group.label}`} aria-pressed={activeFinancialGroup === index} onClick={() => setActiveFinancialGroup(index)}
-            className={`h-2 rounded-full transition-all ${activeFinancialGroup === index ? "w-8 bg-[var(--page-primary)]" : "w-2 bg-slate-300 hover:bg-slate-400"}`} />)}
         </div>
       </section>
 
