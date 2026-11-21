@@ -12,6 +12,8 @@ import {
   ListTree,
   FolderOpen,
   Filter,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ACCOUNTING_PROCESSES, AUDIT_PROCESSES } from "@/lib/samples/processes";
@@ -83,6 +85,8 @@ function SamplesInner() {
   const [q, setQ] = useState("");
   const [copied, setCopied] = useState<string | null>(null);
   const [preview, setPreview] = useState<{ title: string; content: string } | null>(null);
+  const [page, setPage] = useState(1);
+  const pageSize = 12;
 
   useEffect(() => {
     fetch("/api/samples")
@@ -152,6 +156,17 @@ function SamplesInner() {
     return true;
   });
 
+  const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const pageItems = filtered.slice((page - 1) * pageSize, page * pageSize);
+
+  useEffect(() => {
+    setPage(1);
+  }, [companyId, type, processId, q]);
+
+  useEffect(() => {
+    setPage((current) => Math.min(current, pageCount));
+  }, [pageCount]);
+
   const companyName = (id: string) => companies.find((c) => c.id === id)?.name || id;
   const selectedCompany = companies.find((c) => c.id === companyId);
 
@@ -183,7 +198,7 @@ function SamplesInner() {
   };
 
   return (
-    <div className="mx-auto max-w-6xl space-y-5">
+    <div className="mx-auto max-w-7xl space-y-5">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-bold text-slate-900">
@@ -382,7 +397,7 @@ function SamplesInner() {
             No samples match. Clear filters or try another company, category, or process.
           </div>
         ) : (
-          filtered.map((d) => (
+          pageItems.map((d) => (
             <article key={d.id} className="flex min-w-0 flex-col rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-md">
               <div className="mb-3 flex items-start justify-between gap-3">
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50">
@@ -411,6 +426,23 @@ function SamplesInner() {
           ))
         )}
       </div>
+
+      {filtered.length > 0 && (
+        <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-slate-600">
+            Showing <span className="font-semibold text-slate-900">{(page - 1) * pageSize + 1}–{Math.min(page * pageSize, filtered.length)}</span> of <span className="font-semibold text-slate-900">{filtered.length}</span> samples
+          </p>
+          <div className="flex items-center justify-between gap-2 sm:justify-end">
+            <button type="button" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40">
+              <ChevronLeft className="h-4 w-4" /> Previous
+            </button>
+            <span className="min-w-20 text-center text-sm font-medium tabular-nums text-slate-600">Page {page} of {pageCount}</span>
+            <button type="button" onClick={() => setPage((p) => Math.min(pageCount, p + 1))} disabled={page === pageCount} className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40">
+              Next <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {preview && (
         <div
