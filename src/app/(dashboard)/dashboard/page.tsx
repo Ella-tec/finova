@@ -139,8 +139,7 @@ function WelcomeHero({ hello, firstName, today }: { hello: string; firstName: st
       </div>
       <div className="finova-hero-date relative z-10"><CalendarDays size={15} /> {today}</div>
       <div className="absolute bottom-5 left-6 z-20 text-xs font-semibold tracking-wide text-white/75">Financial insight · Audit confidence · Better decisions</div>
-      <HeroSlideControls />
-    </section>
+</section>
   );
 }
 
