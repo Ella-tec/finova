@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import {
   UserPlus,
   Loader2,
@@ -15,7 +14,6 @@ import {
   Pencil,
   Trash2,
   ArrowLeft,
-  Settings,
 } from "lucide-react";
 import { Role } from "@prisma/client";
 import { cn } from "@/lib/utils";
@@ -52,13 +50,10 @@ function roleTone(role: string) {
 }
 
 export default function AdminUsersPage() {
-  const searchParams = useSearchParams();
   const [users, setUsers] = useState<UserRow[]>([]);
   const [clients, setClients] = useState<ClientOption[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"list" | "create">(
-    searchParams.get("tab") === "create" ? "create" : "list"
-  );
+  const [tab, setTab] = useState<"list" | "create">("list");
   const [selected, setSelected] = useState<UserRow | null>(null);
   const [editing, setEditing] = useState<UserRow | null>(null);
   const [form, setForm] = useState({
@@ -72,6 +67,12 @@ export default function AdminUsersPage() {
   const [tempPassword, setTempPassword] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("tab") === "create") setTab("create");
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -99,10 +100,6 @@ export default function AdminUsersPage() {
     void load();
     void loadClients();
   }, [load, loadClients]);
-
-  useEffect(() => {
-    if (searchParams.get("tab") === "create") setTab("create");
-  }, [searchParams]);
 
   const handleInvite = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
