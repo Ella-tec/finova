@@ -23,6 +23,7 @@ import {
   Wallet,
   CalendarCheck,
   Phone,
+  UserCog,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -69,7 +70,10 @@ const navigation = [
   },
   {
     label: "ADMINISTRATION",
-    items: [{ name: "Settings", href: "/dashboard/admin", match: "/dashboard/admin", icon: Settings }],
+    items: [
+      { name: "Settings", href: "/dashboard/admin", match: "/dashboard/admin", icon: Settings },
+      { name: "Accounts", href: "/dashboard/admin/users", match: "/dashboard/admin/users", icon: UserCog },
+    ],
   },
 ];
 
@@ -109,7 +113,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           const isActive =
             item.match === "/dashboard"
               ? pathname === "/dashboard"
-              : pathname === item.match || pathname.startsWith(item.match + "/");
+              : item.match === "/dashboard/admin"
+                ? pathname === "/dashboard/admin"
+                : pathname === item.match || pathname.startsWith(item.match + "/");
           return (
             <Link
               key={item.name}
