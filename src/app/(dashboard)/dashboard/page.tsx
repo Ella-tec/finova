@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 
 const financialGroups = [
   {
@@ -75,29 +76,71 @@ function toneClasses(tone: string) {
   return tones[tone] || tones.slate;
 }
 
-function AccountingVisual() {
+const heroSlides = [
+  { src: "/images/finova-hero-1.png", label: "Your financial workspace" },
+  { src: "/images/finova-hero-2.png", label: "Financial analysis and insight" },
+  { src: "/images/finova-hero-3.png", label: "AI-powered audit and accounting" },
+  { src: "/images/finova-hero-4.png", label: "Intelligent audit workflows" },
+  { src: "/images/finova-hero-5.png", label: "Professional financial review" },
+];
+
+function HeroImageCarousel() {
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (paused) return;
+    const timer = window.setInterval(() => {
+      setActive((current) => (current + 1) % heroSlides.length);
+    }, 6500);
+    return () => window.clearInterval(timer);
+  }, [paused]);
+
   return (
-    <div className="finova-hero-art" aria-hidden="true">
-      <div className="finova-art-orbit finova-art-orbit-one" />
-      <div className="finova-art-orbit finova-art-orbit-two" />
-      <div className="finova-art-glow" />
-      <div className="finova-art-chart">
-        <div className="finova-art-chart-head"><span /><span /><span /></div>
-        <div className="finova-art-bars"><i /><i /><i /><i /><i /><i /><i /></div>
-        <svg viewBox="0 0 260 100" className="finova-art-line" fill="none">
-          <path d="M8 78 C38 72 45 50 76 56 S120 69 148 38 S202 43 250 8" stroke="#75e0c1" strokeWidth="4" strokeLinecap="round" />
-          <path d="M8 78 C38 72 45 50 76 56 S120 69 148 38 S202 43 250 8 L250 100 L8 100Z" fill="url(#chartFill)" opacity=".2" />
-          <defs><linearGradient id="chartFill" x1="130" y1="0" x2="130" y2="100"><stop stopColor="#75e0c1"/><stop offset="1" stopColor="#75e0c1" stopOpacity="0"/></linearGradient></defs>
-        </svg>
+    <>
+      <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]" aria-hidden="true">
+        {heroSlides.map((slide, index) => (
+          <div key={slide.src}
+            className={`absolute inset-0 bg-cover bg-center transition-opacity duration-[1400ms] ease-in-out ${index === active ? "opacity-100" : "opacity-0"}`}
+            style={{ backgroundImage: `url("${slide.src}")` }} />
+        ))}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#10234b]/95 via-[#102b50]/85 to-[#0c5360]/55" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#10234b]/45 via-transparent to-[#10234b]/15" />
       </div>
-      <div className="finova-art-book">
-        <div className="finova-book-left"><span /><span /><span /></div>
-        <div className="finova-book-right"><span /><span /><span /></div>
-        <div className="finova-book-spine" />
+      <div className="absolute bottom-5 right-6 z-30 flex items-center gap-2" aria-label="Hero image slide controls">
+        {heroSlides.map((slide, index) => (
+          <button key={slide.src} type="button" aria-label={`Show slide ${index + 1}: ${slide.label}`}
+            aria-current={active === index ? "true" : undefined} onClick={() => setActive(index)}
+            className={`h-2.5 rounded-full transition-all duration-300 ${active === index ? "w-8 bg-white" : "w-2.5 bg-white/55 hover:bg-white/90"}`} />
+        ))}
+        <button type="button" onClick={() => setPaused((value) => !value)}
+          aria-label={paused ? "Resume automatic slides" : "Pause automatic slides"}
+          className="ml-2 rounded-full border border-white/35 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur hover:bg-white/20">
+          {paused ? "Play" : "Pause"}
+        </button>
       </div>
-      <div className="finova-art-float finova-art-float-top"><ShieldCheck size={17} /> Close controls</div>
-      <div className="finova-art-float finova-art-float-bottom"><TrendingUp size={17} /> Financial clarity</div>
-    </div>
+    </>
+  );
+}
+
+function WelcomeHero({ hello, firstName, today }: { hello: string; firstName: string; today: string }) {
+  return (
+    <section className="finova-welcome-hero relative isolate min-h-[340px] overflow-hidden">
+      <HeroImageCarousel />
+      <div className="finova-welcome-copy relative z-10 max-w-[760px]">
+        <div className="finova-eyebrow"><span className="finova-eyebrow-dot" /> YOUR FINANCIAL WORKSPACE</div>
+        <h1>{hello}, {firstName}<span>.</span></h1>
+        <p>Bring your accounting, reporting, and client work together. See what needs attention and move the business forward with confidence.</p>
+        <div className="finova-hero-actions">
+          <Link href="/dashboard/operations#accounting" className="finova-button-primary">Open accounting <ArrowRight size={16} /></Link>
+          <Link href="/dashboard/reporting" className="finova-button-quiet">Explore reports <ArrowUpRight size={16} /></Link>
+        </div>
+        <div className="finova-hero-trust"><ShieldCheck size={15} /> Organized workflows · Clear approvals · Audit-ready activity</div>
+      </div>
+      <div className="finova-hero-date relative z-10"><CalendarDays size={15} /> {today}</div>
+      <div className="absolute bottom-5 left-6 z-20 text-xs font-semibold tracking-wide text-white/75">Financial insight · Audit confidence · Better decisions</div>
+      <HeroSlideControls />
+    </section>
   );
 }
 
@@ -110,20 +153,7 @@ export default function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-[1480px] space-y-6">
-      <section className="finova-welcome-hero">
-        <div className="finova-welcome-copy">
-          <div className="finova-eyebrow"><span className="finova-eyebrow-dot" /> YOUR FINANCIAL WORKSPACE</div>
-          <h1>{hello}, {firstName}<span>.</span></h1>
-          <p>Bring your accounting, reporting, and client work together. See what needs attention and move the business forward with confidence.</p>
-          <div className="finova-hero-actions">
-            <Link href="/dashboard/operations#accounting" className="finova-button-primary">Open accounting <ArrowRight size={16} /></Link>
-            <Link href="/dashboard/reporting" className="finova-button-quiet">Explore reports <ArrowUpRight size={16} /></Link>
-          </div>
-          <div className="finova-hero-trust"><ShieldCheck size={15} /> Organized workflows · Clear approvals · Audit-ready activity</div>
-        </div>
-        <AccountingVisual />
-        <div className="finova-hero-date"><CalendarDays size={15} /> {today}</div>
-      </section>
+      <WelcomeHero hello={hello} firstName={firstName} today={today} />
 
       <div className="finova-demo-note"><span /> Demo snapshot — figures and activity below are sample data, not live books.</div>
 
