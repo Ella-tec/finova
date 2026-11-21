@@ -78,10 +78,10 @@ function toneClasses(tone: string) {
 
 const heroSlides = [
   { src: "/images/finova-hero-1.png", label: "Your financial workspace" },
-  { src: "/images/finova-hero-2.png", label: "Financial analysis and insight" },
-  { src: "/images/finova-hero-3.png", label: "AI-powered audit and accounting" },
-  { src: "/images/finova-hero-4.png", label: "Intelligent audit workflows" },
-  { src: "/images/finova-hero-5.png", label: "Professional financial review" },
+  { src: "/images/finova-hero-2.png", label: "AI audit intelligence" },
+  { src: "/images/finova-hero-3.png", label: "Future of accounting" },
+  { src: "/images/finova-hero-4.png", label: "Financial workspace" },
+  { src: "/images/finova-hero-5.png", label: "Audit confidence" },
 ];
 
 function HeroImageCarousel() {
@@ -92,7 +92,7 @@ function HeroImageCarousel() {
     if (paused) return;
     const timer = window.setInterval(() => {
       setActive((current) => (current + 1) % heroSlides.length);
-    }, 6500);
+    }, 4500);
     return () => window.clearInterval(timer);
   }, [paused]);
 
