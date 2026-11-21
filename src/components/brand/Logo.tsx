@@ -1,6 +1,6 @@
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 
+/** Clean Finova mark — abstract ledger / growth bars (no RF letters). */
 export function Logo({ className, size = 40 }: { className?: string; size?: number }) {
   return (
     <svg
@@ -12,12 +12,17 @@ export function Logo({ className, size = 40 }: { className?: string; size?: numb
       aria-hidden
     >
       <rect width="80" height="80" rx="20" fill="#0F766E" />
+      {/* Abstract chart bars — Finova finance mark */}
+      <rect x="18" y="42" width="10" height="18" rx="3" fill="white" opacity="0.95" />
+      <rect x="35" y="28" width="10" height="32" rx="3" fill="white" opacity="0.95" />
+      <rect x="52" y="18" width="10" height="42" rx="3" fill="#99F6E4" />
       <path
-        d="M22 52V28h10.5c6.2 0 10.2 3.2 10.2 8.1 0 3.2-1.7 5.7-4.6 6.9L46 52h-8.2l-6.6-8.4H30V52H22zm8-13.2h2.4c2.6 0 4.1-1.2 4.1-3.2s-1.5-3.1-4.1-3.1H30v6.3z"
-        fill="white"
+        d="M18 22h28"
+        stroke="white"
+        strokeWidth="3.5"
+        strokeLinecap="round"
+        opacity="0.9"
       />
-      <path d="M48 52V28h14v6.2H56v3.6h5.2v5.6H56V52h-8z" fill="white" opacity="0.92" />
-      <circle cx="62" cy="22" r="5" fill="#99F6E4" />
     </svg>
   );
 }
