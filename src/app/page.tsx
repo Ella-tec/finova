@@ -112,11 +112,15 @@ export default function HomePage() {
       <header className="relative z-20 border-b border-teal-900/5 bg-white/80 backdrop-blur-xl">
         <div className="mx-auto flex h-[72px] max-w-5xl items-center justify-between px-5">
           <Link href="/" className="flex items-center gap-3">
-            <Logo size={44} className="rounded-2xl shadow-md shadow-teal-900/10" />
+            {/* Transparent logo — no black tile */}
+            <Logo size={42} className="finova-logo-glow" />
             <span className="text-xl font-semibold tracking-tight text-slate-900">Finova</span>
           </Link>
           <div className="flex items-center gap-3 text-sm">
-            <Link href="/login" className="rounded-full bg-teal-700 px-4 py-2.5 font-semibold text-white shadow-sm hover:bg-teal-800">
+            <Link
+              href="/login"
+              className="rounded-full bg-teal-700 px-4 py-2.5 font-semibold text-white shadow-sm hover:bg-teal-800"
+            >
               Sign in
             </Link>
           </div>
@@ -125,8 +129,11 @@ export default function HomePage() {
 
       <section className="relative z-10 mx-auto grid max-w-5xl gap-12 px-5 py-14 lg:grid-cols-[1fr_1fr] lg:items-center lg:py-20">
         <div className="text-center lg:text-left">
-          <div className="mb-8 flex justify-center lg:justify-start">
-            <Logo size={112} className="rounded-[28px] shadow-2xl shadow-teal-900/15" />
+          {/* Large elegant transparent logo with soft float */}
+          <div className="mb-10 flex justify-center lg:justify-start">
+            <div className="finova-logo-float finova-logo-glow">
+              <Logo size={168} />
+            </div>
           </div>
 
           <div className="inline-flex items-center gap-2 rounded-full border border-teal-200/80 bg-white/90 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-teal-700 shadow-sm">
@@ -140,7 +147,8 @@ export default function HomePage() {
           </h1>
 
           <p className="mt-5 max-w-md text-[15px] leading-7 text-slate-600 lg:max-w-lg">
-            Books, statements, bank reconciliation, month-end close, audit PBC, and client collaboration — one elegant firm workspace.
+            Books, statements, bank reconciliation, month-end close, audit PBC, and client
+            collaboration — one elegant firm workspace.
           </p>
 
           <div className="mt-8 flex flex-wrap justify-center gap-3 lg:justify-start">
@@ -162,7 +170,7 @@ export default function HomePage() {
 
         <div className="rounded-[28px] border border-white bg-white/95 p-6 shadow-[0_30px_80px_-40px_rgba(15,23,42,0.3)] sm:p-8">
           <div className="mb-5 flex justify-center">
-            <Logo size={56} className="rounded-[18px] shadow-lg shadow-teal-900/10" />
+            <Logo size={64} className="finova-logo-glow" />
           </div>
 
           <div className="mb-5 grid grid-cols-2 gap-1 rounded-2xl bg-slate-100 p-1">
@@ -174,7 +182,9 @@ export default function HomePage() {
               }}
               className={
                 "rounded-xl py-2.5 text-sm font-semibold transition " +
-                (tab === "signin" ? "bg-white text-teal-800 shadow-sm" : "text-slate-500 hover:text-slate-700")
+                (tab === "signin"
+                  ? "bg-white text-teal-800 shadow-sm"
+                  : "text-slate-500 hover:text-slate-700")
               }
             >
               Sign in
@@ -187,7 +197,9 @@ export default function HomePage() {
               }}
               className={
                 "rounded-xl py-2.5 text-sm font-semibold transition " +
-                (tab === "create" ? "bg-white text-teal-800 shadow-sm" : "text-slate-500 hover:text-slate-700")
+                (tab === "create"
+                  ? "bg-white text-teal-800 shadow-sm"
+                  : "text-slate-500 hover:text-slate-700")
               }
             >
               Create account
