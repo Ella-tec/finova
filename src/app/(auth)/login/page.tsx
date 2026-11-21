@@ -74,7 +74,7 @@ function LoginForm() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_#E8F5F1_0%,_transparent_55%)]" />
         <div className="relative mx-auto w-full max-w-[420px]">
           <Link href="/" className="inline-flex items-center gap-3 mb-10">
-            <Logo size={56} className="rounded-[18px] shadow-lg shadow-teal-900/10" />
+            <Logo size={52} className="finova-logo-glow" />
             <div>
               <p className="text-2xl font-semibold tracking-tight text-slate-900">Finova</p>
               <p className="text-xs font-medium tracking-[0.14em] uppercase text-teal-700">
@@ -189,7 +189,9 @@ function LoginForm() {
         <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-teal-200/30 blur-3xl" />
         <div className="relative z-10 w-full max-w-lg">
           <div className="flex justify-center mb-8">
-            <Logo size={96} className="rounded-[28px] shadow-xl shadow-teal-900/10" />
+            <div className="finova-logo-float finova-logo-glow">
+              <Logo size={140} />
+            </div>
           </div>
           <h2 className="text-center text-2xl font-semibold tracking-tight text-slate-800">
             Finance, close and audit — one workspace
