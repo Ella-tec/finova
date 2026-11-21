@@ -343,4 +343,365 @@ Term Loan A,5000000,0,200000,4800000,6.5%,2030-06-30
 Revolver,1500000,300000,100000,1700000,SOFR+2%,2028-12-31
 `,
   },
+
+  // ═══════════════════════════════════════════════════════════════
+  // BNSF Railway / KDOT — Real-style Construction Invoice Pack
+  // Project: 11X-3082-01 / CMS 006203006 — Flashing Light Signals
+  // Location: Coal Valley Rd, Scammon KS (Cherokee County)
+  // Use under: Sample Library → GRANITE → Invoice / AP / Audit
+  // ═══════════════════════════════════════════════════════════════
+
+  {
+    id: "d-bnsf-invoice-summary",
+    companyId: "c05",
+    type: "INVOICE",
+    title: "BNSF — Invoice Register (Project 11X-3082-01)",
+    period: "2020-2022",
+    description: "Full invoice register for KDOT Flashing Light Signals contract. Open each invoice, then open linked Pay Estimate and Refund docs.",
+    fileName: "BNSF_Invoice_Register_11X-3082-01.csv",
+    content: `Invoice#,Date,Service From,Service To,Amount,Type,Status,Notes
+90204760,2020-05-13,2020-03-01,2020-04-30,52740.26,Progress,Paid,Partial #1 — Labor + Material + Signal
+90203270,2020-04-13,2020-03-01,2020-03-31,2937.35,Progress,Paid,Partial #1 (early)
+90204814,2020-05-14,2020-04-01,2020-04-30,56232.90,Progress,Paid,Partial #2
+90206334,2020-06-16,2020-05-01,2020-05-31,41117.36,Progress,Paid,Partial #3 — materials heavy
+90207672,2020-07-20,2020-06-01,2020-06-30,3840.54,Progress,Paid,Partial #4
+90209000,2020-08-20,2020-07-01,2020-07-31,55051.83,Progress,Paid,Partial #5
+90210242,2020-09-18,2020-08-01,2020-08-31,59789.90,Progress,Paid,Partial #6
+90211739,2020-10-16,2020-09-01,2020-09-30,8163.74,Progress,Paid,Partial #7
+90214649,2020-12-14,2020-10-01,2020-11-30,2111.00,Progress,Paid,Partial #8 — gates/flashers
+REF90216092,2021-01-21,,,15946.03,Refund,Issued,Duplicate payment refund to KDOT
+REF90233338,2022-02-17,,,39342.00,Refund,Issued,Additional refund — see check 0016167576
+`,
+  },
+
+  {
+    id: "d-bnsf-inv-90204760",
+    companyId: "c05",
+    type: "INVOICE",
+    title: "BNSF Invoice 90204760 — $52,740.26",
+    period: "2020-05",
+    description: "Progress invoice Partial #1. Customer: KDOT. Contract BF10015969. Project 11X-3082-01 Coal Valley Rd flashing signals.",
+    fileName: "BNSF_Invoice_90204760.txt",
+    content: `BNSF RAILWAY — INVOICE
+════════════════════════════════════════════════════════
+Invoice Number     : 90204760
+Customer Number    : 1003795
+Invoice Date       : 05/13/2020
+Amount             : $52,740.26
+Billable %         : 100.00%
+Invoice Total      : $52,740.26
+
+Bill To:
+  Kansas Department of Transportation
+  Freight and Rail Unit
+  700 SW Harrison Street, Topeka KS 66603
+
+Contract No.       : BF10015969
+Project            : 11X-3082-01
+WBS                : 7-0180-20
+Location           : Coal Valley Rd - Scammon, KS
+                     Install Constant Warning/Flashers/Gates
+                     Heartland Div; Kansas Subdiv; LS 1040
+                     MP 136.43-138.43, DOT# 669897L
+Service Period     : 03/01/2020 – 04/30/2020
+Months Accounts    : 05/2020
+Partial            : #1
+100% KSDOT
+
+COST BREAKDOWN (from audit workpaper)
+  Labor                    $  1,897.78
+  Material                 $ 40,082.04
+  Labor Additive (Signal)  $  4,134.44
+  Other / Vouchers         $  6,626.00
+  ────────────────────────────────────
+  Total Costs              $ 52,740.26
+
+Payment terms: Due within 30 days of invoice date.
+Make checks payable to: BNSF Railway Company
+3115 Solutions Center, Chicago IL 60677-3001
+
+TIN: 41-6034000
+Wire/ACH: Northern Trust-Chicago IL | ABA 071000152 | Acct 31099171
+`,
+  },
+
+  {
+    id: "d-bnsf-inv-90204814",
+    companyId: "c05",
+    type: "INVOICE",
+    title: "BNSF Invoice 90204814 — $56,232.90",
+    period: "2020-05",
+    description: "Progress invoice Partial #2. Same KDOT project — April 2020 work.",
+    fileName: "BNSF_Invoice_90204814.txt",
+    content: `BNSF RAILWAY — INVOICE
+════════════════════════════════════════════════════════
+Invoice Number     : 90204814
+Customer Number    : 1003795
+Invoice Date       : 05/14/2020
+Amount             : $56,232.90
+Billable %         : 100.00%
+Invoice Total      : $56,232.90
+
+Bill To: Kansas Department of Transportation (same as 90204760)
+Contract / Project : BF10015969 / 11X-3082-01
+Service Period     : 04/01/2020 – 04/30/2020
+Partial            : #2
+
+COST SUMMARY (workpaper C-1)
+  Labor                    $  9,748.32
+  Material                 $ 40,453.83
+  Other Costs              $  6,030.75
+  ────────────────────────────────────
+  Total                    $ 56,232.90
+`,
+  },
+
+  {
+    id: "d-bnsf-inv-90209000",
+    companyId: "c05",
+    type: "INVOICE",
+    title: "BNSF Invoice 90209000 — $55,051.83",
+    period: "2020-08",
+    description: "Progress invoice Partial #5 — July 2020. High signal labor additive.",
+    fileName: "BNSF_Invoice_90209000.txt",
+    content: `BNSF RAILWAY — INVOICE
+════════════════════════════════════════════════════════
+Invoice Number     : 90209000
+Date               : 08/20/2020
+Amount             : $55,051.83
+Service Period     : 07/01/2020 – 07/31/2020
+Partial            : #5
+Project            : 11X-3082-01 | Coal Valley Rd flashers/gates
+
+COST SUMMARY
+  Labor                    $  5,152.17
+  Labor Additive (Signal)  $ 11,265.74
+  Other Costs              $ 38,633.86
+  ────────────────────────────────────
+  Total                    $ 55,051.83
+`,
+  },
+
+  {
+    id: "d-bnsf-inv-90214649",
+    companyId: "c05",
+    type: "INVOICE",
+    title: "BNSF Invoice 90214649 — $2,111.00",
+    period: "2020-12",
+    description: "Small progress invoice Partial #8 (Oct–Nov 2020).",
+    fileName: "BNSF_Invoice_90214649.txt",
+    content: `BNSF RAILWAY — INVOICE
+════════════════════════════════════════════════════════
+Invoice Number     : 90214649
+Date               : 12/14/2020
+Amount             : $2,111.00
+Service Period     : 10/01/2020 – 11/30/2020
+Partial            : #8
+Project            : 11X-3082-01
+
+Total Costs        : $2,111.00
+Billable Pct       : 100.00%
+Invoice Total      : $2,111.00
+`,
+  },
+
+  {
+    id: "d-bnsf-refund-90216092",
+    companyId: "c05",
+    type: "INVOICE",
+    title: "BNSF Refund REF90216092 — ($15,946.03)",
+    period: "2021-01",
+    description: "Refund due to duplicate payment — WBS 7-0180-20. Credit back to KDOT.",
+    fileName: "BNSF_Refund_REF90216092.txt",
+    content: `BNSF RAILWAY — REFUND / CREDIT MEMO
+════════════════════════════════════════════════════════
+Invoice Number     : REF90216092
+Invoice Date       : 01/21/2021
+Invoice Amount     : ($15,946.03)
+
+REFUND DUE TO DUPLICATE PAYMENT – WBS # 7-0180-20
+
+Project            : COAL VALLEY RD - SCAMMON, KS
+                     Install Constant Warning/Flashers/Gates
+                     Heartland Div; Kansas Subdiv; LS 1040
+                     MP 136.43-138.43, DOT# 669897L
+Agreement          : 006203006
+Project #          : 11X-3082-01
+
+Refund to KDOT     : $15,946.03
+
+Issue check to:
+  Kansas Dept of Transportation
+  Eisenhower State Office Bldg
+  700 South West Harrison Street
+  Topeka, KS 66603
+
+*** Please mail the check to the address above ***
+`,
+  },
+
+  {
+    id: "d-bnsf-pay-est-10",
+    companyId: "c05",
+    type: "AP_AGING",
+    title: "KDOT Payment Estimate #10 — Contract 006203006",
+    period: "2022-01",
+    description: "KDOT Payment Estimate for Contractor (BNSF). 95% complete by dollar. Remaining $19,498.13 retainage.",
+    fileName: "KDOT_Pay_Estimate_10_006203006.txt",
+    content: `KANSAS DEPARTMENT OF TRANSPORTATION
+Payment Estimate for Contractor
+════════════════════════════════════════════════════════
+Contract             : 006203006 — FLASHING LIGHT SIGNALS
+Prime Contractor     : BNSF RAILWAY COMPANY
+Estimate Number      : 10
+Estimate Period End  : 1/31/2022
+Previous Period End  : 5/1/2021
+Estimate Status      : Pending Approval
+Estimate Type        : 1 Non C Progress - Progress
+County / District    : CHEROKEE / District 4
+Location             : BNSF & Coal Valley Road 1 mile south of Cherokee
+Federal Project No.  : RRP-X308(201)
+IRS Number           : 41-6034000
+
+Awarded Amount       : $240,037.00
+Current Contract Amt : $389,962.64
+Remaining Value      : $19,498.13
+Percent Complete $   : 95.00%
+Percent Complete Time: 33.18%
+
+Award Date / Work Began: 1/27/2020
+`,
+  },
+
+  {
+    id: "d-bnsf-pay-est-12",
+    companyId: "c05",
+    type: "AP_AGING",
+    title: "KDOT Semi-Final Pay Est #12 — Approved",
+    period: "2025-03",
+    description: "Semi-final payment estimate. Total pay $315,176.48 after retainage. Status: Approved.",
+    fileName: "KDOT_Pay_Estimate_12_SemiFinal.txt",
+    content: `Contract: 006203006 - FLASHING LIGHT SIGNALS
+Payment Est Number: 0012
+Period End Date   : 03/17/2025
+Status            : Approved
+Type              : 2 Non C Semi-Final - Semi-Final
+
+                         Previous      This Est      Total
+Posted Item Pay        334,674.61       0.00     334,674.61
+Gross Item Adjustments       0.00       0.00           0.00
+Gross Item Pay         334,674.61       0.00     334,674.61
+Retainage (Cash)       -19,498.13       0.00     -19,498.13
+Total Pay Amount       315,176.48       0.00     315,176.48
+`,
+  },
+
+  {
+    id: "d-bnsf-refund-check",
+    companyId: "c05",
+    type: "INVOICE",
+    title: "BNSF Refund Check #0016167576 — $55,288.03",
+    period: "2024-12",
+    description: "State of Kansas refund check covering two credit memos (REF90233338 + REF90216092).",
+    fileName: "BNSF_Refund_Check_0016167576.txt",
+    content: `STATE OF KANSAS — REFUND CHECK DETAIL
+════════════════════════════════════════════════════════
+Check Number       : 0016167576
+Date               : 12/12/2024
+Payee              : BNSF Railway Company
+                     P.O. BOX 961284
+                     FORT WORTH, TX 76161-0284
+Bank               : PNC Bank, N.A.
+
+Invoice / Ref          Amount
+REF90233338          39,342.00
+REF90216092          15,946.03
+021                       0.00
+────────────────────────────────
+TOTAL                55,288.03
+
+Pay to the order of: STATE OF KANSAS
+                     DEPT OF TRANSPORTATION
+                     REFUND ONLY
+                     C/O ATTN LINDA GUILLEN
+                     3200 E 45TH ST N
+                     WICHITA KS 67220
+`,
+  },
+
+  {
+    id: "d-bnsf-cost-summary",
+    companyId: "c05",
+    type: "GL_DETAIL",
+    title: "BNSF Audit Cost Summary (Workpaper C-1)",
+    period: "2020-2022",
+    description: "Auditor cost summary from workpaper. Claimed $226,696.85. Contract max $315,176.48. Under by $88,479.63.",
+    fileName: "BNSF_Audit_Cost_Summary_C1.csv",
+    content: `Ref,Invoice No,Service From,Invoice Date,Labor,Material,Labor Additive Signal,Other Costs,Refund,TOTAL
+F1,90204760,03/01/2020-04/30/2020,2020-05-13,1897.78,40082.04,4134.44,6626,,52740.26
+F2,90203270,03/01/2020-03/31/2020,2020-04-13,315.76,674.59,0,1947,,2937.35
+F3,90204814,04/01/2020-04/30/2020,2020-05-14,9748.32,40453.83,,6030.75,,56232.90
+F4,90206334,05/01/2020-05/31/2020,2020-06-16,193.25,36429.49,1554.13,2940.49,,41117.36
+F5,90207672,06/01/2020-06/30/2020,2020-07-20,1583.99,,,2256.55,,3840.54
+F6,90209000,07/01/2020-07/31/2020,2020-08-20,5152.17,,11265.74,38633.86,,55051.77
+F7,90210242,08/01/2020-08/31/2020,2020-09-18,17927.19,,38776.89,3085.88,,59789.96
+F8,90211739,09/01/2020-09/30/2020,2020-10-16,1881.55,,3691.63,2590.56,,8163.74
+F9,90214649,10/01/2020-11/30/2020,2020-12-14,,,,2111,,2111.00
+,REF90216092,,, ,,,,-15946.03,-15946.03
+,REF90233338,,, ,,,,-39342,-39342.00
+TOTALS,,,,38700.01,117639.95,59422.83,66222.09,,226696.85
+
+Contract Estimate (Net Fee) = 315176.48
+Under (over) the Contract Estimate = 88479.63
+`,
+  },
+
+  {
+    id: "d-bnsf-audit-program",
+    companyId: "c05",
+    type: "PBC_LIST",
+    title: "BNSF Audit Program (Workpaper A-1)",
+    period: "2025-03",
+    description: "Consultant / utility contract audit program checklist. Auditor initials EE. Desk audit 2025-03-28.",
+    fileName: "BNSF_Audit_Program_A1.txt",
+    content: `BNSF Railway Company — AUDIT PROGRAM (Consultants)
+Project #: 11 X-3082-01 | CMS #: 006203006
+════════════════════════════════════════════════════════
+1. Does an effective agreement exist between State and Consultant?     Yes
+2. Have KDOT files been reviewed for correspondence / scope changes?   Yes
+3. Are reimbursement claims in accordance with the agreement?          Yes
+4. Have extensions been verified?                                      Yes
+5. Are claimed costs within authorization dates?                       Yes
+6. The audit was:  Desk ☑   Site ☐
+7. Are costs within appropriate State and Federal Regulations?         Yes
+8. Has the Consultant's accounting system been reviewed?               Yes
+9. Has the Consultant's overhead rate been accepted?                   N/A (utility)
+10. Have correct adjustments been made for overhead rates?             N/A
+11. If a subconsultant was used, did they have written approval?       N/A
+12. Does the Consultant comply with 23 U.S.C. 313 (Buy America)?       Yes
+13. Has the Consultant provided Buy America documentation?             Yes
+
+AUDITOR COMMENTS: Contract Audit — 2025-03-28 — Initials EE
+`,
+  },
+
+  {
+    id: "d-bnsf-tickmarks",
+    companyId: "c05",
+    type: "WORKOBER_CASH",
+    title: "BNSF Legend of Tick Marks (Workpaper B-1)",
+    period: "2025",
+    description: "Standard audit tick-mark legend used on the BNSF workpapers.",
+    fileName: "BNSF_Tick_Marks_Legend.txt",
+    content: `LEGEND OF TICK MARKS — BNSF Railway Company
+Project 11 X-3082-01 / CMS 006203006
+════════════════════════════════════════════════════════
+√   EXTENSIONS AND FOOTINGS VERIFIED
+T   EMPLOYEE TIME REPORTS
+C   PER COMPUTER REPORT
+P   PAY RATE PER PAYROLL LEDGER
+I   PER VENDOR INVOICES
+E   PERSONAL EXPENSE REPORT
+`,
+  },
 ];
