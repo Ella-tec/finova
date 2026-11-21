@@ -97,50 +97,29 @@ function HeroImageCarousel() {
   }, [paused]);
 
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]" aria-hidden="true">
-      {heroSlides.map((slide, index) => (
-        <div
-          key={slide.src}
-          className={`absolute inset-0 bg-cover bg-center transition-opacity duration-[1400ms] ease-in-out ${index === active ? "opacity-100" : "opacity-0"}`}
-          style={{ backgroundImage: `url("${slide.src}")` }}
-        />
-      ))}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#10234b]/95 via-[#102b50]/85 to-[#0c5360]/55" />
-      <div className="absolute inset-0 bg-gradient-to-t from-[#10234b]/45 via-transparent to-[#10234b]/15" />
-      <div className="absolute bottom-5 right-6 z-20 flex items-center gap-2" aria-hidden="true">
+    <>
+      <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]" aria-hidden="true">
         {heroSlides.map((slide, index) => (
-          <span key={slide.src} className={`h-2.5 rounded-full transition-all duration-300 ${active === index ? "w-8 bg-white" : "w-2.5 bg-white/55"}`} />
+          <div key={slide.src}
+            className={`absolute inset-0 bg-cover bg-center transition-opacity duration-[1400ms] ease-in-out ${index === active ? "opacity-100" : "opacity-0"}`}
+            style={{ backgroundImage: `url("${slide.src}")` }} />
         ))}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#10234b]/95 via-[#102b50]/85 to-[#0c5360]/55" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#10234b]/45 via-transparent to-[#10234b]/15" />
       </div>
-    </div>
-  );
-}
-
-function HeroSlideControls() {
-  const [active, setActive] = useState(0);
-  const [paused, setPaused] = useState(false);
-
-  useEffect(() => {
-    if (paused) return;
-    const timer = window.setInterval(() => {
-      setActive((current) => (current + 1) % heroSlides.length);
-    }, 6500);
-    return () => window.clearInterval(timer);
-  }, [paused]);
-
-  return (
-    <div className="absolute bottom-5 right-6 z-30 flex items-center gap-2" aria-label="Hero image slide controls">
-      {heroSlides.map((slide, index) => (
-        <button key={slide.src} type="button" aria-label={`Show slide ${index + 1}: ${slide.label}`}
-          aria-current={active === index ? "true" : undefined} onClick={() => setActive(index)}
-          className={`h-2.5 rounded-full transition-all duration-300 ${active === index ? "w-8 bg-white" : "w-2.5 bg-white/55 hover:bg-white/90"}`} />
-      ))}
-      <button type="button" onClick={() => setPaused((value) => !value)}
-        aria-label={paused ? "Resume automatic slides" : "Pause automatic slides"}
-        className="ml-2 rounded-full border border-white/35 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur hover:bg-white/20">
-        {paused ? "Play" : "Pause"}
-      </button>
-    </div>
+      <div className="absolute bottom-5 right-6 z-30 flex items-center gap-2" aria-label="Hero image slide controls">
+        {heroSlides.map((slide, index) => (
+          <button key={slide.src} type="button" aria-label={`Show slide ${index + 1}: ${slide.label}`}
+            aria-current={active === index ? "true" : undefined} onClick={() => setActive(index)}
+            className={`h-2.5 rounded-full transition-all duration-300 ${active === index ? "w-8 bg-white" : "w-2.5 bg-white/55 hover:bg-white/90"}`} />
+        ))}
+        <button type="button" onClick={() => setPaused((value) => !value)}
+          aria-label={paused ? "Resume automatic slides" : "Pause automatic slides"}
+          className="ml-2 rounded-full border border-white/35 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur hover:bg-white/20">
+          {paused ? "Play" : "Pause"}
+        </button>
+      </div>
+    </>
   );
 }
 
