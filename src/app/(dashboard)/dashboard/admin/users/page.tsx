@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   UserPlus,
   Loader2,
@@ -12,6 +14,8 @@ import {
   User,
   Pencil,
   Trash2,
+  ArrowLeft,
+  Settings,
 } from "lucide-react";
 import { Role } from "@prisma/client";
 import { cn } from "@/lib/utils";
@@ -48,10 +52,13 @@ function roleTone(role: string) {
 }
 
 export default function AdminUsersPage() {
+  const searchParams = useSearchParams();
   const [users, setUsers] = useState<UserRow[]>([]);
   const [clients, setClients] = useState<ClientOption[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"list" | "create">("list");
+  const [tab, setTab] = useState<"list" | "create">(
+    searchParams.get("tab") === "create" ? "create" : "list"
+  );
   const [selected, setSelected] = useState<UserRow | null>(null);
   const [editing, setEditing] = useState<UserRow | null>(null);
   const [form, setForm] = useState({
@@ -72,6 +79,7 @@ export default function AdminUsersPage() {
       const res = await fetch("/api/users/invite");
       const data = await res.json();
       if (data.users) setUsers(data.users);
+      if (!res.ok && data.error) setError(data.error);
     } finally {
       setLoading(false);
     }
@@ -91,6 +99,10 @@ export default function AdminUsersPage() {
     void load();
     void loadClients();
   }, [load, loadClients]);
+
+  useEffect(() => {
+    if (searchParams.get("tab") === "create") setTab("create");
+  }, [searchParams]);
 
   const handleInvite = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -112,7 +124,7 @@ export default function AdminUsersPage() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Invite failed");
       setTempPassword(data.temporaryPassword);
-      setNotice("User invited successfully.");
+      setNotice("Account created successfully.");
       setForm({ name: "", email: "", role: "STAFF_ACCOUNTANT", clientId: "", password: "" });
       await load();
     } catch (err: unknown) {
@@ -183,8 +195,16 @@ export default function AdminUsersPage() {
     <div className="mx-auto max-w-5xl space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Accounts & verification</h1>
-          <p className="mt-1 text-slate-600">Create, edit, or delete firm accounts · click a row for details</p>
+          <Link
+            href="/dashboard/admin"
+            className="mb-2 inline-flex items-center gap-1 text-sm font-medium text-slate-500 hover:text-teal-700"
+          >
+            <ArrowLeft className="h-4 w-4" /> Settings
+          </Link>
+          <h1 className="text-2xl font-bold text-slate-900">Accounts</h1>
+          <p className="mt-1 text-slate-600">
+            Create, edit, or delete firm accounts for access verification
+          </p>
         </div>
         <button
           type="button"
@@ -193,7 +213,7 @@ export default function AdminUsersPage() {
             setSelected(null);
             setEditing(null);
           }}
-          className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700"
+          className="inline-flex items-center gap-2 rounded-xl bg-teal-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-teal-800"
         >
           <UserPlus className="h-4 w-4" />
           Create account
@@ -242,19 +262,29 @@ export default function AdminUsersPage() {
         </div>
       </div>
 
-      {error && <p className="text-sm text-rose-600">{error}</p>}
-      {notice && <p className="text-sm text-emerald-700">{notice}</p>}
+      {error && (
+        <p className="rounded-xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700">{error}</p>
+      )}
+      {notice && (
+        <p className="rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{notice}</p>
+      )}
 
       {tab === "create" && (
         <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="font-semibold text-slate-900">Create / invite account</h2>
+          <div className="flex items-center gap-2">
+            <span className="rounded-xl bg-emerald-50 p-2 text-emerald-700">
+              <UserPlus className="h-5 w-5" />
+            </span>
+            <h2 className="font-semibold text-slate-900">Create account</h2>
+          </div>
           {tempPassword && (
             <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm">
               <p className="flex items-center gap-2 font-medium text-emerald-800">
-                <CheckCircle2 className="h-4 w-4" /> User created
+                <CheckCircle2 className="h-4 w-4" /> Account created
               </p>
               <p className="mt-1 text-emerald-700">
-                Temporary password: <code className="rounded bg-white px-1.5 py-0.5">{tempPassword}</code>
+                Temporary password:{" "}
+                <code className="rounded bg-white px-1.5 py-0.5">{tempPassword}</code>
               </p>
               <button type="button" onClick={() => void copyPassword()} className="mt-2 text-xs font-semibold text-emerald-800 underline">
                 Copy password
@@ -278,7 +308,7 @@ export default function AdminUsersPage() {
               </select>
             )}
             <div className="flex gap-2 sm:col-span-3">
-              <button type="submit" disabled={inviting} className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60">
+              <button type="submit" disabled={inviting} className="inline-flex items-center gap-2 rounded-xl bg-teal-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-teal-800 disabled:opacity-60">
                 {inviting && <Loader2 className="h-4 w-4 animate-spin" />}
                 Create account
               </button>
@@ -306,10 +336,10 @@ export default function AdminUsersPage() {
               {loading ? (
                 <tr><td colSpan={5} className="px-6 py-8 text-center text-slate-500">Loading…</td></tr>
               ) : users.length === 0 ? (
-                <tr><td colSpan={5} className="px-6 py-8 text-center text-slate-500">No users yet</td></tr>
+                <tr><td colSpan={5} className="px-6 py-8 text-center text-slate-500">No users yet — create an account</td></tr>
               ) : (
                 users.map((u) => (
-                  <tr key={u.id} className="hover:bg-emerald-50/60">
+                  <tr key={u.id} className="hover:bg-teal-50/50">
                     <td className="cursor-pointer px-6 py-3.5 font-medium text-slate-900" onClick={() => setSelected(u)}>{u.name}</td>
                     <td className="cursor-pointer px-6 py-3.5 text-slate-600" onClick={() => setSelected(u)}>{u.email}</td>
                     <td className="px-6 py-3.5">
@@ -323,7 +353,7 @@ export default function AdminUsersPage() {
                           setEditing(u);
                           setForm({ name: u.name || "", email: u.email, role: u.role, clientId: "", password: "" });
                         }}
-                        className="inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-white"
+                        className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-white"
                       >
                         <Pencil className="h-3.5 w-3.5" /> Edit
                       </button>
@@ -367,7 +397,7 @@ export default function AdminUsersPage() {
           <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
-                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-lg font-bold text-emerald-800">
+                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-teal-100 text-lg font-bold text-teal-800">
                   {(selected.name || selected.email).slice(0, 1).toUpperCase()}
                 </span>
                 <div>
