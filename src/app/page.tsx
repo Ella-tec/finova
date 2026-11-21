@@ -15,29 +15,19 @@ import {
   EyeOff,
   AlertCircle,
   Sparkles,
+  UserPlus,
 } from "lucide-react";
-
-function FinovaMark({ className = "h-16 w-16" }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 80 80" fill="none" aria-hidden>
-      <rect width="80" height="80" rx="22" fill="#0F766E" />
-      <path
-        d="M22 52V28h10.5c6.2 0 10.2 3.2 10.2 8.1 0 3.2-1.7 5.7-4.6 6.9L46 52h-8.2l-6.6-8.4H30V52H22zm8-13.2h2.4c2.6 0 4.1-1.2 4.1-3.2s-1.5-3.1-4.1-3.1H30v6.3z"
-        fill="white"
-      />
-      <path d="M48 52V28h14v6.2H56v3.6h5.2v5.6H56V52h-8z" fill="white" opacity="0.92" />
-      <circle cx="62" cy="22" r="5" fill="#99F6E4" />
-    </svg>
-  );
-}
+import { Logo } from "@/components/brand/Logo";
 
 export default function HomePage() {
   const router = useRouter();
+  const [tab, setTab] = useState<"signin" | "create">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [reg, setReg] = useState({ name: "", email: "", password: "", firmName: "" });
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,6 +55,45 @@ export default function HomePage() {
     }
   };
 
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(reg),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Registration failed");
+      const login = await signIn("credentials", {
+        email: reg.email.toLowerCase().trim(),
+        password: reg.password,
+        redirect: false,
+        callbackUrl: "/dashboard",
+      });
+      if (login?.ok) {
+        router.push("/dashboard");
+        router.refresh();
+        return;
+      }
+      setTab("signin");
+      setEmail(reg.email);
+      setError("Account created. Please sign in.");
+      setLoading(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Registration failed");
+      setLoading(false);
+    }
+  };
+
+  const handleMicrosoft = () => {
+    setLoading(true);
+    setError(null);
+    void signIn("azure-ad", { callbackUrl: "/dashboard" });
+  };
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#F3F8F6] text-slate-900">
       <div className="pointer-events-none absolute inset-0 opacity-[0.06]">
@@ -83,17 +112,11 @@ export default function HomePage() {
       <header className="relative z-20 border-b border-teal-900/5 bg-white/80 backdrop-blur-xl">
         <div className="mx-auto flex h-[72px] max-w-5xl items-center justify-between px-5">
           <Link href="/" className="flex items-center gap-3">
-            <FinovaMark className="h-12 w-12 rounded-2xl shadow-md shadow-teal-900/10" />
+            <Logo size={44} className="rounded-2xl shadow-md shadow-teal-900/10" />
             <span className="text-xl font-semibold tracking-tight text-slate-900">Finova</span>
           </Link>
           <div className="flex items-center gap-3 text-sm">
-            <Link href="/guide" className="hidden text-slate-600 hover:text-teal-700 sm:inline">
-              App Guide
-            </Link>
-            <Link
-              href="/login"
-              className="rounded-full bg-teal-700 px-4 py-2.5 font-semibold text-white shadow-sm hover:bg-teal-800"
-            >
+            <Link href="/login" className="rounded-full bg-teal-700 px-4 py-2.5 font-semibold text-white shadow-sm hover:bg-teal-800">
               Sign in
             </Link>
           </div>
@@ -103,7 +126,7 @@ export default function HomePage() {
       <section className="relative z-10 mx-auto grid max-w-5xl gap-12 px-5 py-14 lg:grid-cols-[1fr_1fr] lg:items-center lg:py-20">
         <div className="text-center lg:text-left">
           <div className="mb-8 flex justify-center lg:justify-start">
-            <FinovaMark className="h-28 w-28 rounded-[28px] shadow-2xl shadow-teal-900/15" />
+            <Logo size={112} className="rounded-[28px] shadow-2xl shadow-teal-900/15" />
           </div>
 
           <div className="inline-flex items-center gap-2 rounded-full border border-teal-200/80 bg-white/90 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-teal-700 shadow-sm">
@@ -139,69 +162,164 @@ export default function HomePage() {
 
         <div className="rounded-[28px] border border-white bg-white/95 p-6 shadow-[0_30px_80px_-40px_rgba(15,23,42,0.3)] sm:p-8">
           <div className="mb-5 flex justify-center">
-            <FinovaMark className="h-16 w-16 rounded-[18px] shadow-lg shadow-teal-900/10" />
+            <Logo size={56} className="rounded-[18px] shadow-lg shadow-teal-900/10" />
           </div>
-          <h2 className="text-center text-2xl font-semibold tracking-tight text-slate-900">Sign in to Finova</h2>
-          <p className="mt-2 text-center text-sm text-slate-500">Secure firm workspace</p>
+
+          <div className="mb-5 grid grid-cols-2 gap-1 rounded-2xl bg-slate-100 p-1">
+            <button
+              type="button"
+              onClick={() => {
+                setTab("signin");
+                setError(null);
+              }}
+              className={
+                "rounded-xl py-2.5 text-sm font-semibold transition " +
+                (tab === "signin" ? "bg-white text-teal-800 shadow-sm" : "text-slate-500 hover:text-slate-700")
+              }
+            >
+              Sign in
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setTab("create");
+                setError(null);
+              }}
+              className={
+                "rounded-xl py-2.5 text-sm font-semibold transition " +
+                (tab === "create" ? "bg-white text-teal-800 shadow-sm" : "text-slate-500 hover:text-slate-700")
+              }
+            >
+              Create account
+            </button>
+          </div>
+
+          <h2 className="text-center text-xl font-semibold tracking-tight text-slate-900">
+            {tab === "signin" ? "Sign in to Finova" : "Create your workspace"}
+          </h2>
+          <p className="mt-1 text-center text-sm text-slate-500">
+            {tab === "signin" ? "Secure firm workspace" : "You become the firm administrator"}
+          </p>
 
           {error && (
-            <div className="mt-5 flex items-start gap-2 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <div className="mt-4 flex items-start gap-2 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
               {error}
             </div>
           )}
 
-          <form onSubmit={handleLogin} className="mt-6 space-y-4">
-            <div>
-              <label htmlFor="home-email" className="mb-1.5 block text-sm font-medium text-slate-700">
-                Work email
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <input
-                  id="home-email"
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="demo@finova.ai"
-                  className="w-full rounded-2xl border border-slate-200 bg-[#F7FBFA] py-3.5 pl-11 pr-4 text-sm outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20"
-                />
+          {tab === "signin" ? (
+            <form onSubmit={handleLogin} className="mt-5 space-y-4">
+              <div>
+                <label htmlFor="home-email" className="mb-1.5 block text-sm font-medium text-slate-700">
+                  Work email
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    id="home-email"
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="demo@finova.ai"
+                    className="w-full rounded-2xl border border-slate-200 bg-[#F7FBFA] py-3.5 pl-11 pr-4 text-sm outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20"
+                  />
+                </div>
               </div>
-            </div>
-            <div>
-              <label htmlFor="home-password" className="mb-1.5 block text-sm font-medium text-slate-700">
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <input
-                  id="home-password"
-                  type={showPw ? "text" : "password"}
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••••••"
-                  className="w-full rounded-2xl border border-slate-200 bg-[#F7FBFA] py-3.5 pl-11 pr-11 text-sm outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPw(!showPw)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                >
-                  {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
+              <div>
+                <label htmlFor="home-password" className="mb-1.5 block text-sm font-medium text-slate-700">
+                  Password
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    id="home-password"
+                    type={showPw ? "text" : "password"}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••••••"
+                    className="w-full rounded-2xl border border-slate-200 bg-[#F7FBFA] py-3.5 pl-11 pr-11 text-sm outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPw(!showPw)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  >
+                    {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-teal-700 py-3.5 text-sm font-semibold text-white shadow-lg shadow-teal-900/10 transition hover:bg-teal-800 disabled:opacity-60"
+              >
+                {loading ? "Signing in…" : "Enter workspace"}
+                {!loading && <ArrowRight className="h-4 w-4" />}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleRegister} className="mt-5 space-y-3">
+              {(
+                [
+                  ["name", "Full name", "text", "Jane Smith"],
+                  ["email", "Work email", "email", "jane@firm.com"],
+                  ["password", "Password (12+ chars)", "password", "••••••••••••"],
+                  ["firmName", "Firm name", "text", "Smith & Co CPA"],
+                ] as const
+              ).map(([key, label, type, ph]) => (
+                <div key={key}>
+                  <label className="mb-1 block text-sm font-medium text-slate-700">{label}</label>
+                  <input
+                    type={type}
+                    required
+                    minLength={key === "password" ? 12 : 2}
+                    value={reg[key]}
+                    onChange={(e) => setReg({ ...reg, [key]: e.target.value })}
+                    placeholder={ph}
+                    className="w-full rounded-2xl border border-slate-200 bg-[#F7FBFA] px-4 py-3 text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20"
+                  />
+                </div>
+              ))}
+              <button
+                type="submit"
+                disabled={loading}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-teal-700 py-3.5 text-sm font-semibold text-white shadow-lg hover:bg-teal-800 disabled:opacity-60"
+              >
+                <UserPlus className="h-4 w-4" />
+                {loading ? "Creating…" : "Create account"}
+              </button>
+            </form>
+          )}
+
+          <div className="relative my-5">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-slate-200" />
             </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-teal-700 py-3.5 text-sm font-semibold text-white shadow-lg shadow-teal-900/10 transition hover:bg-teal-800 disabled:opacity-60"
-            >
-              {loading ? "Signing in…" : "Enter workspace"}
-              {!loading && <ArrowRight className="h-4 w-4" />}
-            </button>
-          </form>
+            <div className="relative flex justify-center text-xs uppercase tracking-wide">
+              <span className="bg-white px-3 text-slate-400">or</span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleMicrosoft}
+            disabled={loading}
+            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white py-3.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50 disabled:opacity-60"
+          >
+            <svg className="h-5 w-5" viewBox="0 0 23 23" aria-hidden>
+              <path fill="#f35325" d="M1 1h10v10H1z" />
+              <path fill="#81bc06" d="M12 1h10v10H12z" />
+              <path fill="#05a6f0" d="M1 12h10v10H1z" />
+              <path fill="#ffba08" d="M12 12h10v10H12z" />
+            </svg>
+            Continue with Microsoft
+          </button>
+          <p className="mt-2 text-center text-[11px] text-slate-400">
+            Microsoft works when Azure AD is configured on the server.
+          </p>
         </div>
       </section>
 
