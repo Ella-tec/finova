@@ -1,79 +1,76 @@
 import { cn } from "@/lib/utils";
 
-/** Official Finova logo — transparent blue arc + growth bars (no black square). */
+/**
+ * Official Finova logo — exact brand mark from user SVG.
+ * Transparent background (no black square).
+ */
 export function Logo({
   className,
   size = 40,
-  withBg = false,
 }: {
   className?: string;
   size?: number;
-  /** Only use when you truly need a dark tile (rare). Default is transparent. */
-  withBg?: boolean;
 }) {
+  // Unique gradient IDs so multiple logos on one page don't clash
+  const uid = `fs-${size}`;
+
   return (
     <svg
       className={cn("shrink-0", className)}
       width={size}
       height={size}
-      viewBox="0 0 512 512"
+      viewBox="0 0 120 120"
       fill="none"
+      xmlns="http://www.w3.org/2000/svg"
       aria-hidden
     >
-      {withBg && (
-        <rect width="512" height="512" rx="96" fill="#0B1220" />
-      )}
-      {/* Outer blue arcs — match official Finova mark */}
-      <path
-        d="M90 280c20-120 110-200 230-210 40-4 80 6 110 28"
-        stroke="url(#finovaArc)"
-        strokeWidth="36"
-        strokeLinecap="round"
-        fill="none"
-      />
-      <path
-        d="M70 340c40 90 140 140 250 120 70-12 120-50 150-100"
-        stroke="url(#finovaArc2)"
-        strokeWidth="28"
-        strokeLinecap="round"
-        fill="none"
-        opacity="0.9"
-      />
-      <path
-        d="M120 420c-40-60-40-140 10-200"
-        stroke="#3B82F6"
-        strokeWidth="22"
-        strokeLinecap="round"
-        fill="none"
-        opacity="0.75"
-      />
-      {/* Chart bars */}
-      <rect x="230" y="280" width="36" height="100" rx="8" fill="#2563EB" />
-      <rect x="280" y="230" width="36" height="150" rx="8" fill="#14B8A6" />
-      <rect x="330" y="170" width="36" height="210" rx="8" fill="url(#finovaBar)" />
-      <path
-        d="M380 200c40 20 70 70 80 120"
-        stroke="#34D399"
-        strokeWidth="10"
-        strokeLinecap="round"
-        fill="none"
-      />
       <defs>
-        <linearGradient id="finovaArc" x1="90" y1="70" x2="430" y2="120">
-          <stop stopColor="#1E3A8A" />
-          <stop offset="0.5" stopColor="#2563EB" />
-          <stop offset="1" stopColor="#22D3EE" />
+        <linearGradient id={`${uid}-blue`} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#1d2d5c" />
+          <stop offset="45%" stopColor="#07649d" />
+          <stop offset="100%" stopColor="#00a4e4" />
         </linearGradient>
-        <linearGradient id="finovaArc2" x1="70" y1="420" x2="470" y2="280">
-          <stop stopColor="#1D4ED8" />
-          <stop offset="1" stopColor="#38BDF8" />
+        <linearGradient id={`${uid}-teal`} x1="0%" y1="50%" x2="100%" y2="50%">
+          <stop offset="0%" stopColor="#00a4e4" />
+          <stop offset="50%" stopColor="#36ac91" />
+          <stop offset="100%" stopColor="#6cb33f" />
         </linearGradient>
-        <linearGradient id="finovaBar" x1="330" y1="170" x2="366" y2="380">
-          <stop stopColor="#F59E0B" />
-          <stop offset="0.4" stopColor="#34D399" />
-          <stop offset="1" stopColor="#14B8A6" />
+        <linearGradient id={`${uid}-green`} x1="0%" y1="100%" x2="0%" y2="0%">
+          <stop offset="0%" stopColor="#36ac91" />
+          <stop offset="70%" stopColor="#6cb33f" />
+          <stop offset="100%" stopColor="#e57524" />
         </linearGradient>
       </defs>
+
+      {/* Outer blue arc */}
+      <path
+        d="M58 12C30 18 14 42 16 68c2 28 24 46 52 48 8 0 14-2 20-5-22 2-48-8-56-32-8-26 6-52 34-60-4-1-6-1-8 1z"
+        fill={`url(#${uid}-blue)`}
+      />
+
+      {/* Mid teal arc */}
+      <path
+        d="M28 78c8-22 28-36 52-34 18 2 32 12 38 28-10-18-30-28-50-24-16 3-28 14-34 28-2 1-4 2-6 2z"
+        fill={`url(#${uid}-teal)`}
+      />
+
+      {/* Lower blue arc */}
+      <path
+        d="M22 92c14-8 32-6 46 4 12 8 18 20 16 32-2-14-12-26-28-32-14-5-28-4-34-4z"
+        fill="#07649d"
+      />
+
+      {/* Growth bars */}
+      <rect x="68" y="58" width="10" height="28" rx="2" fill="#00a4e4" />
+      <rect x="80" y="42" width="10" height="44" rx="2" fill="#36ac91" />
+      <rect x="92" y="28" width="10" height="58" rx="2" fill={`url(#${uid}-green)`} />
+
+      {/* Soft purple accent */}
+      <path
+        d="M20 70c-2 8 0 16 4 22 2-10 6-18 8-24-4 0-8 0-12 2z"
+        fill="#6558b1"
+        opacity="0.55"
+      />
     </svg>
   );
 }
