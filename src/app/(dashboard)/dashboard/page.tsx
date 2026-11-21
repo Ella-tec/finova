@@ -97,10 +97,7 @@ function HeroImageCarousel() {
   }, [paused]);
 
   return (
-    <div
-      className="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]"
-      aria-hidden="true"
-    >
+    <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]" aria-hidden="true">
       {heroSlides.map((slide, index) => (
         <div
           key={slide.src}
@@ -110,6 +107,11 @@ function HeroImageCarousel() {
       ))}
       <div className="absolute inset-0 bg-gradient-to-r from-[#10234b]/95 via-[#102b50]/85 to-[#0c5360]/55" />
       <div className="absolute inset-0 bg-gradient-to-t from-[#10234b]/45 via-transparent to-[#10234b]/15" />
+      <div className="absolute bottom-5 right-6 z-20 flex items-center gap-2" aria-hidden="true">
+        {heroSlides.map((slide, index) => (
+          <span key={slide.src} className={`h-2.5 rounded-full transition-all duration-300 ${active === index ? "w-8 bg-white" : "w-2.5 bg-white/55"}`} />
+        ))}
+      </div>
     </div>
   );
 }
@@ -127,25 +129,15 @@ function HeroSlideControls() {
   }, [paused]);
 
   return (
-    <div className="absolute bottom-5 right-6 z-20 flex items-center gap-2" aria-label="Hero image slides">
+    <div className="absolute bottom-5 right-6 z-30 flex items-center gap-2" aria-label="Hero image slide controls">
       {heroSlides.map((slide, index) => (
-        <button
-          key={slide.src}
-          type="button"
-          aria-label={`Show slide ${index + 1}: ${slide.label}`}
-          aria-current={active === index ? "true" : undefined}
-          onClick={() => setActive(index)}
-          onFocus={() => setPaused(true)}
-          onBlur={() => setPaused(false)}
-          className={`h-2.5 rounded-full transition-all duration-300 ${active === index ? "w-8 bg-white" : "w-2.5 bg-white/55 hover:bg-white/90"}`}
-        />
+        <button key={slide.src} type="button" aria-label={`Show slide ${index + 1}: ${slide.label}`}
+          aria-current={active === index ? "true" : undefined} onClick={() => setActive(index)}
+          className={`h-2.5 rounded-full transition-all duration-300 ${active === index ? "w-8 bg-white" : "w-2.5 bg-white/55 hover:bg-white/90"}`} />
       ))}
-      <button
-        type="button"
+      <button type="button" onClick={() => setPaused((value) => !value)}
         aria-label={paused ? "Resume automatic slides" : "Pause automatic slides"}
-        onClick={() => setPaused((value) => !value)}
-        className="ml-2 rounded-full border border-white/35 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur hover:bg-white/20"
-      >
+        className="ml-2 rounded-full border border-white/35 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur hover:bg-white/20">
         {paused ? "Play" : "Pause"}
       </button>
     </div>
@@ -167,7 +159,7 @@ function WelcomeHero({ hello, firstName, today }: { hello: string; firstName: st
         <div className="finova-hero-trust"><ShieldCheck size={15} /> Organized workflows · Clear approvals · Audit-ready activity</div>
       </div>
       <div className="finova-hero-date relative z-10"><CalendarDays size={15} /> {today}</div>
-      <div className="absolute bottom-5 left-6 z-20 text-xs font-semibold tracking-wide text-white/75">{heroSlides[0].label}</div>
+      <div className="absolute bottom-5 left-6 z-20 text-xs font-semibold tracking-wide text-white/75">Financial insight · Audit confidence · Better decisions</div>
       <HeroSlideControls />
     </section>
   );
