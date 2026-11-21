@@ -1,28 +1,62 @@
 import { cn } from "@/lib/utils";
 
-/** Clean Finova mark — abstract ledger / growth bars (no RF letters). */
+/** Official Finova logo — blue arc + growth bars brand mark. */
 export function Logo({ className, size = 40 }: { className?: string; size?: number }) {
   return (
     <svg
-      className={className}
+      className={cn("shrink-0", className)}
       width={size}
       height={size}
-      viewBox="0 0 80 80"
+      viewBox="0 0 512 512"
       fill="none"
       aria-hidden
     >
-      <rect width="80" height="80" rx="20" fill="#0F766E" />
-      {/* Abstract chart bars — Finova finance mark */}
-      <rect x="18" y="42" width="10" height="18" rx="3" fill="white" opacity="0.95" />
-      <rect x="35" y="28" width="10" height="32" rx="3" fill="white" opacity="0.95" />
-      <rect x="52" y="18" width="10" height="42" rx="3" fill="#99F6E4" />
+      <rect width="512" height="512" rx="96" fill="#0B1220" />
+      {/* Outer blue arcs */}
       <path
-        d="M18 22h28"
-        stroke="white"
-        strokeWidth="3.5"
+        d="M90 280c20-120 110-200 230-210 40-4 80 6 110 28"
+        stroke="url(#finovaArc)"
+        strokeWidth="36"
         strokeLinecap="round"
-        opacity="0.9"
+        fill="none"
       />
+      <path
+        d="M70 340c40 90 140 140 250 120 70-12 120-50 150-100"
+        stroke="url(#finovaArc2)"
+        strokeWidth="28"
+        strokeLinecap="round"
+        fill="none"
+        opacity="0.85"
+      />
+      <path
+        d="M120 420c-40-60-40-140 10-200"
+        stroke="#3B82F6"
+        strokeWidth="22"
+        strokeLinecap="round"
+        fill="none"
+        opacity="0.7"
+      />
+      {/* Chart bars */}
+      <rect x="230" y="280" width="36" height="100" rx="8" fill="#2563EB" />
+      <rect x="280" y="230" width="36" height="150" rx="8" fill="#14B8A6" />
+      <rect x="330" y="170" width="36" height="210" rx="8" fill="url(#finovaBar)" />
+      <path d="M380 200c40 20 70 70 80 120" stroke="#34D399" strokeWidth="10" strokeLinecap="round" fill="none" />
+      <defs>
+        <linearGradient id="finovaArc" x1="90" y1="70" x2="430" y2="120">
+          <stop stopColor="#1E3A8A" />
+          <stop offset="0.5" stopColor="#2563EB" />
+          <stop offset="1" stopColor="#22D3EE" />
+        </linearGradient>
+        <linearGradient id="finovaArc2" x1="70" y1="420" x2="470" y2="280">
+          <stop stopColor="#1D4ED8" />
+          <stop offset="1" stopColor="#38BDF8" />
+        </linearGradient>
+        <linearGradient id="finovaBar" x1="330" y1="170" x2="366" y2="380">
+          <stop stopColor="#F59E0B" />
+          <stop offset="0.4" stopColor="#34D399" />
+          <stop offset="1" stopColor="#14B8A6" />
+        </linearGradient>
+      </defs>
     </svg>
   );
 }
