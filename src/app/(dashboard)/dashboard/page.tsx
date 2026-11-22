@@ -195,7 +195,7 @@ export default function DashboardPage() {
             >
               <div className="flex items-center justify-between gap-3">
                 <span className="finova-card-label">{label}</span>
-                <span className={`finova-icon-tile ${toneClasses(tone)}`}}>
+                <span className={`finova-icon-tile ${toneClasses(tone)}`}>
                   <Icon size={19} />
                 </span>
               </div>
@@ -232,7 +232,7 @@ export default function DashboardPage() {
                 </span>
                 <span className="flex shrink-0 items-center gap-3">
                   <small>Due {task.due}</small>
-                  <span className={`finova-status ${toneClasses(task.tone)}`}}>{task.status}</span>
+                  <span className={`finova-status ${toneClasses(task.tone)}`}>{task.status}</span>
                 </span>
               </Link>
             ))}
