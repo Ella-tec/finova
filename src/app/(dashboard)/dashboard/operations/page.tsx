@@ -87,7 +87,7 @@ const groups = [
 ] as const;
 
 const inputClass =
-  "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-50";
+  "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#1685bd] focus:ring-4 focus:ring-[#d9edfa]";
 const money = (n: number, c: string) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: c || "USD" }).format(n);
 
@@ -236,14 +236,14 @@ export default function OperationsPage() {
     <div className="mx-auto max-w-[1500px] space-y-6 pb-12">
       <header className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
         <div>
-          <Link href="/dashboard" className="mb-5 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-600 shadow-sm hover:border-teal-200 hover:bg-teal-50 hover:text-teal-800">
+          <Link href="/dashboard" className="mb-5 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-600 shadow-sm hover:border-[#00a4e4]/40 hover:bg-[#eaf4fb] hover:text-[#07649d]">
             <ArrowLeft className="h-4 w-4" /> Back to dashboard
           </Link>
-          <p className="text-xs font-bold uppercase tracking-[.18em] text-teal-700">Finova · Accounting</p>
+          <p className="text-xs font-bold uppercase tracking-[.18em] text-[#07649d]">Finova · Accounting</p>
           <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-900">Accounting</h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">Your finance workspace, organized into simple work areas.</p>
         </div>
-        <button onClick={() => void load()} disabled={loading} className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm hover:border-teal-200 hover:bg-teal-50">
+        <button onClick={() => void load()} disabled={loading} className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm hover:border-[#00a4e4]/40 hover:bg-[#eaf4fb]">
           <RefreshCw className={"h-4 w-4 " + (loading ? "animate-spin" : "")} /> Refresh records
         </button>
       </header>
@@ -253,8 +253,8 @@ export default function OperationsPage() {
           const Icon = g.icon;
           const activeTab = selected === g.id;
           return (
-            <button key={g.id} onClick={() => setSelected(g.id)} aria-pressed={activeTab} className={"flex min-h-[62px] items-center gap-3 rounded-xl px-3 py-3 text-left transition " + (activeTab ? "bg-teal-700 text-white shadow-sm" : "text-slate-600 hover:bg-teal-50 hover:text-teal-800")}>
-              <span className={"flex h-9 w-9 shrink-0 items-center justify-center rounded-lg " + (activeTab ? "bg-white/15" : "bg-teal-50 text-teal-700")}>
+            <button key={g.id} onClick={() => setSelected(g.id)} aria-pressed={activeTab} className={"flex min-h-[62px] items-center gap-3 rounded-xl px-3 py-3 text-left transition " + (activeTab ? "bg-[#1d2d5c] text-white shadow-sm" : "text-slate-600 hover:bg-teal-50 hover:text-[#1d2d5c]")}>
+              <span className={"flex h-9 w-9 shrink-0 items-center justify-center rounded-lg " + (activeTab ? "bg-white/15" : "bg-teal-50 text-[#07649d]")}>
                 <Icon className="h-5 w-5" />
               </span>
               <span className="min-w-0 flex-1">
@@ -277,7 +277,7 @@ export default function OperationsPage() {
         <div className="flex items-end justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-teal-700">{(() => { const Icon = group.icon; return <Icon className="h-5 w-5" />; })()}</span>
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-[#07649d]">{(() => { const Icon = group.icon; return <Icon className="h-5 w-5" />; })()}</span>
               <h2 className="text-xl font-semibold text-slate-900">{group.title}</h2>
             </div>
             <p className="mt-2 text-sm text-slate-500">{group.subtitle}</p>
@@ -286,7 +286,7 @@ export default function OperationsPage() {
         </div>
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {group.items.map((item) => (
-            <article key={item.kind} className="flex flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-teal-200 hover:shadow-md">
+            <article key={item.kind} className="flex flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-[#00a4e4]/40 hover:shadow-md">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h3 className="font-semibold text-slate-900">{item.label}</h3>
@@ -301,7 +301,7 @@ export default function OperationsPage() {
                   setAttachments([]);
                   setNotice(null);
                 }}
-                className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-teal-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-teal-800"
+                className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#1d2d5c] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#142044]"
               >
                 <Plus className="h-4 w-4" /> Create {item.label}
               </button>
@@ -338,7 +338,7 @@ export default function OperationsPage() {
               {filtered.map((r) => (
                 <tr
                   key={r.id}
-                  className="cursor-pointer hover:bg-teal-50/50"
+                  className="cursor-pointer hover:bg-[#f1f6fc]"
                   onClick={() => {
                     setActive({ area: r.area as Area, kind: r.kind, label: r.title, id: r.id, record: r });
                     setAttachments([]);
@@ -360,7 +360,7 @@ export default function OperationsPage() {
                     {(() => {
                       const attachment = getAttachment(r.payload);
                       return attachment ? (
-                        <a href={"/api/documents/" + attachment.documentId + "/file"} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg border border-teal-200 bg-teal-50 px-3 py-2 text-xs font-semibold text-teal-800 hover:bg-teal-100">
+                        <a href={"/api/documents/" + attachment.documentId + "/file"} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg border border-[#b9d8ee] bg-[#eef5fb] px-3 py-2 text-xs font-semibold text-[#1d2d5c] hover:bg-teal-100">
                           <FileText className="h-3.5 w-3.5" /> Open attachment
                         </a>
                       ) : (
@@ -430,10 +430,10 @@ export default function OperationsPage() {
                 <input name="dueDate" type="date" defaultValue={active.record?.dueDate?.slice(0, 10) || ""} className={inputClass + " mt-1"} />
               </label>
               {!active.id && (
-                <div className="sm:col-span-2 rounded-2xl border border-dashed border-teal-200 bg-teal-50/50 p-4">
+                <div className="sm:col-span-2 rounded-2xl border border-dashed border-[#b9d8ee] bg-[#eef5fb]/50 p-4">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-teal-700 shadow-sm">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#07649d] shadow-sm">
                         <Paperclip className="h-5 w-5" />
                       </span>
                       <div>
@@ -445,7 +445,7 @@ export default function OperationsPage() {
                       type="button"
                       onClick={() => attachmentInput.current?.click()}
                       disabled={uploadingFiles}
-                      className="inline-flex items-center gap-2 rounded-xl bg-teal-700 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-800 disabled:opacity-50"
+                      className="inline-flex items-center gap-2 rounded-xl bg-[#1d2d5c] px-4 py-2 text-sm font-semibold text-white hover:bg-[#142044] disabled:opacity-50"
                     >
                       <Paperclip className="h-4 w-4" />
                       {uploadingFiles ? "Uploading…" : "Attach files"}
@@ -462,7 +462,7 @@ export default function OperationsPage() {
                   {attachments.length > 0 && (
                     <ul className="mt-3 space-y-2">
                       {attachments.map((doc) => (
-                        <li key={doc.id} className="flex items-center justify-between rounded-xl border border-teal-100 bg-white px-3 py-2 text-sm">
+                        <li key={doc.id} className="flex items-center justify-between rounded-xl border border-[#d7e5f1] bg-white px-3 py-2 text-sm">
                           <span className="truncate font-medium text-slate-700">{doc.fileName}</span>
                           <button
                             type="button"
@@ -516,7 +516,7 @@ export default function OperationsPage() {
                   </button>
                 )}
                 {!active.id && (
-                  <button type="submit" disabled={saving} className="rounded-xl bg-teal-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-teal-800 disabled:opacity-60">
+                  <button type="submit" disabled={saving} className="rounded-xl bg-[#1d2d5c] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#142044] disabled:opacity-60">
                     {saving ? "Saving…" : "Save draft record"}
                   </button>
                 )}
