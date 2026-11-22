@@ -51,6 +51,41 @@ function isImage(mimeType: string) {
   return mimeType.startsWith("image/");
 }
 
+const sanitizerSlides = [
+  { src: "/images/sanitizer/finova-hero-1.jpg", label: "Secure document intake" },
+  { src: "/images/sanitizer/finova-hero-2.webp", label: "AI agent review" },
+  { src: "/images/sanitizer/finova-hero-3.jpg", label: "Audit verification" },
+  { src: "/images/sanitizer/finova-hero-4.jpg", label: "Audit process" },
+  { src: "/images/sanitizer/finova-hero-5.webp", label: "Financial analytics" },
+  { src: "/images/sanitizer/finova-hero-6.jpg", label: "Reporting workspace" },
+];
+
+function SanitizerHeroCarousel() {
+  const [active, setActive] = useState(0);
+  useEffect(() => {
+    const timer = window.setInterval(() => setActive((current) => (current + 1) % sanitizerSlides.length), 4500);
+    return () => window.clearInterval(timer);
+  }, []);
+  return (
+    <section className="relative isolate mb-6 min-h-[220px] overflow-hidden rounded-2xl bg-slate-900" aria-label="File Sanitizer introduction">
+      {sanitizerSlides.map((slide, index) => (
+        <div key={slide.src} aria-hidden="true" className={"absolute inset-0 bg-cover bg-center transition-opacity duration-1000 " + (index === active ? "opacity-100" : "opacity-0")} style={{ backgroundImage: 'url("' + slide.src + '")' }} />
+      ))}
+      <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-slate-950/75 via-slate-900/40 to-slate-900/10" />
+      <div className="relative z-10 flex min-h-[220px] flex-col justify-end p-6">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-white/75">Secure document workflow</p>
+        <h2 className="text-2xl font-semibold text-white drop-shadow">File Sanitizer</h2>
+        <p className="mt-1 max-w-xl text-sm text-white/90">Scan, clean, and prepare documents before AI analysis or client sharing.</p>
+        <div className="mt-4 flex items-center gap-2" role="group" aria-label="Choose File Sanitizer background slide">
+          {sanitizerSlides.map((slide, index) => (
+            <button key={slide.src} type="button" aria-label={"Show slide " + (index + 1) + ": " + slide.label} aria-pressed={active === index} onClick={() => setActive(index)} className={"h-2.5 rounded-full transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white " + (active === index ? "w-8 bg-white" : "w-2.5 bg-white/55 hover:bg-white/90")} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function SecuritySanitizerPage() {
   const inputRef = useRef<HTMLInputElement>(null);
   const previewUrlRef = useRef<string | null>(null);
@@ -204,6 +239,7 @@ export default function SecuritySanitizerPage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-8">
+      <SanitizerHeroCarousel />
       <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950">
         <strong>Important security boundary:</strong> these are lightweight file-type, metadata, and text-pattern checks. They are not antivirus, malware detonation, or content-disarm-and-reconstruction (CDR). Binary PDFs and images may receive metadata-only checks when no text layer is available. Do not treat a passing result as proof that a file is malware-free.
       </div>
