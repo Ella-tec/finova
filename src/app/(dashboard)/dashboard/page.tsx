@@ -95,17 +95,10 @@ function toneClasses(tone: string) {
 }
 
 const heroSlides = [
-<<<<<<< HEAD
   { src: "/images/finova-hero-1.png", label: "Audit workspace" },
   { src: "/images/finova-hero-2.png", label: "AI audit intelligence" },
   { src: "/images/finova-hero-3.png", label: "Future of accounting" },
   { src: "/images/finova-hero-4.png", label: "Financial analysis" },
-=======
-  { src: "/images/finova-hero-1.png", label: "Your financial workspace" },
-  { src: "/images/finova-hero-2.png", label: "AI audit intelligence" },
-  { src: "/images/finova-hero-3.png", label: "Future of accounting" },
-  { src: "/images/finova-hero-4.png", label: "Financial workspace" },
->>>>>>> 26fd50f608fcf05127beaa35e5c97924a4cafea3
   { src: "/images/finova-hero-5.png", label: "Audit confidence" },
 ];
 
@@ -116,10 +109,6 @@ function HeroImageCarousel() {
     const timer = window.setInterval(() => {
       setActive((current) => (current + 1) % heroSlides.length);
     }, 4500);
-<<<<<<< HEAD
-=======
-
->>>>>>> 26fd50f608fcf05127beaa35e5c97924a4cafea3
     return () => window.clearInterval(timer);
   }, []);
 
@@ -132,11 +121,7 @@ function HeroImageCarousel() {
         {heroSlides.map((slide, index) => (
           <div
             key={slide.src}
-<<<<<<< HEAD
             className={`absolute inset-0 bg-cover bg-center transition-opacity duration-[1200ms] ease-in-out ${
-=======
-            className={`absolute inset-0 bg-cover bg-center transition-opacity duration-[1400ms] ease-in-out ${
->>>>>>> 26fd50f608fcf05127beaa35e5c97924a4cafea3
               index === active ? "opacity-100" : "opacity-0"
             }`}
             style={{ backgroundImage: `url("${slide.src}")` }}
@@ -148,11 +133,7 @@ function HeroImageCarousel() {
 
       <div
         className="absolute bottom-5 right-6 z-30 flex items-center gap-2"
-<<<<<<< HEAD
         aria-label="Hero slides"
-=======
-        aria-label="Hero image slides"
->>>>>>> 26fd50f608fcf05127beaa35e5c97924a4cafea3
       >
         {heroSlides.map((slide, index) => (
           <button
@@ -162,13 +143,7 @@ function HeroImageCarousel() {
             aria-current={active === index ? "true" : undefined}
             onClick={() => setActive(index)}
             className={`h-2.5 rounded-full transition-all duration-300 ${
-<<<<<<< HEAD
               active === index ? "w-8 bg-white" : "w-2.5 bg-white/55 hover:bg-white/90"
-=======
-              active === index
-                ? "w-8 bg-white"
-                : "w-2.5 bg-white/55 hover:bg-white/90"
->>>>>>> 26fd50f608fcf05127beaa35e5c97924a4cafea3
             }`}
           />
         ))}
