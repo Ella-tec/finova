@@ -67,12 +67,12 @@ function SanitizerHeroCarousel() {
     return () => window.clearInterval(timer);
   }, []);
   return (
-    <section className="relative isolate min-h-[320px] overflow-hidden rounded-2xl bg-slate-900" aria-label="File Sanitizer introduction">
+    <section className="relative isolate min-h-[380px] w-full overflow-hidden rounded-none bg-slate-900 sm:min-h-[420px] lg:min-h-[460px]" aria-label="File Sanitizer introduction">
       {sanitizerSlides.map((slide, index) => (
         <div key={slide.src} aria-hidden="true" className={"absolute inset-0 bg-cover bg-center transition-opacity duration-1000 " + (index === active ? "opacity-100" : "opacity-0")} style={{ backgroundImage: 'url("' + slide.src + '")' }} />
       ))}
       <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-slate-950/75 via-slate-900/40 to-slate-900/10" />
-      <div className="relative z-10 flex min-h-[320px] flex-col justify-between p-6 sm:p-8">
+      <div className="relative z-10 flex min-h-[380px] flex-col justify-between p-7 sm:min-h-[420px] sm:p-10 lg:min-h-[460px] lg:p-12">
         <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-white/75">Secure document workflow</p>
         <h2 className="text-2xl font-semibold text-white drop-shadow">File Sanitizer</h2>
         <p className="mt-1 max-w-xl text-sm text-white/90">Scan, clean, and prepare documents before AI analysis or client sharing.</p>
@@ -238,7 +238,7 @@ export default function SecuritySanitizerPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-[1480px] space-y-6">
+    <div className="-mx-4 -mt-4 w-[calc(100%+2rem)] space-y-6 sm:-mx-5 sm:-mt-5 sm:w-[calc(100%+2.5rem)] lg:-mx-7 lg:-mt-7 lg:w-[calc(100%+3.5rem)]">
       <SanitizerHeroCarousel />
       <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950">
         <strong>Important security boundary:</strong> these are lightweight file-type, metadata, and text-pattern checks. They are not antivirus, malware detonation, or content-disarm-and-reconstruction (CDR). Binary PDFs and images may receive metadata-only checks when no text layer is available. Do not treat a passing result as proof that a file is malware-free.
