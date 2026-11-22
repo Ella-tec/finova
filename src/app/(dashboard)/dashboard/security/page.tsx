@@ -67,12 +67,12 @@ function SanitizerHeroCarousel() {
     return () => window.clearInterval(timer);
   }, []);
   return (
-    <section className="relative isolate mb-6 min-h-[220px] overflow-hidden rounded-2xl bg-slate-900" aria-label="File Sanitizer introduction">
+    <section className="relative isolate mb-5 min-h-[200px] overflow-hidden rounded-2xl bg-slate-900 shadow-lg sm:min-h-[230px] lg:min-h-[260px]" aria-label="File Sanitizer introduction">
       {sanitizerSlides.map((slide, index) => (
         <div key={slide.src} aria-hidden="true" className={"absolute inset-0 bg-cover bg-center transition-opacity duration-1000 " + (index === active ? "opacity-100" : "opacity-0")} style={{ backgroundImage: 'url("' + slide.src + '")' }} />
       ))}
       <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-slate-950/75 via-slate-900/40 to-slate-900/10" />
-      <div className="relative z-10 flex min-h-[380px] flex-col justify-between p-7 sm:min-h-[420px] sm:p-10 lg:min-h-[460px] lg:p-12">
+      <div className="relative z-10 flex min-h-[200px] flex-col justify-between p-6 sm:min-h-[230px] sm:p-8 lg:min-h-[260px] lg:p-9">
         <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-white/75">Secure document workflow</p>
         <h2 className="text-2xl font-semibold text-white drop-shadow">File Sanitizer</h2>
         <p className="mt-1 max-w-xl text-sm text-white/90">Scan, clean, and prepare documents before AI analysis or client sharing.</p>
@@ -100,6 +100,8 @@ export default function SecuritySanitizerPage() {
   const [documents, setDocuments] = useState<StoredDocument[]>([]);
   const [clients, setClients] = useState<ClientOption[]>([]);
   const [clientId, setClientId] = useState("");
+  const [loadingClients, setLoadingClients] = useState(true);
+  const [clientMessage, setClientMessage] = useState<string | null>(null);
   const [loadingDocuments, setLoadingDocuments] = useState(true);
   const [preview, setPreview] = useState<StoredDocument | null>(null);
   const [scanningId, setScanningId] = useState<string | null>(null);
@@ -126,27 +128,35 @@ export default function SecuritySanitizerPage() {
     }
   }, []);
 
-  useEffect(() => {
-    let active = true;
-    (async () => {
-      try {
-        const response = await fetch("/api/clients", { cache: "no-store" });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || "Could not load authorized clients.");
-        const rows: ClientOption[] = data.clients || [];
-        if (!active) return;
-        setClients(rows);
-        if (rows.length === 1) setClientId(rows[0].id);
-        else setLoadingDocuments(false);
-      } catch (err) {
-        if (active) {
-          setError(err instanceof Error ? err.message : "Could not load client workspaces.");
-          setLoadingDocuments(false);
-        }
+  const loadClients = useCallback(async () => {
+    setLoadingClients(true);
+    setClientMessage(null);
+    try {
+      const response = await fetch("/api/clients", { cache: "no-store" });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || "Could not load authorized client workspaces.");
+      const rows: ClientOption[] = Array.isArray(data.clients) ? data.clients : [];
+      setClients(rows);
+      if (rows.length === 0) {
+        setClientId("");
+        setDocuments([]);
+        setClientMessage("No client workspaces are assigned to this account. Ask your firm administrator to assign a client workspace, then select Refresh.");
+      } else {
+        setClientId((current) => current && rows.some((client) => client.id === current) ? current : rows.length === 1 ? rows[0].id : "");
+        setClientMessage(rows.length > 1 ? "Choose a client workspace to load its documents." : null);
       }
-    })();
-    return () => { active = false; };
+    } catch (err) {
+      setClients([]);
+      setClientId("");
+      setDocuments([]);
+      setClientMessage(err instanceof Error ? err.message : "Could not load client workspaces.");
+    } finally {
+      setLoadingClients(false);
+      setLoadingDocuments(false);
+    }
   }, []);
+
+  useEffect(() => { void loadClients(); }, [loadClients]);
 
   useEffect(() => {
     if (clientId) void loadDocuments(clientId);
@@ -180,6 +190,10 @@ export default function SecuritySanitizerPage() {
   };
 
   const runScan = async (file?: File | null) => {
+    if (file && file.size > 25 * 1024 * 1024) {
+      setError("This file is larger than 25 MB. Choose a smaller file.");
+      return;
+    }
     if (!file && !textHint.trim()) {
       setError("Choose a file or enter text before starting a scan.");
       return;
@@ -234,7 +248,7 @@ export default function SecuritySanitizerPage() {
   const tabs: { id: Tab; label: string; icon: typeof Eye }[] = [
     { id: "original", label: "Original file", icon: Eye },
     { id: "findings", label: "Scan findings", icon: ScanSearch },
-    { id: "sanitized", label: "Sanitized copy", icon: LockKeyhole },
+    { id: "sanitized", label: "Next steps", icon: LockKeyhole },
   ];
 
   return (
@@ -271,15 +285,18 @@ export default function SecuritySanitizerPage() {
                 {clients.map((client) => <option key={client.id} value={client.id}>{client.name}</option>)}
               </select>
             </label>
-            <button onClick={() => void loadDocuments(clientId)} disabled={!clientId || loadingDocuments} className="rounded-lg border px-3 py-2 text-sm disabled:opacity-50">
-              Refresh
+            <button type="button" onClick={() => void loadClients()} disabled={loadingClients} className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-sky-300 hover:bg-sky-50 disabled:cursor-wait disabled:opacity-60">
+              <RefreshCw className={cn("h-4 w-4", loadingClients && "animate-spin")} />
+              {loadingClients ? "Refreshing…" : "Refresh"}
             </button>
           </div>
         </div>
-        {loadingDocuments ? (
-          <p className="p-8 text-center text-sm text-slate-500">Loading authorized client documents…</p>
+        {loadingClients || loadingDocuments ? (
+          <p className="p-6 text-center text-sm text-slate-500">Loading authorized client workspaces and documents…</p>
         ) : !clientId ? (
-          <p className="p-8 text-center text-sm text-slate-500">Select an authorized client workspace to review its uploaded documents.</p>
+          <div className="m-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-5 text-amber-900" role="status">
+            {clientMessage || "Select an authorized client workspace to review its uploaded documents."}
+          </div>
         ) : documents.length === 0 ? (
           <p className="p-8 text-center text-sm text-slate-500">
             No uploaded documents found for this client. Upload files in Documents first.
