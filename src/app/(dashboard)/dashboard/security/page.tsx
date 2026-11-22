@@ -67,30 +67,19 @@ function SanitizerHeroCarousel() {
     return () => window.clearInterval(timer);
   }, []);
   return (
-    <section className="relative isolate min-h-[430px] overflow-hidden rounded-none bg-slate-950 sm:min-h-[470px] lg:min-h-[500px]" aria-label="File Sanitizer introduction">
+    <div className="absolute inset-0 -z-10 overflow-hidden bg-slate-950" aria-label="Rotating File Sanitizer background">
       {sanitizerSlides.map((slide, index) => (
         <div key={slide.src} aria-hidden="true" className={"absolute inset-0 bg-cover bg-center transition-opacity duration-1000 " + (index === active ? "opacity-100" : "opacity-0")} style={{ backgroundImage: 'url("' + slide.src + '")' }} />
       ))}
-      <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/65 to-slate-950/25" />
-      <div className="relative z-10 flex min-h-[430px] flex-col justify-between p-6 sm:min-h-[470px] sm:p-9 lg:min-h-[500px] lg:p-12">
-        <div className="max-w-4xl">
-          <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-cyan-100/90">Secure document workflow</p>
-          <h1 className="text-3xl font-bold tracking-tight text-white drop-shadow sm:text-4xl">File Sanitizer</h1>
-          <p className="mt-3 max-w-2xl text-base leading-7 text-white/90 sm:text-lg">Scan files before firm storage or AI — review file types, metadata, PII hints, classification, and sharing readiness.</p>
-          <div className="mt-6 max-w-4xl rounded-2xl border border-white/20 bg-slate-950/45 p-4 text-sm leading-6 text-white/90 shadow-lg backdrop-blur-md sm:p-5">
-            <strong className="text-white">Important security boundary:</strong> These are lightweight file-type, metadata, and text-pattern checks. They are not antivirus, malware detonation, or content-disarm-and-reconstruction (CDR). Binary PDFs and images may receive metadata-only checks when no text layer is available. A passing result does not prove that a file is malware-free.
-          </div>
-        </div>
-        <div className="mt-8 flex items-center gap-2" role="group" aria-label="Choose File Sanitizer background slide">
-          {sanitizerSlides.map((slide, index) => (
-            <button key={slide.src} type="button" aria-label={"Show slide " + (index + 1) + ": " + slide.label} aria-pressed={active === index} onClick={() => setActive(index)} className={"h-2.5 rounded-full transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white " + (active === index ? "w-8 bg-white" : "w-2.5 bg-white/55 hover:bg-white/90")} />
-          ))}
-        </div>
+      <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-br from-slate-950/90 via-slate-900/75 to-slate-950/85" />
+      <div className="absolute bottom-6 right-6 z-10 flex items-center gap-2" role="group" aria-label="Choose background image">
+        {sanitizerSlides.map((slide, index) => (
+          <button key={slide.src} type="button" aria-label={"Show background " + (index + 1) + ": " + slide.label} aria-pressed={active === index} onClick={() => setActive(index)} className={"h-2.5 rounded-full transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white " + (active === index ? "w-8 bg-white" : "w-2.5 bg-white/55 hover:bg-white")} />
+        ))}
       </div>
-    </section>
+    </div>
   );
 }
-
 export default function SecuritySanitizerPage() {
   const inputRef = useRef<HTMLInputElement>(null);
   const previewUrlRef = useRef<string | null>(null);
@@ -243,10 +232,18 @@ export default function SecuritySanitizerPage() {
   ];
 
   return (
-    <div className="-mx-4 -mt-4 w-[calc(100%+2rem)] space-y-6 sm:-mx-5 sm:-mt-5 sm:w-[calc(100%+2.5rem)] lg:-mx-7 lg:-mt-7 lg:w-[calc(100%+3.5rem)]">
+    <div className="relative isolate -mx-4 -mt-4 min-h-screen w-[calc(100%+2rem)] overflow-hidden space-y-7 bg-slate-950 p-4 sm:-mx-5 sm:-mt-5 sm:w-[calc(100%+2.5rem)] sm:p-6 lg:-mx-7 lg:-mt-7 lg:w-[calc(100%+3.5rem)] lg:p-8">
       <SanitizerHeroCarousel />
+      <header className="relative z-10 max-w-5xl space-y-3 py-5 text-white sm:py-8">
+        <p className="text-xs font-bold uppercase tracking-[0.22em] text-cyan-100">Secure document workflow</p>
+        <h1 className="text-3xl font-bold tracking-tight drop-shadow sm:text-4xl lg:text-5xl">File Sanitizer</h1>
+        <p className="max-w-3xl text-base leading-7 text-white/90 sm:text-lg">Scan files before firm storage or AI — review file types, metadata, PII hints, classification, and sharing readiness.</p>
+        <div className="max-w-4xl rounded-xl border border-white/20 bg-slate-950/45 p-4 text-sm leading-6 text-white/90 shadow-lg backdrop-blur-md">
+          <strong className="text-white">Important security boundary:</strong> These are lightweight file-type, metadata, and text-pattern checks. They are not antivirus, malware detonation, or content-disarm-and-reconstruction (CDR). Binary PDFs and images may receive metadata-only checks when no text layer is available. A passing result does not prove that a file is malware-free.
+        </div>
+      </header>
 
-      <section className="overflow-hidden rounded-2xl border border-slate-100/80 bg-white shadow-[0_12px_40px_-28px_rgba(15,23,42,0.35)]">
+      <section className="relative z-10 overflow-hidden rounded-2xl border border-white/25 bg-white/90 shadow-2xl backdrop-blur-xl">
         <div className="flex flex-wrap items-center justify-between gap-4 px-5 py-5 sm:px-7">
           <div>
             <h2 className="font-semibold text-slate-900">Documents already uploaded</h2>
@@ -648,7 +645,7 @@ export default function SecuritySanitizerPage() {
                 </div>
               )}
 
-              <div className="overflow-hidden rounded-xl border">
+              <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
                 <div className="border-b bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-800">
                   Detailed findings
                 </div>
