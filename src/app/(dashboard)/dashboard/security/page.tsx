@@ -67,12 +67,12 @@ function SanitizerHeroCarousel() {
     return () => window.clearInterval(timer);
   }, []);
   return (
-    <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden bg-slate-950" aria-label="Rotating File Sanitizer background">
+    <div className="absolute inset-0 z-0 overflow-hidden bg-slate-950" aria-label="Rotating File Sanitizer background">
       {sanitizerSlides.map((slide, index) => (
         <div key={slide.src} aria-hidden="true" className={"absolute inset-0 bg-cover bg-center transition-opacity duration-1000 " + (index === active ? "opacity-100" : "opacity-0")} style={{ backgroundImage: 'url("' + slide.src + '")' }} />
       ))}
-      <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-br from-slate-950/90 via-slate-900/75 to-slate-950/85" />
-      <div className="absolute bottom-6 right-6 z-10 flex items-center gap-2" role="group" aria-label="Choose background image">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-br from-slate-950/85 via-slate-900/65 to-slate-950/80" />
+      <div className="absolute bottom-6 right-6 z-20 flex items-center gap-2" role="group" aria-label="Choose background image">
         {sanitizerSlides.map((slide, index) => (
           <button key={slide.src} type="button" aria-label={"Show background " + (index + 1) + ": " + slide.label} aria-pressed={active === index} onClick={() => setActive(index)} className={"h-2.5 rounded-full transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white " + (active === index ? "w-8 bg-white" : "w-2.5 bg-white/55 hover:bg-white")} />
         ))}
@@ -234,6 +234,7 @@ export default function SecuritySanitizerPage() {
   return (
     <div className="relative isolate -mx-4 -mt-4 min-h-screen w-[calc(100%+2rem)] overflow-hidden space-y-7 bg-transparent p-4 sm:-mx-5 sm:-mt-5 sm:w-[calc(100%+2.5rem)] sm:p-6 lg:-mx-7 lg:-mt-7 lg:w-[calc(100%+3.5rem)] lg:p-8">
       <SanitizerHeroCarousel />
+      <section className="relative z-10 space-y-5 rounded-[1.75rem] border border-white/25 bg-slate-950/10 p-3 shadow-2xl backdrop-blur-[2px] sm:space-y-6 sm:p-5 lg:p-6" aria-label="File Sanitizer hero workspace">
       <header className="relative z-10 max-w-none space-y-3 rounded-2xl border border-white/20 bg-slate-950/35 px-5 py-5 text-white shadow-xl backdrop-blur-md sm:px-8 sm:py-7">
         <p className="text-xs font-bold uppercase tracking-[0.22em] text-cyan-100">Secure document workflow</p>
         <h1 className="text-3xl font-bold tracking-tight drop-shadow sm:text-4xl lg:text-5xl">File Sanitizer</h1>
@@ -712,6 +713,7 @@ export default function SecuritySanitizerPage() {
           )}
         </section>
       )}
+      </section>
     </div>
   );
 }
