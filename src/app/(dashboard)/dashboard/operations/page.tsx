@@ -253,13 +253,13 @@ export default function OperationsPage() {
           const Icon = g.icon;
           const activeTab = selected === g.id;
           return (
-            <button key={g.id} onClick={() => setSelected(g.id)} aria-pressed={activeTab} className={"flex min-h-[62px] items-center gap-3 rounded-xl px-3 py-3 text-left transition " + (activeTab ? "bg-[#1d2d5c] text-white shadow-sm" : "text-slate-600 hover:bg-teal-50 hover:text-[#1d2d5c]")}>
-              <span className={"flex h-9 w-9 shrink-0 items-center justify-center rounded-lg " + (activeTab ? "bg-white/15" : "bg-teal-50 text-[#07649d]")}>
+            <button key={g.id} onClick={() => setSelected(g.id)} aria-pressed={activeTab} className={"flex min-h-[62px] items-center gap-3 rounded-xl px-3 py-3 text-left transition " + (activeTab ? "bg-[#1d2d5c] text-white shadow-sm" : "text-slate-600 hover:bg-[#eaf4fb] hover:text-[#1d2d5c]")}>
+              <span className={"flex h-9 w-9 shrink-0 items-center justify-center rounded-lg " + (activeTab ? "bg-white/15" : "bg-[#eaf4fb] text-[#07649d]")}>
                 <Icon className="h-5 w-5" />
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-semibold">{g.title}</span>
-                <span className={"mt-0.5 block text-xs " + (activeTab ? "text-teal-50" : "text-slate-400")}>{counts(g.id)} saved</span>
+                <span className={"mt-0.5 block text-xs " + (activeTab ? "text-[#e6f4fc]" : "text-slate-400")}>{counts(g.id)} saved</span>
               </span>
             </button>
           );
@@ -277,7 +277,7 @@ export default function OperationsPage() {
         <div className="flex items-end justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-[#07649d]">{(() => { const Icon = group.icon; return <Icon className="h-5 w-5" />; })()}</span>
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#eaf4fb] text-[#07649d]">{(() => { const Icon = group.icon; return <Icon className="h-5 w-5" />; })()}</span>
               <h2 className="text-xl font-semibold text-slate-900">{group.title}</h2>
             </div>
             <p className="mt-2 text-sm text-slate-500">{group.subtitle}</p>
@@ -360,7 +360,7 @@ export default function OperationsPage() {
                     {(() => {
                       const attachment = getAttachment(r.payload);
                       return attachment ? (
-                        <a href={"/api/documents/" + attachment.documentId + "/file"} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg border border-[#b9d8ee] bg-[#eef5fb] px-3 py-2 text-xs font-semibold text-[#1d2d5c] hover:bg-teal-100">
+                        <a href={"/api/documents/" + attachment.documentId + "/file"} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg border border-[#b9d8ee] bg-[#eef5fb] px-3 py-2 text-xs font-semibold text-[#1d2d5c] hover:bg-[#dceefa]">
                           <FileText className="h-3.5 w-3.5" /> Open attachment
                         </a>
                       ) : (
