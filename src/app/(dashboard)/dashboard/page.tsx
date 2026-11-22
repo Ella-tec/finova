@@ -24,8 +24,6 @@ import {
 
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
-
 const financialGroups = [
   {
     label: "Receivables & Payables",
@@ -93,61 +91,24 @@ function toneClasses(tone: string) {
   return tones[tone] || tones.slate;
 }
 
-const heroSlides = [
-  { src: "/images/finova-hero-1.png", label: "Audit workspace" },
-  { src: "/images/finova-hero-2.png", label: "AI audit intelligence" },
-  { src: "/images/finova-hero-3.png", label: "Future of accounting" },
-  { src: "/images/finova-hero-4.png", label: "Financial analysis" },
-  { src: "/images/finova-hero-5.png", label: "Audit confidence" },
-];
-
-function HeroImageCarousel() {
-  const [active, setActive] = useState(0);
-
-  useEffect(() => {
-    const timer = window.setInterval(() => {
-      setActive((current) => (current + 1) % heroSlides.length);
-    }, 4500);
-    return () => window.clearInterval(timer);
-  }, []);
-
+function HeroBackgroundVideo() {
   return (
-    <>
-      <div
-        className="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]"
-        aria-hidden="true"
+    <div
+      className="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]"
+      aria-hidden="true"
+    >
+      <video
+        className="absolute inset-0 h-full w-full object-cover"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
       >
-        {heroSlides.map((slide, index) => (
-          <div
-            key={slide.src}
-            className={`absolute inset-0 bg-cover bg-center transition-opacity duration-[1200ms] ease-in-out ${
-              index === active ? "opacity-100" : "opacity-0"
-            }`}
-            style={{ backgroundImage: `url("${slide.src}")` }}
-          />
-        ))}
-        {/* Soft left shade only — image stays clear */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0b1f3a]/50 via-[#0b1f3a]/15 to-transparent" />
-      </div>
-
-      <div
-        className="absolute bottom-5 right-6 z-30 flex items-center gap-2"
-        aria-label="Hero slides"
-      >
-        {heroSlides.map((slide, index) => (
-          <button
-            key={slide.src}
-            type="button"
-            aria-label={`Show slide ${index + 1}: ${slide.label}`}
-            aria-current={active === index ? "true" : undefined}
-            onClick={() => setActive(index)}
-            className={`h-2.5 rounded-full transition-all duration-300 ${
-              active === index ? "w-8 bg-white" : "w-2.5 bg-white/55 hover:bg-white/90"
-            }`}
-          />
-        ))}
-      </div>
-    </>
+        <source src="/videos/finova-hero-video.webm" type="video/webm" />
+      </video>
+      <div className="absolute inset-0 bg-gradient-to-r from-[#0b1f3a]/60 via-[#0b1f3a]/25 to-transparent" />
+    </div>
   );
 }
 
@@ -162,7 +123,7 @@ function WelcomeHero({
 }) {
   return (
     <section className="finova-welcome-hero relative isolate min-h-[320px] overflow-hidden rounded-2xl">
-      <HeroImageCarousel />
+      <HeroBackgroundVideo />
 
       <div className="relative z-10 flex min-h-[320px] flex-col justify-between p-6 sm:p-8">
         <div className="flex items-start justify-between gap-4">
@@ -234,7 +195,7 @@ export default function DashboardPage() {
             >
               <div className="flex items-center justify-between gap-3">
                 <span className="finova-card-label">{label}</span>
-                <span className={`finova-icon-tile ${toneClasses(tone)}`}>
+                <span className={`finova-icon-tile ${toneClasses(tone)}`}}>
                   <Icon size={19} />
                 </span>
               </div>
@@ -271,7 +232,7 @@ export default function DashboardPage() {
                 </span>
                 <span className="flex shrink-0 items-center gap-3">
                   <small>Due {task.due}</small>
-                  <span className={`finova-status ${toneClasses(task.tone)}`}>{task.status}</span>
+                  <span className={`finova-status ${toneClasses(task.tone)}`}}>{task.status}</span>
                 </span>
               </Link>
             ))}
