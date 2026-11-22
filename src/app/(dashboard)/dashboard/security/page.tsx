@@ -234,7 +234,7 @@ export default function SecuritySanitizerPage() {
   return (
     <div className="relative isolate -mx-4 -mt-4 min-h-screen w-[calc(100%+2rem)] overflow-hidden space-y-7 bg-transparent p-4 sm:-mx-5 sm:-mt-5 sm:w-[calc(100%+2.5rem)] sm:p-6 lg:-mx-7 lg:-mt-7 lg:w-[calc(100%+3.5rem)] lg:p-8">
       <SanitizerHeroCarousel />
-      <header className="relative z-10 max-w-5xl space-y-3 rounded-2xl border border-white/15 bg-slate-950/20 px-5 py-5 text-white shadow-lg backdrop-blur-sm sm:px-8 sm:py-8">
+      <header className="relative z-10 max-w-none space-y-3 rounded-2xl border border-white/20 bg-slate-950/35 px-5 py-5 text-white shadow-xl backdrop-blur-md sm:px-8 sm:py-7">
         <p className="text-xs font-bold uppercase tracking-[0.22em] text-cyan-100">Secure document workflow</p>
         <h1 className="text-3xl font-bold tracking-tight drop-shadow sm:text-4xl lg:text-5xl">File Sanitizer</h1>
         <p className="max-w-3xl text-base leading-7 text-white/90 sm:text-lg">Scan files before firm storage or AI — review file types, metadata, PII hints, classification, and sharing readiness.</p>
@@ -243,7 +243,7 @@ export default function SecuritySanitizerPage() {
         </div>
       </header>
 
-      <section className="relative z-10 overflow-hidden rounded-2xl border border-white/30 bg-white/80 shadow-2xl backdrop-blur-xl">
+      <section className="relative z-10 overflow-hidden rounded-2xl border border-white/40 bg-white/75 shadow-2xl backdrop-blur-xl">
         <div className="flex flex-wrap items-center justify-between gap-4 px-5 py-5 sm:px-7">
           <div>
             <h2 className="font-semibold text-slate-900">Documents already uploaded</h2>
@@ -377,7 +377,7 @@ export default function SecuritySanitizerPage() {
         </div>
       )}
 
-      <div className="space-y-4 rounded-xl border bg-white p-6 shadow-sm">
+      <div className="relative z-10 space-y-4 rounded-2xl border border-white/40 bg-white/75 p-5 shadow-2xl backdrop-blur-xl sm:p-6">
         <div
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => {
@@ -391,7 +391,7 @@ export default function SecuritySanitizerPage() {
           }}
           role="button"
           tabIndex={0}
-          className="cursor-pointer rounded-xl border-2 border-dashed border-slate-300 bg-slate-50/70 px-5 py-9 text-center transition hover:border-emerald-400 hover:bg-emerald-50/40"
+          className="cursor-pointer rounded-xl border-2 border-dashed border-emerald-300 bg-white/80 px-5 py-9 text-center shadow-inner transition hover:border-emerald-400 hover:bg-white/95"
         >
           <Upload className="mx-auto mb-3 h-10 w-10 text-slate-400" />
           <p className="font-semibold text-slate-800">Drop a file here or choose a file to scan</p>
@@ -465,7 +465,7 @@ export default function SecuritySanitizerPage() {
       </div>
 
       {result && (
-        <section className="overflow-hidden rounded-2xl border bg-white shadow-sm">
+        <section className="relative z-10 overflow-hidden rounded-2xl border border-white/40 bg-white/80 shadow-2xl backdrop-blur-xl">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4">
             <div>
               <h2 className="font-semibold text-slate-900">File review workspace</h2>
