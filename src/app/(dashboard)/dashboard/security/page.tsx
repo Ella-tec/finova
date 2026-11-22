@@ -67,7 +67,7 @@ function SanitizerHeroCarousel() {
     return () => window.clearInterval(timer);
   }, []);
   return (
-    <div className="absolute inset-0 -z-10 overflow-hidden bg-slate-950" aria-label="Rotating File Sanitizer background">
+    <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden bg-slate-950" aria-label="Rotating File Sanitizer background">
       {sanitizerSlides.map((slide, index) => (
         <div key={slide.src} aria-hidden="true" className={"absolute inset-0 bg-cover bg-center transition-opacity duration-1000 " + (index === active ? "opacity-100" : "opacity-0")} style={{ backgroundImage: 'url("' + slide.src + '")' }} />
       ))}
@@ -232,9 +232,9 @@ export default function SecuritySanitizerPage() {
   ];
 
   return (
-    <div className="relative isolate -mx-4 -mt-4 min-h-screen w-[calc(100%+2rem)] overflow-hidden space-y-7 bg-slate-950 p-4 sm:-mx-5 sm:-mt-5 sm:w-[calc(100%+2.5rem)] sm:p-6 lg:-mx-7 lg:-mt-7 lg:w-[calc(100%+3.5rem)] lg:p-8">
+    <div className="relative isolate -mx-4 -mt-4 min-h-screen w-[calc(100%+2rem)] overflow-hidden space-y-7 bg-transparent p-4 sm:-mx-5 sm:-mt-5 sm:w-[calc(100%+2.5rem)] sm:p-6 lg:-mx-7 lg:-mt-7 lg:w-[calc(100%+3.5rem)] lg:p-8">
       <SanitizerHeroCarousel />
-      <header className="relative z-10 max-w-5xl space-y-3 py-5 text-white sm:py-8">
+      <header className="relative z-10 max-w-5xl space-y-3 rounded-2xl border border-white/15 bg-slate-950/20 px-5 py-5 text-white shadow-lg backdrop-blur-sm sm:px-8 sm:py-8">
         <p className="text-xs font-bold uppercase tracking-[0.22em] text-cyan-100">Secure document workflow</p>
         <h1 className="text-3xl font-bold tracking-tight drop-shadow sm:text-4xl lg:text-5xl">File Sanitizer</h1>
         <p className="max-w-3xl text-base leading-7 text-white/90 sm:text-lg">Scan files before firm storage or AI — review file types, metadata, PII hints, classification, and sharing readiness.</p>
@@ -243,7 +243,7 @@ export default function SecuritySanitizerPage() {
         </div>
       </header>
 
-      <section className="relative z-10 overflow-hidden rounded-2xl border border-white/25 bg-white/90 shadow-2xl backdrop-blur-xl">
+      <section className="relative z-10 overflow-hidden rounded-2xl border border-white/30 bg-white/80 shadow-2xl backdrop-blur-xl">
         <div className="flex flex-wrap items-center justify-between gap-4 px-5 py-5 sm:px-7">
           <div>
             <h2 className="font-semibold text-slate-900">Documents already uploaded</h2>
