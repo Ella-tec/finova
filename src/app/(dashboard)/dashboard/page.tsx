@@ -16,7 +16,6 @@ import {
   Wallet,
   DollarSign,
   BookOpen,
-  ShieldCheck,
   Landmark,
   Scale,
   Activity,
@@ -127,8 +126,8 @@ function HeroImageCarousel() {
             style={{ backgroundImage: `url("${slide.src}")` }}
           />
         ))}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0b1f3a]/80 via-[#0b1f3a]/45 to-[#0b1f3a]/20" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0b1f3a]/40 via-transparent to-[#0b1f3a]/10" />
+        {/* Soft left shade only — image stays clear */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0b1f3a]/50 via-[#0b1f3a]/15 to-transparent" />
       </div>
 
       <div
@@ -162,47 +161,29 @@ function WelcomeHero({
   today: string;
 }) {
   return (
-    <section className="finova-welcome-hero relative isolate min-h-[340px] overflow-hidden">
+    <section className="finova-welcome-hero relative isolate min-h-[320px] overflow-hidden rounded-2xl">
       <HeroImageCarousel />
 
-      <div className="finova-welcome-copy relative z-10 max-w-[760px]">
-        <div className="finova-eyebrow">
-          <span className="finova-eyebrow-dot" />
-          YOUR FINANCIAL WORKSPACE
+      <div className="relative z-10 flex min-h-[320px] flex-col justify-between p-6 sm:p-8">
+        <div className="flex items-start justify-between gap-4">
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-xs font-semibold tracking-wide text-white backdrop-blur-sm">
+            <span className="h-2 w-2 rounded-full bg-emerald-300" />
+            YOUR FINANCIAL WORKSPACE
+          </div>
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm">
+            <CalendarDays size={14} />
+            {today}
+          </div>
         </div>
 
-        <h1>
-          {hello}, {firstName}
-          <span>.</span>
-        </h1>
-
-        <p>
-          Bring your accounting, reporting, and client work together. See what
-          needs attention and move the business forward with confidence.
-        </p>
-
-        <div className="finova-hero-actions">
-          <Link href="/dashboard/operations#accounting" className="finova-button-primary">
-            Open accounting <ArrowRight size={16} />
-          </Link>
-          <Link href="/dashboard/reporting" className="finova-button-quiet">
-            Explore reports <ArrowUpRight size={16} />
-          </Link>
+        <div className="max-w-lg">
+          <h1 className="text-3xl font-semibold tracking-tight text-white drop-shadow-md sm:text-4xl">
+            {hello}, {firstName}.
+          </h1>
+          <p className="mt-2 text-sm text-white/90 drop-shadow sm:text-base">
+            Accounting, reporting, and client work in one place.
+          </p>
         </div>
-
-        <div className="finova-hero-trust">
-          <ShieldCheck size={15} />
-          Organized workflows · Clear approvals · Audit-ready activity
-        </div>
-      </div>
-
-      <div className="finova-hero-date relative z-10">
-        <CalendarDays size={15} />
-        {today}
-      </div>
-
-      <div className="absolute bottom-5 left-6 z-20 text-xs font-semibold tracking-wide text-white/75">
-        Financial insight · Audit confidence · Better decisions
       </div>
     </section>
   );
@@ -390,4 +371,4 @@ export default function DashboardPage() {
       </section>
     </div>
   );
-}
+}s
