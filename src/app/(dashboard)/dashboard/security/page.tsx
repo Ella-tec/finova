@@ -67,19 +67,25 @@ function SanitizerHeroCarousel() {
     return () => window.clearInterval(timer);
   }, []);
   return (
-    <div className="absolute inset-0 z-0 overflow-hidden bg-slate-950" aria-label="Rotating File Sanitizer background">
+    <section className="relative isolate mb-6 min-h-[220px] overflow-hidden rounded-2xl bg-slate-900" aria-label="File Sanitizer introduction">
       {sanitizerSlides.map((slide, index) => (
         <div key={slide.src} aria-hidden="true" className={"absolute inset-0 bg-cover bg-center transition-opacity duration-1000 " + (index === active ? "opacity-100" : "opacity-0")} style={{ backgroundImage: 'url("' + slide.src + '")' }} />
       ))}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-br from-slate-950/85 via-slate-900/65 to-slate-950/80" />
-      <div className="absolute bottom-6 right-6 z-20 flex items-center gap-2" role="group" aria-label="Choose background image">
-        {sanitizerSlides.map((slide, index) => (
-          <button key={slide.src} type="button" aria-label={"Show background " + (index + 1) + ": " + slide.label} aria-pressed={active === index} onClick={() => setActive(index)} className={"h-2.5 rounded-full transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white " + (active === index ? "w-8 bg-white" : "w-2.5 bg-white/55 hover:bg-white")} />
-        ))}
+      <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-slate-950/75 via-slate-900/40 to-slate-900/10" />
+      <div className="relative z-10 flex min-h-[380px] flex-col justify-between p-7 sm:min-h-[420px] sm:p-10 lg:min-h-[460px] lg:p-12">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-white/75">Secure document workflow</p>
+        <h2 className="text-2xl font-semibold text-white drop-shadow">File Sanitizer</h2>
+        <p className="mt-1 max-w-xl text-sm text-white/90">Scan, clean, and prepare documents before AI analysis or client sharing.</p>
+        <div className="mt-4 flex items-center gap-2" role="group" aria-label="Choose File Sanitizer background slide">
+          {sanitizerSlides.map((slide, index) => (
+            <button key={slide.src} type="button" aria-label={"Show slide " + (index + 1) + ": " + slide.label} aria-pressed={active === index} onClick={() => setActive(index)} className={"h-2.5 rounded-full transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white " + (active === index ? "w-8 bg-white" : "w-2.5 bg-white/55 hover:bg-white/90")} />
+          ))}
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
+
 export default function SecuritySanitizerPage() {
   const inputRef = useRef<HTMLInputElement>(null);
   const previewUrlRef = useRef<string | null>(null);
@@ -232,20 +238,25 @@ export default function SecuritySanitizerPage() {
   ];
 
   return (
-    <div className="relative isolate -mx-4 -mt-4 min-h-screen w-[calc(100%+2rem)] overflow-hidden space-y-7 bg-transparent p-4 sm:-mx-5 sm:-mt-5 sm:w-[calc(100%+2.5rem)] sm:p-6 lg:-mx-7 lg:-mt-7 lg:w-[calc(100%+3.5rem)] lg:p-8">
+    <div className="-mx-4 -mt-4 w-[calc(100%+2rem)] space-y-6 sm:-mx-5 sm:-mt-5 sm:w-[calc(100%+2.5rem)] lg:-mx-7 lg:-mt-7 lg:w-[calc(100%+3.5rem)]">
       <SanitizerHeroCarousel />
-      <section className="relative z-10 space-y-5 rounded-[1.75rem] border border-white/25 bg-slate-950/10 p-3 shadow-2xl backdrop-blur-[2px] sm:space-y-6 sm:p-5 lg:p-6" aria-label="File Sanitizer hero workspace">
-      <header className="relative z-10 max-w-none space-y-3 rounded-2xl border border-white/20 bg-slate-950/35 px-5 py-5 text-white shadow-xl backdrop-blur-md sm:px-8 sm:py-7">
-        <p className="text-xs font-bold uppercase tracking-[0.22em] text-cyan-100">Secure document workflow</p>
-        <h1 className="text-3xl font-bold tracking-tight drop-shadow sm:text-4xl lg:text-5xl">File Sanitizer</h1>
-        <p className="max-w-3xl text-base leading-7 text-white/90 sm:text-lg">Scan files before firm storage or AI — review file types, metadata, PII hints, classification, and sharing readiness.</p>
-        <div className="max-w-4xl rounded-xl border border-white/20 bg-slate-950/45 p-4 text-sm leading-6 text-white/90 shadow-lg backdrop-blur-md">
-          <strong className="text-white">Important security boundary:</strong> These are lightweight file-type, metadata, and text-pattern checks. They are not antivirus, malware detonation, or content-disarm-and-reconstruction (CDR). Binary PDFs and images may receive metadata-only checks when no text layer is available. A passing result does not prove that a file is malware-free.
-        </div>
-      </header>
+      <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950">
+        <strong>Important security boundary:</strong> these are lightweight file-type, metadata, and text-pattern checks. They are not antivirus, malware detonation, or content-disarm-and-reconstruction (CDR). Binary PDFs and images may receive metadata-only checks when no text layer is available. Do not treat a passing result as proof that a file is malware-free.
+      </div>
 
-      <section className="relative z-10 overflow-hidden rounded-2xl border border-white/40 bg-white/75 shadow-2xl backdrop-blur-xl">
-        <div className="flex flex-wrap items-center justify-between gap-4 px-5 py-5 sm:px-7">
+      <div>
+        <h1 className="flex items-center gap-2 text-2xl font-bold text-slate-900">
+          <Shield className="h-7 w-7 text-isaca-medium" />
+          File Sanitizer
+        </h1>
+        <p className="mt-1 text-slate-600">
+          Scan files before firm storage or AI — malware-style type checks, PII hints,
+          classification, public-AI gate
+        </p>
+      </div>
+
+      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="flex items-center justify-between border-b px-5 py-4">
           <div>
             <h2 className="font-semibold text-slate-900">Documents already uploaded</h2>
             <p className="text-sm text-slate-500">
@@ -378,7 +389,7 @@ export default function SecuritySanitizerPage() {
         </div>
       )}
 
-      <div className="relative z-10 space-y-4 rounded-2xl border border-white/40 bg-white/75 p-5 shadow-2xl backdrop-blur-xl sm:p-6">
+      <div className="space-y-4 rounded-xl border bg-white p-6 shadow-sm">
         <div
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => {
@@ -392,7 +403,7 @@ export default function SecuritySanitizerPage() {
           }}
           role="button"
           tabIndex={0}
-          className="cursor-pointer rounded-xl border-2 border-dashed border-emerald-300 bg-white/80 px-5 py-9 text-center shadow-inner transition hover:border-emerald-400 hover:bg-white/95"
+          className="cursor-pointer rounded-xl border-2 border-dashed border-slate-300 bg-slate-50/70 px-5 py-9 text-center transition hover:border-emerald-400 hover:bg-emerald-50/40"
         >
           <Upload className="mx-auto mb-3 h-10 w-10 text-slate-400" />
           <p className="font-semibold text-slate-800">Drop a file here or choose a file to scan</p>
@@ -466,7 +477,7 @@ export default function SecuritySanitizerPage() {
       </div>
 
       {result && (
-        <section className="relative z-10 overflow-hidden rounded-2xl border border-white/40 bg-white/80 shadow-2xl backdrop-blur-xl">
+        <section className="overflow-hidden rounded-2xl border bg-white shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4">
             <div>
               <h2 className="font-semibold text-slate-900">File review workspace</h2>
@@ -646,7 +657,7 @@ export default function SecuritySanitizerPage() {
                 </div>
               )}
 
-              <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+              <div className="overflow-hidden rounded-xl border">
                 <div className="border-b bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-800">
                   Detailed findings
                 </div>
@@ -713,7 +724,6 @@ export default function SecuritySanitizerPage() {
           )}
         </section>
       )}
-      </section>
     </div>
   );
 }
