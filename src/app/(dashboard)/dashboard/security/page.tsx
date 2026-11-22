@@ -67,16 +67,21 @@ function SanitizerHeroCarousel() {
     return () => window.clearInterval(timer);
   }, []);
   return (
-    <section className="relative isolate mb-6 min-h-[220px] overflow-hidden rounded-2xl bg-slate-900" aria-label="File Sanitizer introduction">
+    <section className="relative isolate min-h-[430px] overflow-hidden rounded-none bg-slate-950 sm:min-h-[470px] lg:min-h-[500px]" aria-label="File Sanitizer introduction">
       {sanitizerSlides.map((slide, index) => (
         <div key={slide.src} aria-hidden="true" className={"absolute inset-0 bg-cover bg-center transition-opacity duration-1000 " + (index === active ? "opacity-100" : "opacity-0")} style={{ backgroundImage: 'url("' + slide.src + '")' }} />
       ))}
-      <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-slate-950/75 via-slate-900/40 to-slate-900/10" />
-      <div className="relative z-10 flex min-h-[380px] flex-col justify-between p-7 sm:min-h-[420px] sm:p-10 lg:min-h-[460px] lg:p-12">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-white/75">Secure document workflow</p>
-        <h2 className="text-2xl font-semibold text-white drop-shadow">File Sanitizer</h2>
-        <p className="mt-1 max-w-xl text-sm text-white/90">Scan, clean, and prepare documents before AI analysis or client sharing.</p>
-        <div className="mt-4 flex items-center gap-2" role="group" aria-label="Choose File Sanitizer background slide">
+      <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/65 to-slate-950/25" />
+      <div className="relative z-10 flex min-h-[430px] flex-col justify-between p-6 sm:min-h-[470px] sm:p-9 lg:min-h-[500px] lg:p-12">
+        <div className="max-w-4xl">
+          <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-cyan-100/90">Secure document workflow</p>
+          <h1 className="text-3xl font-bold tracking-tight text-white drop-shadow sm:text-4xl">File Sanitizer</h1>
+          <p className="mt-3 max-w-2xl text-base leading-7 text-white/90 sm:text-lg">Scan files before firm storage or AI — review file types, metadata, PII hints, classification, and sharing readiness.</p>
+          <div className="mt-6 max-w-4xl rounded-2xl border border-white/20 bg-slate-950/45 p-4 text-sm leading-6 text-white/90 shadow-lg backdrop-blur-md sm:p-5">
+            <strong className="text-white">Important security boundary:</strong> These are lightweight file-type, metadata, and text-pattern checks. They are not antivirus, malware detonation, or content-disarm-and-reconstruction (CDR). Binary PDFs and images may receive metadata-only checks when no text layer is available. A passing result does not prove that a file is malware-free.
+          </div>
+        </div>
+        <div className="mt-8 flex items-center gap-2" role="group" aria-label="Choose File Sanitizer background slide">
           {sanitizerSlides.map((slide, index) => (
             <button key={slide.src} type="button" aria-label={"Show slide " + (index + 1) + ": " + slide.label} aria-pressed={active === index} onClick={() => setActive(index)} className={"h-2.5 rounded-full transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white " + (active === index ? "w-8 bg-white" : "w-2.5 bg-white/55 hover:bg-white/90")} />
           ))}
@@ -240,23 +245,9 @@ export default function SecuritySanitizerPage() {
   return (
     <div className="-mx-4 -mt-4 w-[calc(100%+2rem)] space-y-6 sm:-mx-5 sm:-mt-5 sm:w-[calc(100%+2.5rem)] lg:-mx-7 lg:-mt-7 lg:w-[calc(100%+3.5rem)]">
       <SanitizerHeroCarousel />
-      <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950">
-        <strong>Important security boundary:</strong> these are lightweight file-type, metadata, and text-pattern checks. They are not antivirus, malware detonation, or content-disarm-and-reconstruction (CDR). Binary PDFs and images may receive metadata-only checks when no text layer is available. Do not treat a passing result as proof that a file is malware-free.
-      </div>
 
-      <div>
-        <h1 className="flex items-center gap-2 text-2xl font-bold text-slate-900">
-          <Shield className="h-7 w-7 text-isaca-medium" />
-          File Sanitizer
-        </h1>
-        <p className="mt-1 text-slate-600">
-          Scan files before firm storage or AI — malware-style type checks, PII hints,
-          classification, public-AI gate
-        </p>
-      </div>
-
-      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="flex items-center justify-between border-b px-5 py-4">
+      <section className="overflow-hidden rounded-2xl border border-slate-100/80 bg-white shadow-[0_12px_40px_-28px_rgba(15,23,42,0.35)]">
+        <div className="flex flex-wrap items-center justify-between gap-4 px-5 py-5 sm:px-7">
           <div>
             <h2 className="font-semibold text-slate-900">Documents already uploaded</h2>
             <p className="text-sm text-slate-500">
