@@ -67,14 +67,14 @@ function SanitizerHeroCarousel() {
     return () => window.clearInterval(timer);
   }, []);
   return (
-    <section className="relative isolate mb-6 min-h-[220px] overflow-hidden rounded-2xl bg-slate-900" aria-label="File Sanitizer introduction">
+    <section className="relative isolate mb-5 min-h-[200px] overflow-hidden rounded-2xl bg-slate-900 shadow-lg sm:min-h-[230px] lg:min-h-[270px]" aria-label="File Sanitizer introduction">
       {sanitizerSlides.map((slide, index) => (
         <div key={slide.src} aria-hidden="true" className={"absolute inset-0 bg-cover bg-center transition-opacity duration-1000 " + (index === active ? "opacity-100" : "opacity-0")} style={{ backgroundImage: 'url("' + slide.src + '")' }} />
       ))}
       <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-slate-950/75 via-slate-900/40 to-slate-900/10" />
-      <div className="relative z-10 flex min-h-[380px] flex-col justify-between p-7 sm:min-h-[420px] sm:p-10 lg:min-h-[460px] lg:p-12">
+      <div className="relative z-10 flex min-h-[200px] flex-col justify-between p-6 sm:min-h-[230px] sm:p-8 lg:min-h-[270px] lg:p-9">
         <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-white/75">Secure document workflow</p>
-        <h2 className="text-2xl font-semibold text-white drop-shadow">File Sanitizer</h2>
+        <h2 className="text-3xl font-bold tracking-tight text-white drop-shadow sm:text-4xl">File Sanitizer</h2>
         <p className="mt-1 max-w-xl text-sm text-white/90">Scan, clean, and prepare documents before AI analysis or client sharing.</p>
         <div className="mt-4 flex items-center gap-2" role="group" aria-label="Choose File Sanitizer background slide">
           {sanitizerSlides.map((slide, index) => (
@@ -99,6 +99,7 @@ export default function SecuritySanitizerPage() {
   const [error, setError] = useState<string | null>(null);
   const [documents, setDocuments] = useState<StoredDocument[]>([]);
   const [clients, setClients] = useState<ClientOption[]>([]);
+  const [clientLoadError, setClientLoadError] = useState<string | null>(null);
   const [clientId, setClientId] = useState("");
   const [loadingDocuments, setLoadingDocuments] = useState(true);
   const [preview, setPreview] = useState<StoredDocument | null>(null);
@@ -133,14 +134,17 @@ export default function SecuritySanitizerPage() {
         const response = await fetch("/api/clients", { cache: "no-store" });
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || "Could not load authorized clients.");
-        const rows: ClientOption[] = data.clients || [];
+        const rows: ClientOption[] = Array.isArray(data.clients) ? data.clients : [];
         if (!active) return;
         setClients(rows);
+        setClientLoadError(rows.length === 0 ? "No client workspaces are assigned to this account. Ask your firm administrator to assign a client workspace." : null);
         if (rows.length === 1) setClientId(rows[0].id);
         else setLoadingDocuments(false);
       } catch (err) {
         if (active) {
-          setError(err instanceof Error ? err.message : "Could not load client workspaces.");
+          const message = err instanceof Error ? err.message : "Could not load client workspaces.";
+          setClientLoadError(message);
+          setError(message);
           setLoadingDocuments(false);
         }
       }
@@ -180,6 +184,10 @@ export default function SecuritySanitizerPage() {
   };
 
   const runScan = async (file?: File | null) => {
+    if (file && file.size > 25 * 1024 * 1024) {
+      setError("This file is larger than 25 MB. Choose a smaller file.");
+      return;
+    }
     if (!file && !textHint.trim()) {
       setError("Choose a file or enter text before starting a scan.");
       return;
@@ -234,28 +242,17 @@ export default function SecuritySanitizerPage() {
   const tabs: { id: Tab; label: string; icon: typeof Eye }[] = [
     { id: "original", label: "Original file", icon: Eye },
     { id: "findings", label: "Scan findings", icon: ScanSearch },
-    { id: "sanitized", label: "Sanitized copy", icon: LockKeyhole },
+    { id: "sanitized", label: "Next steps", icon: LockKeyhole },
   ];
 
   return (
-    <div className="-mx-4 -mt-4 w-[calc(100%+2rem)] space-y-6 sm:-mx-5 sm:-mt-5 sm:w-[calc(100%+2.5rem)] lg:-mx-7 lg:-mt-7 lg:w-[calc(100%+3.5rem)]">
+    <div className="-mx-4 -mt-4 w-[calc(100%+2rem)] space-y-4 sm:-mx-5 sm:-mt-5 sm:w-[calc(100%+2.5rem)] lg:-mx-7 lg:-mt-7 lg:w-[calc(100%+3.5rem)]">
       <SanitizerHeroCarousel />
-      <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950">
+      <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm leading-5 text-amber-950">
         <strong>Important security boundary:</strong> these are lightweight file-type, metadata, and text-pattern checks. They are not antivirus, malware detonation, or content-disarm-and-reconstruction (CDR). Binary PDFs and images may receive metadata-only checks when no text layer is available. Do not treat a passing result as proof that a file is malware-free.
       </div>
 
-      <div>
-        <h1 className="flex items-center gap-2 text-2xl font-bold text-slate-900">
-          <Shield className="h-7 w-7 text-isaca-medium" />
-          File Sanitizer
-        </h1>
-        <p className="mt-1 text-slate-600">
-          Scan files before firm storage or AI — malware-style type checks, PII hints,
-          classification, public-AI gate
-        </p>
-      </div>
-
-      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         <div className="flex items-center justify-between border-b px-5 py-4">
           <div>
             <h2 className="font-semibold text-slate-900">Documents already uploaded</h2>
@@ -276,10 +273,12 @@ export default function SecuritySanitizerPage() {
             </button>
           </div>
         </div>
-        {loadingDocuments ? (
-          <p className="p-8 text-center text-sm text-slate-500">Loading authorized client documents…</p>
+        {clientLoadError ? (
+          <div className="m-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900" role="status">{clientLoadError}</div>
+        ) : loadingDocuments ? (
+          <p className="p-6 text-center text-sm text-slate-500">Loading authorized client documents…</p>
         ) : !clientId ? (
-          <p className="p-8 text-center text-sm text-slate-500">Select an authorized client workspace to review its uploaded documents.</p>
+          <p className="p-6 text-center text-sm text-slate-500">Select an authorized client workspace to review its uploaded documents.</p>
         ) : documents.length === 0 ? (
           <p className="p-8 text-center text-sm text-slate-500">
             No uploaded documents found for this client. Upload files in Documents first.
@@ -707,9 +706,7 @@ export default function SecuritySanitizerPage() {
               <div className="flex items-start gap-2 rounded-xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-900">
                 <Info className="mt-0.5 h-4 w-4 shrink-0" />
                 <p>
-                  Sanitized copy generation is limited in this build. Use the findings tab to decide
-                  whether the original may be stored or sent to AI, then download the original if
-                  approved.
+                  This version reports findings and readiness checks; it does not create a modified sanitized file. Use the findings tab to decide the next action. Download the original only when your firm's review process approves it.
                 </p>
               </div>
               {previewUrl && selectedFile && (
