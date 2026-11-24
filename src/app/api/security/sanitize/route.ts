@@ -7,11 +7,15 @@ import { sanitizeFile } from "@/lib/security/sanitizer";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
+  const contentType = req.headers.get("content-type") || "";
+  if (!contentType.includes("application/json") && !contentType.includes("multipart/form-data")) {
+    return NextResponse.json({ error: "Send a file upload or a text scan request." }, { status: 415 });
+  }
+
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const contentType = req.headers.get("content-type") || "";
     let fileName = "pasted-text.txt";
     let mimeType = "text/plain";
     let size = 0;
@@ -52,6 +56,9 @@ export async function POST(req: NextRequest) {
         fileName = fileEntry.name;
         mimeType = fileEntry.type || "application/octet-stream";
         size = fileEntry.size;
+        if (size <= 0 || size > MAX_SCAN_SIZE) {
+          return NextResponse.json({ error: "Scanned files must be between 1 byte and 25 MB." }, { status: 413 });
+        }
         const extension = fileName.toLowerCase().split(".").pop();
         if (mimeType.startsWith("text/") || ["csv", "txt", "json", "xml", "md"].includes(extension || "")) {
           try { textContent = (await fileEntry.text()).slice(0, 200_000); }
@@ -63,9 +70,9 @@ export async function POST(req: NextRequest) {
         if (typeof submittedName === "string") fileName = submittedName.slice(0, 180);
         if (typeof submittedMime === "string") mimeType = submittedMime.slice(0, 120);
         size = new TextEncoder().encode(textContent).length;
+        if (size > MAX_TEXT_LENGTH) return NextResponse.json({ error: "Pasted text is too long. Limit it to 200,000 characters." }, { status: 413 });
         if (!textContent.trim()) return NextResponse.json({ error: "Choose a file or provide text to scan." }, { status: 400 });
       }
-    } else {
     }
 
     const result = sanitizeFile({ fileName, mimeType, size, textContent });
