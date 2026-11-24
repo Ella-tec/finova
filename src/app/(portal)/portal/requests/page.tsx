@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { ClipboardList, Loader2, CheckCircle2 } from "lucide-react";
+import { ClipboardList, Loader2, CheckCircle2, FolderLock, RefreshCw, Share2, Download, FolderOpen } from "lucide-react";
 
 type RequestRow = {
   id: string;
@@ -19,6 +19,10 @@ export default function PortalRequestsPage() {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [tab, setTab] = useState<"requests" | "shared">("requests");
+  const [folders, setFolders] = useState<any[]>([]);
+  const [foldersLoading, setFoldersLoading] = useState(false);
+  const [folderError, setFolderError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -38,6 +42,21 @@ export default function PortalRequestsPage() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  const loadSharedFolders = useCallback(async () => {
+    setFoldersLoading(true);
+    setFolderError(null);
+    try {
+      const response = await fetch("/api/shared-folders", { cache: "no-store" });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || "Could not load shared folders.");
+      setFolders(data.folders || []);
+    } catch (err) {
+      setFolderError(err instanceof Error ? err.message : "Could not load shared folders.");
+    } finally {
+      setFoldersLoading(false);
+    }
+  }, []);
 
   const markUploaded = async (id: string) => {
     setBusyId(id);
@@ -73,7 +92,11 @@ export default function PortalRequestsPage() {
       {error && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</div>}
       {notice && <div role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{notice}</div>}
 
-      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className="flex flex-wrap gap-2" role="tablist" aria-label="Document request sections">
+        <button type="button" role="tab" aria-selected={tab === "requests"} onClick={() => setTab("requests")} className={"rounded-xl px-4 py-2.5 text-sm font-semibold " + (tab === "requests" ? "bg-[#1d2d5c] text-white" : "border border-slate-200 bg-white text-slate-700")}>Document Requests</button>
+        <button type="button" role="tab" aria-selected={tab === "shared"} onClick={() => { setTab("shared"); void loadSharedFolders(); }} className={"inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold " + (tab === "shared" ? "bg-[#1d2d5c] text-white" : "border border-slate-200 bg-white text-slate-700")}><FolderLock className="h-4 w-4"/> Shared Folder</button>
+      </div>
+      {tab === "requests" ? <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         {loading ? (
           <div className="p-10 text-center text-sm text-slate-500"><Loader2 className="mx-auto mb-2 h-5 w-5 animate-spin" />Loading…</div>
         ) : requests.length === 0 ? (
@@ -107,7 +130,14 @@ export default function PortalRequestsPage() {
             ))}
           </div>
         )}
-      </section>
+      </section> : <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div><h2 className="flex items-center gap-2 font-semibold text-slate-900"><FolderLock className="h-5 w-5 text-[#07649d]"/> Secure shared folders</h2><p className="mt-1 text-sm text-slate-600">Only folders explicitly shared with your signed-in account appear here. Server-side permissions are checked for every file operation.</p></div>
+          <button type="button" onClick={() => void loadSharedFolders()} disabled={foldersLoading} className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium disabled:opacity-50"><RefreshCw className={"h-4 w-4 " + (foldersLoading ? "animate-spin" : "")}/> Refresh</button>
+        </div>
+        {folderError && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{folderError}</p>}
+        {foldersLoading ? <p className="py-8 text-center text-sm text-slate-500"><Loader2 className="mx-auto mb-2 h-5 w-5 animate-spin"/>Loading authorized folders…</p> : folders.length === 0 ? <div className="rounded-xl border border-dashed p-8 text-center"><FolderOpen className="mx-auto h-8 w-8 text-slate-300"/><p className="mt-2 font-medium text-slate-800">No folders have been shared with you yet</p><p className="mt-1 text-xs text-slate-500">Ask your firm contact to grant access to a folder.</p></div> : <div className="divide-y rounded-xl border">{folders.map((folder) => <article key={folder.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3"><div className="min-w-0 flex-1"><p className="font-semibold text-slate-900">{folder.name}</p><p className="text-xs text-slate-500">Shared by {folder.sharedBy?.name || folder.sharedBy?.email || "your firm"} · {folder.documents?.length || 0} files · {folder.permissions?.canUpload ? "Upload allowed" : "View only"}</p><div className="mt-2 flex flex-wrap gap-3">{(folder.documents || []).map((doc: any) => <a key={doc.id} href={"/api/documents/" + doc.id + "/file" + (folder.permissions?.canDownload ? "?download=1" : "")} className="inline-flex items-center gap-1 text-xs font-medium text-[#07649d] underline"><Download className="h-3 w-3"/>{doc.fileName}</a>)}</div></div><span className="inline-flex items-center gap-1 rounded-full bg-[#e7f0f5] px-2 py-1 text-xs font-semibold text-[#07649d]"><Share2 className="h-3 w-3"/> Authorized</span></article>)}</div>}
+      </section>}
     </div>
   );
 }
