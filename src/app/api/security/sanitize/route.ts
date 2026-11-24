@@ -6,6 +6,9 @@ import { authOptions } from "@/lib/auth";
 import { sanitizeFile } from "@/lib/security/sanitizer";
 import { prisma } from "@/lib/prisma";
 
+const MAX_SCAN_SIZE = 25 * 1024 * 1024; // 25 MB
+const MAX_TEXT_LENGTH = 200_000; // 200,000 characters
+
 export async function POST(req: NextRequest) {
   const contentType = req.headers.get("content-type") || "";
   if (!contentType.includes("application/json") && !contentType.includes("multipart/form-data")) {
