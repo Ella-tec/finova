@@ -39,32 +39,15 @@ export async function POST(req: NextRequest) {
     const passwordHash = await hash(password, 12);
 
     if (accountType === "client") {
-      let firm = await prisma.firm.findFirst({ orderBy: { createdAt: "asc" } });
-      if (!firm) {
-        firm = await prisma.firm.create({
-          data: {
-            name: "Finova Demo Firm",
-            slug: `finova-${randomUUID().slice(0, 8)}`,
-          },
+      // Never attach a self-registered client to the first existing firm.
+      // Create an isolated tenant until an authorized firm explicitly links/invites them.
+      const slug = "client-" + randomUUID().slice(0, 12);
+      const user = await prisma.$transaction(async (tx) => {
+        const firm = await tx.firm.create({ data: { name: firmName, slug } });
+        const client = await tx.client.create({ data: { name: firmName, firmId: firm.id } });
+        return tx.user.create({
+          data: { name, email, passwordHash, role: Role.CLIENT, firmId: firm.id, clientId: client.id },
         });
-      }
-
-      const client = await prisma.client.create({
-        data: {
-          name: firmName,
-          firmId: firm.id,
-        },
-      });
-
-      const user = await prisma.user.create({
-        data: {
-          name,
-          email,
-          passwordHash,
-          role: Role.CLIENT,
-          firmId: firm.id,
-          clientId: client.id,
-        },
       });
 
       try {
