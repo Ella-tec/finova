@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
@@ -16,29 +15,54 @@ import {
   AlertCircle,
   Sparkles,
   UserPlus,
+  Building2,
+  UserRound,
 } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
+
+type WorkspaceKind = "staff" | "client";
 
 export default function HomePage() {
   const router = useRouter();
   const [tab, setTab] = useState<"signin" | "create">("signin");
+  const [workspace, setWorkspace] = useState<WorkspaceKind>("staff");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [reg, setReg] = useState({ name: "", email: "", password: "", firmName: "" });
+  const [notice, setNotice] = useState<string | null>(null);
+  const [reg, setReg] = useState({
+    name: "",
+    email: "",
+    password: "",
+    firmName: "",
+  });
+
+  const goAfterAuth = async (preferred: WorkspaceKind) => {
+    const sess = await fetch("/api/auth/session").then((r) => r.json()).catch(() => null);
+    const role = (sess?.user?.role as string | undefined) || "";
+    const isClient = role === "CLIENT";
+    if (preferred === "client" && !isClient) {
+      setNotice("This account is a firm user. Opening the staff workspace.");
+    }
+    if (preferred === "staff" && isClient) {
+      setNotice("This account is a client user. Opening the client portal.");
+    }
+    router.push(isClient ? "/portal" : "/dashboard");
+    router.refresh();
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setNotice(null);
     try {
       const result = await signIn("credentials", {
         email: email.toLowerCase().trim(),
         password,
         redirect: false,
-        callbackUrl: "/dashboard",
       });
       if (result?.error) {
         setError("Invalid email or password");
@@ -46,9 +70,11 @@ export default function HomePage() {
         return;
       }
       if (result?.ok) {
-        router.push("/dashboard");
-        router.refresh();
+        await goAfterAuth(workspace);
+        return;
       }
+      setError("Could not sign in. Please try again.");
+      setLoading(false);
     } catch {
       setError("Something went wrong. Please try again.");
       setLoading(false);
@@ -59,132 +85,103 @@ export default function HomePage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setNotice(null);
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(reg),
+        body: JSON.stringify({
+          ...reg,
+          accountType: workspace,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Registration failed");
+
       const login = await signIn("credentials", {
         email: reg.email.toLowerCase().trim(),
         password: reg.password,
         redirect: false,
-        callbackUrl: "/dashboard",
       });
       if (login?.ok) {
-        router.push("/dashboard");
-        router.refresh();
+        await goAfterAuth(workspace);
         return;
       }
+      setNotice("Account created. Please sign in.");
       setTab("signin");
       setEmail(reg.email);
-      setError("Account created. Please sign in.");
       setLoading(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Registration failed");
+      setError(err instanceof Error ? err.message : "Something went wrong");
       setLoading(false);
     }
   };
 
   const handleMicrosoft = () => {
     setLoading(true);
-    setError(null);
-    void signIn("azure-ad", { callbackUrl: "/dashboard" });
+    void signIn("azure-ad", {
+      callbackUrl: workspace === "client" ? "/portal" : "/dashboard",
+    });
   };
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#F3F8F6] text-slate-900">
-      <div className="pointer-events-none absolute inset-0 opacity-[0.06]">
-        <div
-          className="h-full w-full"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 20% 20%, #0f766e 1.5px, transparent 1.5px), radial-gradient(circle at 80% 40%, #0f766e 1px, transparent 1px)",
-            backgroundSize: "44px 44px",
-          }}
-        />
-      </div>
-      <div className="pointer-events-none absolute -left-24 -top-20 h-[460px] w-[460px] rounded-full bg-[#CDEADF] blur-3xl opacity-80" />
-      <div className="pointer-events-none absolute -right-16 top-24 h-[420px] w-[420px] rounded-full bg-[#D7E8F5] blur-3xl opacity-70" />
-
-      <header className="relative z-20 border-b border-teal-900/5 bg-white/80 backdrop-blur-xl">
-        <div className="mx-auto flex h-[72px] max-w-5xl items-center justify-between px-5">
-          <Link href="/" className="flex items-center gap-3">
-            {/* Transparent logo — no black tile */}
-            <Logo size={42} className="finova-logo-glow" />
-            <span className="text-xl font-semibold tracking-tight text-slate-900">Finova</span>
-          </Link>
-          <div className="flex items-center gap-3 text-sm">
-            <Link
-              href="/login"
-              className="rounded-full bg-teal-700 px-4 py-2.5 font-semibold text-white shadow-sm hover:bg-teal-800"
-            >
-              Sign in
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      <section className="relative z-10 mx-auto grid max-w-5xl gap-12 px-5 py-14 lg:grid-cols-[1fr_1fr] lg:items-center lg:py-20">
-        <div className="text-center lg:text-left">
-          {/* Large elegant transparent logo with soft float */}
-          <div className="mb-10 flex justify-center lg:justify-start">
-            <div className="finova-logo-float finova-logo-glow">
-              <Logo size={168} />
-            </div>
-          </div>
-
-          <div className="inline-flex items-center gap-2 rounded-full border border-teal-200/80 bg-white/90 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-teal-700 shadow-sm">
+    <div className="min-h-screen grid lg:grid-cols-2 bg-[#F4FAF8]">
+      <div className="relative hidden lg:flex flex-col justify-between overflow-hidden px-12 py-14 xl:px-16">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_#E8F5F1_0%,_transparent_55%)]" />
+        <div className="absolute inset-0 opacity-[0.35]" style={{ backgroundImage: "radial-gradient(#94a3b8 1px, transparent 1px)", backgroundSize: "22px 22px" }} />
+        <div className="relative">
+          <Logo size={88} className="finova-logo-float finova-logo-glow" />
+          <div className="mt-10 inline-flex items-center gap-2 rounded-full border border-teal-200/70 bg-white/70 px-3 py-1 text-[11px] font-semibold tracking-[0.14em] text-teal-800">
             <Sparkles className="h-3.5 w-3.5" />
-            Accounting · Audit · AI
+            ACCOUNTING · AUDIT · AI
           </div>
-
-          <h1 className="mt-6 text-[clamp(2.4rem,4.5vw,3.5rem)] font-semibold leading-[1.08] tracking-[-0.04em] text-slate-900">
-            Accounting made
-            <span className="block text-teal-700">clear, calm, and capable.</span>
+          <h1 className="mt-6 max-w-md text-5xl font-semibold leading-[1.08] tracking-tight text-slate-900">
+            Accounting made{" "}
+            <span className="text-teal-700">clear, calm, and capable.</span>
           </h1>
-
-          <p className="mt-5 max-w-md text-[15px] leading-7 text-slate-600 lg:max-w-lg">
+          <p className="mt-5 max-w-md text-[15px] leading-relaxed text-slate-600">
             Books, statements, bank reconciliation, month-end close, audit PBC, and client
             collaboration — one elegant firm workspace.
           </p>
-
-          <div className="mt-8 flex flex-wrap justify-center gap-3 lg:justify-start">
+          <div className="mt-8 flex flex-wrap gap-2">
             {[
               { icon: BarChart3, label: "Reporting" },
               { icon: Landmark, label: "Banking" },
               { icon: ClipboardCheck, label: "Close" },
             ].map(({ icon: Icon, label }) => (
-              <div
+              <span
                 key={label}
-                className="inline-flex items-center gap-2 rounded-full border border-white bg-white/90 px-4 py-2 text-sm font-medium text-slate-700 shadow-sm"
+                className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/80 px-3.5 py-2 text-sm font-medium text-slate-700 shadow-sm"
               >
                 <Icon className="h-4 w-4 text-teal-700" />
                 {label}
-              </div>
+              </span>
             ))}
           </div>
         </div>
+        <p className="relative text-xs text-slate-500">© {new Date().getFullYear()} Finova</p>
+      </div>
 
-        <div className="rounded-[28px] border border-white bg-white/95 p-6 shadow-[0_30px_80px_-40px_rgba(15,23,42,0.3)] sm:p-8">
-          <div className="mb-5 flex justify-center">
-            <Logo size={64} className="finova-logo-glow" />
+      <div className="flex items-center justify-center px-5 py-10 sm:px-8">
+        <div className="w-full max-w-[420px] rounded-[28px] border border-white/80 bg-white/95 p-6 shadow-[0_20px_60px_rgba(15,118,110,0.08)] sm:p-8">
+          <div className="mb-5 flex justify-center lg:hidden">
+            <Logo size={56} className="finova-logo-glow" />
+          </div>
+          <div className="mb-6 flex justify-center">
+            <Logo size={48} className="hidden finova-logo-glow lg:block" />
           </div>
 
-          <div className="mb-5 grid grid-cols-2 gap-1 rounded-2xl bg-slate-100 p-1">
+          <div className="grid grid-cols-2 rounded-full bg-slate-100 p-1">
             <button
               type="button"
               onClick={() => {
                 setTab("signin");
                 setError(null);
+                setNotice(null);
               }}
               className={
-                "rounded-xl py-2.5 text-sm font-semibold transition " +
-                (tab === "signin"
-                  ? "bg-white text-teal-800 shadow-sm"
-                  : "text-slate-500 hover:text-slate-700")
+                "rounded-full py-2.5 text-sm font-semibold transition " +
+                (tab === "signin" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700")
               }
             >
               Sign in
@@ -194,24 +191,56 @@ export default function HomePage() {
               onClick={() => {
                 setTab("create");
                 setError(null);
+                setNotice(null);
               }}
               className={
-                "rounded-xl py-2.5 text-sm font-semibold transition " +
-                (tab === "create"
-                  ? "bg-white text-teal-800 shadow-sm"
-                  : "text-slate-500 hover:text-slate-700")
+                "rounded-full py-2.5 text-sm font-semibold transition " +
+                (tab === "create" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700")
               }
             >
               Create account
             </button>
           </div>
 
-          <h2 className="text-center text-xl font-semibold tracking-tight text-slate-900">
+          <h2 className="mt-6 text-center text-2xl font-semibold tracking-tight text-slate-900">
             {tab === "signin" ? "Sign in to Finova" : "Create your workspace"}
           </h2>
           <p className="mt-1 text-center text-sm text-slate-500">
-            {tab === "signin" ? "Secure firm workspace" : "You become the firm administrator"}
+            {tab === "signin" ? "Secure firm workspace" : "Staff firm or client portal access"}
           </p>
+
+          <div className="mt-5 grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setWorkspace("staff")}
+              className={
+                "flex flex-col items-start gap-1 rounded-2xl border px-3 py-3 text-left transition " +
+                (workspace === "staff"
+                  ? "border-teal-600 bg-teal-50 ring-2 ring-teal-600/20"
+                  : "border-slate-200 bg-white hover:border-slate-300")
+              }
+            >
+              <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-900">
+                <Building2 className="h-4 w-4 text-teal-700" /> Staff
+              </span>
+              <span className="text-[11px] leading-snug text-slate-500">Accounting, close, audit</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setWorkspace("client")}
+              className={
+                "flex flex-col items-start gap-1 rounded-2xl border px-3 py-3 text-left transition " +
+                (workspace === "client"
+                  ? "border-teal-600 bg-teal-50 ring-2 ring-teal-600/20"
+                  : "border-slate-200 bg-white hover:border-slate-300")
+              }
+            >
+              <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-900">
+                <UserRound className="h-4 w-4 text-teal-700" /> Client
+              </span>
+              <span className="text-[11px] leading-snug text-slate-500">Documents & requests</span>
+            </button>
+          </div>
 
           {error && (
             <div className="mt-4 flex items-start gap-2 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -219,67 +248,63 @@ export default function HomePage() {
               {error}
             </div>
           )}
+          {notice && (
+            <div className="mt-4 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+              {notice}
+            </div>
+          )}
 
           {tab === "signin" ? (
             <form onSubmit={handleLogin} className="mt-5 space-y-4">
               <div>
-                <label htmlFor="home-email" className="mb-1.5 block text-sm font-medium text-slate-700">
-                  Work email
-                </label>
+                <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-slate-700">Work email</label>
                 <div className="relative">
                   <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                   <input
-                    id="home-email"
+                    id="email"
                     type="email"
+                    autoComplete="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="demo@finova.ai"
-                    className="w-full rounded-2xl border border-slate-200 bg-[#F7FBFA] py-3.5 pl-11 pr-4 text-sm outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20"
+                    placeholder={workspace === "client" ? "client@acme.com" : "demo@finova.ai"}
+                    className="w-full rounded-2xl border border-slate-200 bg-[#F7FBFA] py-3.5 pl-11 pr-4 text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20"
                   />
                 </div>
               </div>
               <div>
-                <label htmlFor="home-password" className="mb-1.5 block text-sm font-medium text-slate-700">
-                  Password
-                </label>
+                <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-slate-700">Password</label>
                 <div className="relative">
                   <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                   <input
-                    id="home-password"
+                    id="password"
                     type={showPw ? "text" : "password"}
+                    autoComplete="current-password"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••••••"
-                    className="w-full rounded-2xl border border-slate-200 bg-[#F7FBFA] py-3.5 pl-11 pr-11 text-sm outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20"
+                    className="w-full rounded-2xl border border-slate-200 bg-[#F7FBFA] py-3.5 pl-11 pr-11 text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20"
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPw(!showPw)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                  >
+                  <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" aria-label={showPw ? "Hide password" : "Show password"}>
                     {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
               </div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-teal-700 py-3.5 text-sm font-semibold text-white shadow-lg shadow-teal-900/10 transition hover:bg-teal-800 disabled:opacity-60"
-              >
+              <button type="submit" disabled={loading} className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-teal-700 py-3.5 text-sm font-semibold text-white shadow-lg shadow-teal-900/15 hover:bg-teal-800 disabled:opacity-60">
                 {loading ? "Signing in…" : "Enter workspace"}
                 {!loading && <ArrowRight className="h-4 w-4" />}
               </button>
+              <p className="text-center text-[11px] text-slate-500">Demo staff: demo@finova.ai · Demo client: client@acme.com</p>
             </form>
           ) : (
             <form onSubmit={handleRegister} className="mt-5 space-y-3">
               {(
                 [
                   ["name", "Full name", "text", "Jane Smith"],
-                  ["email", "Work email", "email", "jane@firm.com"],
+                  ["email", "Work email", "email", workspace === "client" ? "you@company.com" : "jane@firm.com"],
                   ["password", "Password (12+ chars)", "password", "••••••••••••"],
-                  ["firmName", "Firm name", "text", "Smith & Co CPA"],
+                  ["firmName", workspace === "client" ? "Your company name" : "Firm name", "text", workspace === "client" ? "Acme Manufacturing" : "Smith & Co CPA"],
                 ] as const
               ).map(([key, label, type, ph]) => (
                 <div key={key}>
@@ -295,32 +320,21 @@ export default function HomePage() {
                   />
                 </div>
               ))}
-              <button
-                type="submit"
-                disabled={loading}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-teal-700 py-3.5 text-sm font-semibold text-white shadow-lg hover:bg-teal-800 disabled:opacity-60"
-              >
+              <button type="submit" disabled={loading} className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-teal-700 py-3.5 text-sm font-semibold text-white shadow-lg hover:bg-teal-800 disabled:opacity-60">
                 <UserPlus className="h-4 w-4" />
-                {loading ? "Creating…" : "Create account"}
+                {loading ? "Creating…" : workspace === "client" ? "Create client account" : "Create firm account"}
               </button>
             </form>
           )}
 
           <div className="relative my-5">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200" />
-            </div>
+            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200" /></div>
             <div className="relative flex justify-center text-xs uppercase tracking-wide">
               <span className="bg-white px-3 text-slate-400">or</span>
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={handleMicrosoft}
-            disabled={loading}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white py-3.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50 disabled:opacity-60"
-          >
+          <button type="button" onClick={handleMicrosoft} disabled={loading} className="flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white py-3.5 text-sm font-semibold text-slate-800 shadow-sm hover:bg-slate-50 disabled:opacity-60">
             <svg className="h-5 w-5" viewBox="0 0 23 23" aria-hidden>
               <path fill="#f35325" d="M1 1h10v10H1z" />
               <path fill="#81bc06" d="M12 1h10v10H12z" />
@@ -329,15 +343,9 @@ export default function HomePage() {
             </svg>
             Continue with Microsoft
           </button>
-          <p className="mt-2 text-center text-[11px] text-slate-400">
-            Microsoft works when Azure AD is configured on the server.
-          </p>
+          <p className="mt-2 text-center text-[11px] text-slate-400">Microsoft works when Azure AD is configured on the server.</p>
         </div>
-      </section>
-
-      <footer className="relative z-10 border-t border-teal-900/5 bg-white/60 py-6 text-center text-sm text-slate-500">
-        Finova · Modern accounting, audit, and finance workflows
-      </footer>
-    </main>
+      </div>
+    </div>
   );
 }
