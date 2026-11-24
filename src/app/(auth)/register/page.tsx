@@ -8,6 +8,7 @@ import { LogoWordmark } from "@/components/brand/Logo";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const [accountType, setAccountType] = useState<"staff" | "client">("staff");
   const [form, setForm] = useState({ name: "", email: "", password: "", firmName: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,12 +22,12 @@ export default function RegisterPage() {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, accountType }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Registration failed");
       setSuccess(true);
-      router.push("/login");
+      router.push("/login?accountType=" + accountType);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
       setLoading(false);
@@ -38,8 +39,12 @@ export default function RegisterPage() {
       <div className="w-full max-w-md">
         <Link href="/" className="inline-flex mb-8"><LogoWordmark /></Link>
         <div className="rounded-2xl border border-slate-200/80 bg-white p-8 shadow-xl shadow-slate-200/50">
-          <h1 className="text-2xl font-bold text-slate-900">Create your firm workspace</h1>
-          <p className="mt-1 text-sm text-slate-500">Set up your FINOVA accounting workspace. You will be the administrator of your new firm workspace.</p>
+          <h1 className="text-2xl font-bold text-slate-900">{accountType === "client" ? "Create your client account" : "Create your firm workspace"}</h1>
+          <p className="mt-1 text-sm text-slate-500">Choose the account type you need. Client accounts start in an isolated workspace until an authorized firm explicitly grants access.</p>
+          <div className="mt-5 grid grid-cols-2 gap-3">
+            <button type="button" onClick={() => setAccountType("staff")} aria-pressed={accountType === "staff"} className={"rounded-xl border p-3 text-left " + (accountType === "staff" ? "border-[#1d2d5c] bg-[#1d2d5c] text-white" : "border-slate-200 bg-white text-slate-700")}><span className="block font-semibold">Staff</span><span className="text-xs">Create a firm</span></button>
+            <button type="button" onClick={() => setAccountType("client")} aria-pressed={accountType === "client"} className={"rounded-xl border p-3 text-left " + (accountType === "client" ? "border-[#07649d] bg-[#07649d] text-white" : "border-slate-200 bg-white text-slate-700")}><span className="block font-semibold">Client</span><span className="text-xs">Create client login</span></button>
+          </div>
           {error && <div role="alert" className="mt-4 flex items-center gap-2 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700"><AlertCircle className="h-4 w-4 shrink-0" />{error}</div>}
           {success && <div role="status" className="mt-4 flex items-center gap-2 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-700"><CheckCircle2 className="h-4 w-4 shrink-0" />Account created.</div>}
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
