@@ -26,8 +26,11 @@ const SAMPLE_DOCS = [
 ];
 
 async function main() {
-  if (process.env.NODE_ENV === "production") {
-    throw new Error("The Finova demo seed is disabled in production.");
+  // Production seed is locked unless FINOVA_ALLOW_SEED=1 (one-time Neon bootstrap).
+  if (process.env.NODE_ENV === "production" && process.env.FINOVA_ALLOW_SEED !== "1") {
+    throw new Error(
+      "Demo seed is disabled in production. Set FINOVA_ALLOW_SEED=1 once to bootstrap demo clients, then remove it."
+    );
   }
 
   const demoPassword = process.env.FINOVA_DEMO_PASSWORD;
@@ -80,7 +83,13 @@ async function main() {
   for (const user of users) {
     const row = await prisma.user.upsert({
       where: { email: user.email },
-      update: { passwordHash, name: user.name, role: user.role, firmId: user.firmId },
+      update: {
+        passwordHash,
+        name: user.name,
+        role: user.role,
+        firmId: user.firmId,
+        clientId: "clientId" in user ? user.clientId : null,
+      },
       create: {
         email: user.email,
         name: user.name,
@@ -126,7 +135,6 @@ async function main() {
     });
   }
 
-  // Sample document metadata (upload real files via UI for binary preview)
   for (let i = 0; i < SAMPLE_DOCS.length; i++) {
     const d = SAMPLE_DOCS[i];
     const id = `demo-doc-${i + 1}`;
@@ -159,7 +167,6 @@ async function main() {
     });
   }
 
-  // Month-end close: prior period partly done + current period open
   const priorPeriod = "2025-12";
   const currentPeriod = new Date().toISOString().slice(0, 7);
 
@@ -202,7 +209,6 @@ async function main() {
     });
   }
 
-  // Sample AR-style workspace records
   const invoices = [
     { title: "INV-1001 Beta Foods", reference: "INV-1001", counterparty: "Beta Foods Inc", amount: 15000, status: "OVERDUE" },
     { title: "INV-1002 City Distributors", reference: "INV-1002", counterparty: "City Distributors", amount: 10500, status: "PARTIAL" },
