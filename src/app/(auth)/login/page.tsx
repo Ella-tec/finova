@@ -54,7 +54,15 @@ function LoginForm() {
         return;
       }
       if (result?.ok) {
-        router.push(callbackUrl);
+        const sess = await fetch("/api/auth/session").then((r) => r.json()).catch(() => null);
+        const role = sess?.user?.role as string | undefined;
+        const dest =
+          role === "CLIENT"
+            ? "/portal"
+            : callbackUrl.startsWith("/portal")
+              ? "/dashboard"
+              : callbackUrl || "/dashboard";
+        router.push(dest);
         router.refresh();
       }
     } catch {
