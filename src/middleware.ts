@@ -10,9 +10,6 @@ export default withAuth(
     if (role === "CLIENT" && path.startsWith("/dashboard")) {
       return NextResponse.redirect(new URL("/portal", req.url));
     }
-    if (role && role !== "CLIENT" && path.startsWith("/portal")) {
-      return NextResponse.redirect(new URL("/dashboard", req.url));
-    }
 
     return NextResponse.next();
   },

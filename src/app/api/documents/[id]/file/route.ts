@@ -12,10 +12,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
     const access = await authorizeClientAccess(document.clientId);
     if (!access.ok) return access.response;
-    if (document.folderId && access.user.role === "CLIENT") {
-      const share = await prisma.folderShare.findUnique({ where: { folderId_userId: { folderId: document.folderId, userId: access.user.id } } });
-      if (!share?.canDownload) return NextResponse.json({ error: "You do not have download permission for this shared folder." }, { status: 403 });
-    }
 
     const root = path.resolve(process.cwd(), "uploads", access.client.id);
     const filePath = path.resolve(process.cwd(), "uploads", document.storageKey);
