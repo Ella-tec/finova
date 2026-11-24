@@ -59,6 +59,8 @@ model User {
   documents     Document[]
   approvals     Approval[]
   auditLogs     AuditLog[]
+  folderShares  FolderShare[] @relation("FolderShareRecipient")
+  grantedFolderShares FolderShare[] @relation("FolderShareGrantor")
 }
 
 model Account {
@@ -134,7 +136,24 @@ model Folder {
   parent    Folder?  @relation("FolderTree", fields: [parentId], references: [id])
   children  Folder[] @relation("FolderTree")
   documents Document[]
+  shares    FolderShare[]
   createdAt DateTime @default(now())
+}
+
+model FolderShare {
+  id          String   @id @default(cuid())
+  folderId    String
+  userId      String
+  grantedById String
+  canUpload   Boolean  @default(false)
+  canDownload Boolean  @default(true)
+  canManage   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  folder      Folder   @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  user        User     @relation("FolderShareRecipient", fields: [userId], references: [id], onDelete: Cascade)
+  grantedBy   User     @relation("FolderShareGrantor", fields: [grantedById], references: [id])
+  @@unique([folderId, userId])
+  @@index([userId, folderId])
 }
 
 model Document {
