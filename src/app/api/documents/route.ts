@@ -75,6 +75,10 @@ export async function GET(req: NextRequest) {
       select: { id: true },
     });
     if (!folder) return NextResponse.json({ error: "Folder not found" }, { status: 404 });
+    if (access.user.role === "CLIENT") {
+      const share = await prisma.folderShare.findUnique({ where: { folderId_userId: { folderId, userId: access.user.id } } });
+      if (!share) return NextResponse.json({ error: "This folder has not been shared with your account." }, { status: 403 });
+    }
   }
 
   const documents = await prisma.document.findMany({
@@ -134,6 +138,10 @@ export async function POST(req: NextRequest) {
       });
       if (!folder) {
         return NextResponse.json({ error: "Folder not found" }, { status: 404 });
+      }
+      if (access.user.role === "CLIENT") {
+        const share = await prisma.folderShare.findUnique({ where: { folderId_userId: { folderId: normalizedFolderId, userId: access.user.id } } });
+        if (!share?.canUpload) return NextResponse.json({ error: "You do not have upload permission for this shared folder." }, { status: 403 });
       }
     }
 
