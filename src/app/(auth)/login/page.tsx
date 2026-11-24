@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, Suspense } from "react";
-import { signIn } from "next-auth/react";
+import { signIn, signOut } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -25,6 +25,7 @@ function LoginForm() {
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
   const errorParam = searchParams.get("error");
 
+  const [accountType, setAccountType] = useState<"staff" | "client">("staff");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
@@ -56,12 +57,14 @@ function LoginForm() {
       if (result?.ok) {
         const sess = await fetch("/api/auth/session").then((r) => r.json()).catch(() => null);
         const role = sess?.user?.role as string | undefined;
-        const dest =
-          role === "CLIENT"
-            ? "/portal"
-            : callbackUrl.startsWith("/portal")
-              ? "/dashboard"
-              : callbackUrl || "/dashboard";
+        const isClient = role === "CLIENT";
+        if ((accountType === "client") !== isClient) {
+          await signOut({ redirect: false });
+          setError(accountType === "client" ? "This is a staff account. Choose Staff to sign in." : "This is a client account. Choose Client to sign in.");
+          setLoading(false);
+          return;
+        }
+        const dest = isClient ? "/portal" : (callbackUrl.startsWith("/portal") ? "/dashboard" : callbackUrl || "/dashboard");
         router.push(dest);
         router.refresh();
       }
@@ -92,7 +95,7 @@ function LoginForm() {
           </Link>
 
           <h1 className="text-3xl font-semibold tracking-tight text-slate-900 leading-tight">
-            Sign in to your firm workspace
+            Sign in to your {accountType === "client" ? "client portal" : "firm workspace"}
           </h1>
           <p className="mt-3 text-slate-500 text-[15px] leading-relaxed">
             Clear books. Confident close. Secure collaboration for modern finance teams.
@@ -105,7 +108,15 @@ function LoginForm() {
             </div>
           )}
 
-          <form onSubmit={handleCredentialsLogin} className="mt-8 space-y-4">
+          <div className="mt-7 grid grid-cols-2 gap-3" role="group" aria-label="Choose account type">
+            <button type="button" aria-pressed={accountType === "staff"} onClick={() => setAccountType("staff")} className={"rounded-2xl border p-4 text-left transition " + (accountType === "staff" ? "border-[#1d2d5c] bg-[#1d2d5c] text-white shadow-md" : "border-slate-200 bg-white text-slate-700 hover:border-sky-300")}>
+              <span className="block text-sm font-semibold">Staff</span><span className={"mt-1 block text-xs " + (accountType === "staff" ? "text-blue-100" : "text-slate-500")}>Firm workspace</span>
+            </button>
+            <button type="button" aria-pressed={accountType === "client"} onClick={() => setAccountType("client")} className={"rounded-2xl border p-4 text-left transition " + (accountType === "client" ? "border-[#07649d] bg-[#07649d] text-white shadow-md" : "border-slate-200 bg-white text-slate-700 hover:border-sky-300")}>
+              <span className="block text-sm font-semibold">Client</span><span className={"mt-1 block text-xs " + (accountType === "client" ? "text-sky-100" : "text-slate-500")}>Client portal</span>
+            </button>
+          </div>
+          <form onSubmit={handleCredentialsLogin} className="mt-5 space-y-4">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1.5">
                 Work email
