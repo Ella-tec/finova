@@ -10,6 +10,7 @@ const registerSchema = z.object({
   email: z.string().trim().email().max(254),
   password: z.string().min(12).max(128),
   firmName: z.string().trim().min(2).max(120),
+  accountType: z.enum(["staff", "client"]).optional().default("staff"),
 });
 
 export async function POST(req: NextRequest) {
@@ -17,12 +18,15 @@ export async function POST(req: NextRequest) {
     const parsed = registerSchema.safeParse(await req.json());
     if (!parsed.success) {
       return NextResponse.json(
-        { error: "Enter your name, firm name, valid email, and a password of at least 12 characters." },
+        {
+          error:
+            "Enter your name, firm/company name, valid email, and a password of at least 12 characters.",
+        },
         { status: 400 }
       );
     }
 
-    const { name, firmName, password } = parsed.data;
+    const { name, firmName, password, accountType } = parsed.data;
     const email = parsed.data.email.toLowerCase();
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
@@ -33,7 +37,64 @@ export async function POST(req: NextRequest) {
     }
 
     const passwordHash = await hash(password, 12);
-    const slugBase = firmName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 45) || "firm";
+
+    if (accountType === "client") {
+      let firm = await prisma.firm.findFirst({ orderBy: { createdAt: "asc" } });
+      if (!firm) {
+        firm = await prisma.firm.create({
+          data: {
+            name: "Finova Demo Firm",
+            slug: `finova-${randomUUID().slice(0, 8)}`,
+          },
+        });
+      }
+
+      const client = await prisma.client.create({
+        data: {
+          name: firmName,
+          firmId: firm.id,
+        },
+      });
+
+      const user = await prisma.user.create({
+        data: {
+          name,
+          email,
+          passwordHash,
+          role: Role.CLIENT,
+          firmId: firm.id,
+          clientId: client.id,
+        },
+      });
+
+      try {
+        await prisma.auditLog.create({
+          data: {
+            action: "USER_REGISTERED",
+            entityType: "User",
+            entityId: user.id,
+            userId: user.id,
+            details: JSON.stringify({ method: "credentials", accountType: "client" }),
+          },
+        });
+      } catch {
+        /* non-blocking */
+      }
+
+      return NextResponse.json({
+        ok: true,
+        role: "CLIENT",
+        redirect: "/portal",
+        userId: user.id,
+      });
+    }
+
+    const slugBase =
+      firmName
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "")
+        .slice(0, 45) || "firm";
     const slug = `${slugBase}-${randomUUID().slice(0, 8)}`;
 
     const user = await prisma.$transaction(async (tx) => {
@@ -49,7 +110,6 @@ export async function POST(req: NextRequest) {
       });
     });
 
-    // Audit logging must not block a successfully created account.
     try {
       await prisma.auditLog.create({
         data: {
@@ -57,22 +117,24 @@ export async function POST(req: NextRequest) {
           entityType: "User",
           entityId: user.id,
           userId: user.id,
-          details: JSON.stringify({ method: "credentials" }),
+          details: JSON.stringify({ method: "credentials", accountType: "staff" }),
         },
       });
-    } catch (auditError) {
-      console.error("FINOVA registration audit log error:", auditError);
+    } catch {
+      /* non-blocking */
     }
 
+    return NextResponse.json({
+      ok: true,
+      role: "ADMIN",
+      redirect: "/dashboard",
+      userId: user.id,
+    });
+  } catch (error) {
+    console.error("register failed", error);
     return NextResponse.json(
-      { success: true, message: "Your FINOVA workspace is ready. You can now sign in." },
-      { status: 201 }
+      { error: "Could not create the account. Please try again." },
+      { status: 500 }
     );
-  } catch (error: unknown) {
-    if (typeof error === "object" && error !== null && "code" in error && error.code === "P2002") {
-      return NextResponse.json({ error: "An account with this email already exists." }, { status: 409 });
-    }
-    console.error("FINOVA registration error:", error);
-    return NextResponse.json({ error: "Registration failed. Please try again." }, { status: 500 });
   }
 }
