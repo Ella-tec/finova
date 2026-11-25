@@ -94,13 +94,54 @@ export default function PortalDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <header className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#07649d]">Client workspace</p>
-        <h1 className="mt-1 text-2xl font-bold text-slate-900 sm:text-3xl">Welcome, {name}</h1>
-        <p className="mt-2 max-w-2xl text-sm text-slate-600">
-          Your firm collaboration home — documents, requests, secure scanning, and support in one place.
-          Staff accounting tools stay on the firm side of Finova.
-        </p>
+      <header className="relative isolate overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 shadow-sm">
+        <div className="absolute inset-0">
+          <video
+            className="h-full w-full object-cover"
+            autoPlay
+            muted
+            loop
+            playsInline
+            poster="/images/sanitizer/finova-hero-1.jpg"
+          >
+            <source src="/videos/client-workspace-hero.mp4" type="video/mp4" />
+            <source
+              src="https://videos.pexels.com/video-files/3129957/3129957-uhd_2560_1440_25fps.mp4"
+              type="video/mp4"
+            />
+          </video>
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-900/55 to-slate-900/25"
+          />
+        </div>
+
+        <div className="relative z-10 flex min-h-[220px] flex-col justify-end gap-3 p-6 sm:min-h-[280px] sm:p-8 lg:min-h-[320px]">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-200/90">
+            Client workspace
+          </p>
+          <h1 className="max-w-2xl text-3xl font-bold tracking-tight text-white sm:text-4xl">
+            Welcome, {name}
+          </h1>
+          <p className="max-w-xl text-sm leading-relaxed text-white/85 sm:text-base">
+            Your firm collaboration home — documents, requests, secure scanning, and support in one place.
+            Staff accounting tools stay on the firm side of Finova.
+          </p>
+          <div className="mt-1 flex flex-wrap gap-2">
+            <Link
+              href="/portal/documents"
+              className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm hover:bg-slate-100"
+            >
+              <Upload className="h-4 w-4" /> Upload documents
+            </Link>
+            <Link
+              href="/portal/requests"
+              className="inline-flex items-center gap-2 rounded-full border border-white/40 bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur hover:bg-white/20"
+            >
+              <ClipboardList className="h-4 w-4" /> View requests
+            </Link>
+          </div>
+        </div>
       </header>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
