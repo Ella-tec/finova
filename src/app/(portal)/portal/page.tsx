@@ -104,6 +104,7 @@ export default function PortalDashboardPage() {
             playsInline
             poster="/images/sanitizer/finova-hero-1.jpg"
           >
+            <source src="/videos/client-workspace-hero.webm" type="video/webm" />
             <source src="/videos/client-workspace-hero.mp4" type="video/mp4" />
             <source
               src="https://videos.pexels.com/video-files/3129957/3129957-uhd_2560_1440_25fps.mp4"
@@ -123,10 +124,6 @@ export default function PortalDashboardPage() {
           <h1 className="max-w-2xl text-3xl font-bold tracking-tight text-white sm:text-4xl">
             Welcome, {name}
           </h1>
-          <p className="max-w-xl text-sm leading-relaxed text-white/85 sm:text-base">
-            Your firm collaboration home — documents, requests, secure scanning, and support in one place.
-            Staff accounting tools stay on the firm side of Finova.
-          </p>
           <div className="mt-1 flex flex-wrap gap-2">
             <Link
               href="/portal/documents"
@@ -151,7 +148,11 @@ export default function PortalDashboardPage() {
           { label: "Security", value: "Scan before share", href: "/portal/security", icon: Shield },
           { label: "Notifications", value: "Firm activity", href: "/portal/requests", icon: Bell },
         ].map((card) => (
-          <Link key={card.label} href={card.href} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-[#07649d]/40 hover:shadow-md">
+          <Link
+            key={card.label}
+            href={card.href}
+            className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-[#07649d]/40 hover:shadow-md"
+          >
             <div className="flex items-center justify-between">
               <card.icon className="h-5 w-5 text-[#07649d]" />
               <ArrowRight className="h-4 w-4 text-slate-400" />
