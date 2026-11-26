@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
+import { useEffect, useRef, useState } from "react";
 import {
   Home,
   FileText,
@@ -43,6 +44,35 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
   const role = (session?.user as { role?: string } | undefined)?.role;
   const isStaff = Boolean(role && role !== "CLIENT");
   const name = session?.user?.name || session?.user?.email || "Client";
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef<HTMLDivElement>(null);
+
+  // Close "More" when clicking anywhere outside the menu
+  useEffect(() => {
+    if (!moreOpen) return;
+    const onPointerDown = (event: MouseEvent | TouchEvent) => {
+      const el = moreRef.current;
+      if (el && !el.contains(event.target as Node)) {
+        setMoreOpen(false);
+      }
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMoreOpen(false);
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("touchstart", onPointerDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("touchstart", onPointerDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [moreOpen]);
+
+  // Close when the route changes
+  useEffect(() => {
+    setMoreOpen(false);
+  }, [pathname]);
 
   const linkClass = (active: boolean) =>
     cn(
@@ -109,35 +139,48 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
               </Link>
             ))}
 
-            <details className="group relative">
-              <summary
+            <div className="relative" ref={moreRef}>
+              <button
+                type="button"
+                aria-expanded={moreOpen}
+                aria-haspopup="menu"
+                onClick={() => setMoreOpen((v) => !v)}
                 className={cn(
-                  linkClass(moreNav.some((item) => isActive(pathname, item.href))),
-                  "cursor-pointer list-none [&::-webkit-details-marker]:hidden"
+                  linkClass(moreNav.some((item) => isActive(pathname, item.href)) || moreOpen),
+                  "cursor-pointer"
                 )}
               >
                 More
-                <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
-              </summary>
-              <div className="absolute right-0 top-full z-50 mt-2 w-56 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl">
-                {moreNav.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    aria-current={isActive(pathname, item.href) ? "page" : undefined}
-                    className={cn(
-                      "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
-                      isActive(pathname, item.href)
-                        ? "bg-[#1d2d5c] text-white"
-                        : "text-slate-700 hover:bg-slate-50"
-                    )}
-                  >
-                    <item.icon className="h-4 w-4" />
-                    {item.name}
-                  </Link>
-                ))}
-              </div>
-            </details>
+                <ChevronDown
+                  className={cn("h-4 w-4 transition-transform", moreOpen && "rotate-180")}
+                />
+              </button>
+              {moreOpen && (
+                <div
+                  role="menu"
+                  className="absolute right-0 top-full z-50 mt-2 w-56 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl"
+                >
+                  {moreNav.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      role="menuitem"
+                      onClick={() => setMoreOpen(false)}
+                      aria-current={isActive(pathname, item.href) ? "page" : undefined}
+                      className={cn(
+                        "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
+                        isActive(pathname, item.href)
+                          ? "bg-[#1d2d5c] text-white"
+                          : "text-slate-700 hover:bg-slate-50"
+                      )}
+                    >
+                      <item.icon className="h-4 w-4" />
+                      {item.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           </nav>
 
           <nav
