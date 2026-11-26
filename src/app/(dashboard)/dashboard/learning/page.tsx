@@ -8,6 +8,9 @@ import {
   Clock,
   GraduationCap,
   ArrowRight,
+  ClipboardCheck,
+  NotebookPen,
+  Library,
 } from "lucide-react";
 import { COURSES, LEVELS, type LevelFilter } from "@/lib/learning/courses";
 import { VideoLibrary } from "@/components/learning/VideoLibrary";
@@ -32,18 +35,44 @@ export default function DashboardLearningPage() {
             Learning Center
           </h1>
           <p className="mt-2 max-w-2xl text-slate-600">
-            Practical courses for accounting, reconciliation, month-end close,
-            audit, consolidation, documents, and secure client collaboration.
+            Practical courses plus quizzes with explanations, hands-on exercises,
+            reading notes, and a library of accounting books and research.
           </p>
         </div>
-        <div className="rounded-xl border bg-white px-4 py-3 text-sm text-slate-600 shadow-sm">
-          <span className="font-semibold text-slate-900">{COURSES.length} courses</span>
-          <span className="mx-2 text-slate-300">•</span>
-          Self-paced learning
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href="/learning/practice"
+            className="inline-flex items-center gap-2 rounded-xl bg-isaca-medium px-4 py-2.5 text-sm font-semibold text-white hover:brightness-110"
+          >
+            Practice hub <ArrowRight className="h-4 w-4" />
+          </Link>
+          <div className="rounded-xl border bg-white px-4 py-3 text-sm text-slate-600 shadow-sm">
+            <span className="font-semibold text-slate-900">{COURSES.length} courses</span>
+            <span className="mx-2 text-slate-300">•</span>
+            Self-paced learning
+          </div>
         </div>
       </div>
 
-      {/* Free accounting video library — visible on Learning Center */}
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {[
+          { href: "/learning/quiz", title: "Quiz workout", blurb: "Answers & explanations", icon: ClipboardCheck },
+          { href: "/learning/exercises", title: "Hands-on exercises", blurb: "TB, bank rec, PBC labs", icon: NotebookPen },
+          { href: "/learning/notes", title: "Reading notes", blurb: "Short notes + prompts", icon: BookOpen },
+          { href: "/learning/library", title: "Books & research", blurb: "Textbooks & articles", icon: Library },
+        ].map((p) => (
+          <Link
+            key={p.href}
+            href={p.href}
+            className="group rounded-2xl border bg-white p-4 shadow-sm transition hover:border-isaca-medium/40 hover:shadow-md"
+          >
+            <p.icon className="h-5 w-5 text-isaca-medium" />
+            <h2 className="mt-3 font-semibold text-slate-900 group-hover:text-isaca-medium">{p.title}</h2>
+            <p className="mt-1 text-sm text-slate-600">{p.blurb}</p>
+          </Link>
+        ))}
+      </section>
+
       <VideoLibrary />
 
       <div className="flex flex-wrap gap-2">
@@ -65,9 +94,7 @@ export default function DashboardLearningPage() {
               }`}
             >
               {level}
-              <span className={`ml-1.5 text-xs ${isActive ? "text-white/80" : "text-slate-400"}`}>
-                {count}
-              </span>
+              <span className="ml-1.5 opacity-70">{count}</span>
             </button>
           );
         })}
@@ -116,16 +143,23 @@ export default function DashboardLearningPage() {
           <h2 className="font-semibold text-slate-900">Quick start path</h2>
         </div>
         <p className="mt-2 text-sm text-slate-600">
-          New to Finova? Start with Getting Started, then take Bank Reconciliation and Month-End
-          Close to follow a typical accounting workflow. After that explore Documents & OCR and the
-          Finova AI workflow guide.
+          Start with the basics quiz and a reading note, then Getting Started and Bank
+          Reconciliation courses for a typical workflow.
         </p>
-        <Link
-          href="/learning/getting-started"
-          className="mt-4 inline-flex items-center gap-2 rounded-lg bg-isaca-medium px-4 py-2 text-sm font-semibold text-white hover:brightness-110"
-        >
-          Begin learning <ArrowRight className="h-4 w-4" />
-        </Link>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link
+            href="/learning/quiz/accounting-basics"
+            className="inline-flex items-center gap-2 rounded-lg bg-isaca-medium px-4 py-2 text-sm font-semibold text-white hover:brightness-110"
+          >
+            Basics quiz <ArrowRight className="h-4 w-4" />
+          </Link>
+          <Link
+            href="/learning/getting-started"
+            className="inline-flex items-center gap-2 rounded-lg border bg-white px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+          >
+            Begin course
+          </Link>
+        </div>
       </section>
     </div>
   );
