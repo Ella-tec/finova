@@ -136,12 +136,7 @@ export default function HomePage() {
             <span className="text-teal-700">clear, calm, and capable.</span>
           </h1>
 
-          <p className="mt-5 max-w-md text-base leading-relaxed text-slate-600">
-            Books, statements, bank reconciliation, month-end close, audit PBC, and client
-            collaboration — one elegant firm workspace.
-          </p>
-
-          <div className="mt-9 flex flex-wrap gap-3">
+          <div className="mt-7 flex flex-wrap gap-3">
             {[
               { icon: BarChart3, label: "Reporting" },
               { icon: Landmark, label: "Banking" },
@@ -159,44 +154,29 @@ export default function HomePage() {
             ))}
           </div>
 
-          <div className="relative mt-10 max-w-xl overflow-hidden rounded-3xl border border-teal-100/80 bg-gradient-to-br from-white via-[#f0faf7] to-[#e7f5fb] shadow-[0_20px_50px_rgba(7,100,157,0.08)]">
-            <div className="relative aspect-[16/9] w-full overflow-hidden">
-              <video
-                className="h-full w-full object-cover"
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="metadata"
-              >
-                <source
-                  src="https://videos.pexels.com/video-files/18743334/18743334-hd_1920_1080_60fps.mp4"
-                  type="video/mp4"
-                />
-                <source src="/videos/sign-in-hero.mp4" type="video/mp4" />
-              </video>
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-900/25 via-transparent to-white/10" />
-            </div>
-            <div className="flex items-center justify-between gap-3 border-t border-teal-50/80 bg-white/80 px-4 py-2.5 backdrop-blur-sm">
-              <p className="text-xs font-medium text-slate-600">
-                Finance motion · free stock via{" "}
-                <a
-                  href="https://www.pexels.com/video/18743334/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-semibold text-teal-700 hover:underline"
+          <div className="relative mt-8 w-full max-w-lg">
+            <div className="overflow-hidden rounded-2xl border border-teal-100/90 bg-slate-900 shadow-[0_12px_32px_rgba(7,100,157,0.12)]">
+              <div className="relative h-[160px] w-full sm:h-[180px]">
+                <video
+                  className="h-full w-full object-cover"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="auto"
                 >
-                  Pexels
-                </a>
-              </p>
-              <span className="rounded-full bg-teal-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-teal-800">
-                Live loop
-              </span>
+                  <source src="/videos/sign-in-hero.mp4" type="video/mp4" />
+                  <source
+                    src="https://videos.pexels.com/video-files/18743334/18743334-hd_1920_1080_60fps.mp4"
+                    type="video/mp4"
+                  />
+                </video>
+              </div>
             </div>
           </div>
         </div>
 
-        <p className="relative z-10 mt-10 text-xs text-slate-500">
+        <p className="relative z-10 mt-6 text-xs text-slate-500">
           © {new Date().getFullYear()} Finova
         </p>
       </div>
