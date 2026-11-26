@@ -154,11 +154,11 @@ export default function HomePage() {
             ))}
           </div>
 
-          <div className="relative mt-8 w-full max-w-lg">
-            <div className="overflow-hidden rounded-2xl border border-teal-100/90 bg-slate-900 shadow-[0_12px_32px_rgba(7,100,157,0.12)]">
-              <div className="relative h-[160px] w-full sm:h-[180px]">
+          <div className="relative mt-8 w-full max-w-xl flex-1 min-h-0">
+            <div className="h-full min-h-[220px] max-h-[320px] overflow-hidden rounded-2xl border border-teal-100/90 bg-slate-900 shadow-[0_16px_40px_rgba(7,100,157,0.14)] ring-1 ring-white/40">
+              <div className="relative h-full min-h-[220px] max-h-[320px] w-full">
                 <video
-                  className="h-full w-full object-cover"
+                  className="absolute inset-0 h-full w-full object-cover"
                   autoPlay
                   muted
                   loop
