@@ -1,1 +1,142 @@
-PLACEHOLDER
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+    --finova-navy: #1d2d5c;
+    --finova-navy-deep: #162447;
+    --finova-blue: #07649d;
+    --finova-cyan: #00a4e4;
+    --finova-mint: #36ac91;
+    --finova-soft: #e7f0f5;
+    --finova-soft-2: #d7eaf5;
+    --finova-ink: #1d2d5c;
+    --finova-muted: #64748b;
+    --page-primary: #1d2d5c;
+    --page-accent: #07649d;
+    --page-ink: #1d2d5c;
+    --brand-medium: #07649d;
+    --brand-blue: #00a4e4;
+    --brand-teal: #36ac91;
+    --brand-light: #e7f0f5;
+  }
+  html {
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  body {
+    @apply bg-slate-50 text-slate-900 antialiased;
+    color: var(--finova-ink);
+    font-feature-settings: "ss01" on, "cv11" on;
+  }
+  h1, h2, h3 {
+    color: var(--finova-navy);
+    letter-spacing: -0.02em;
+  }
+}
+
+.finova-page-title { font-size: 1.5rem; font-weight: 700; color: var(--finova-navy); letter-spacing: -0.02em; }
+.finova-page-kicker { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--finova-blue); }
+.finova-page-sub { margin-top: 0.25rem; font-size: 0.9rem; color: var(--finova-muted); }
+.finova-btn-primary { display: inline-flex; align-items: center; gap: 0.5rem; border-radius: 0.75rem; background: var(--finova-navy); padding: 0.65rem 1.1rem; font-size: 0.875rem; font-weight: 600; color: #fff; box-shadow: 0 1px 2px rgba(29, 45, 92, 0.12); transition: background 0.15s ease; }
+.finova-btn-primary:hover { background: var(--finova-navy-deep); }
+.finova-btn-secondary { display: inline-flex; align-items: center; gap: 0.5rem; border-radius: 0.75rem; border: 1px solid #e2e8f0; background: #fff; padding: 0.65rem 1.1rem; font-size: 0.875rem; font-weight: 600; color: var(--finova-blue); transition: background 0.15s ease; }
+.finova-btn-secondary:hover { background: var(--finova-soft); }
+.finova-btn-blue { display: inline-flex; align-items: center; gap: 0.5rem; border-radius: 0.75rem; background: var(--finova-blue); padding: 0.65rem 1.1rem; font-size: 0.875rem; font-weight: 600; color: #fff; }
+.finova-btn-blue:hover { background: var(--finova-navy); }
+.finova-card { border-radius: 1rem; border: 1px solid #e2e8f0; background: #fff; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04); transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease; }
+.finova-card:hover { border-color: color-mix(in srgb, var(--finova-cyan) 45%, #e2e8f0); box-shadow: 0 8px 24px rgba(7, 100, 157, 0.08); }
+.finova-icon-soft { display: inline-flex; height: 2.75rem; width: 2.75rem; align-items: center; justify-content: center; border-radius: 0.75rem; background: var(--finova-soft); color: var(--finova-blue); }
+.finova-badge { border-radius: 999px; background: #f1f5f9; padding: 0.2rem 0.65rem; font-size: 0.7rem; font-weight: 600; color: #64748b; }
+
+@keyframes finova-float {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
+  25% { transform: translate3d(0, -14px, 0) scale(1.035) rotate(-0.6deg); }
+  50% { transform: translate3d(0, -6px, 0) scale(1.02) rotate(0.4deg); }
+  75% { transform: translate3d(0, -16px, 0) scale(1.04) rotate(-0.3deg); }
+}
+@keyframes finova-pill-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes finova-graph-draw {
+  0% { stroke-dashoffset: 900; opacity: 0.35; }
+  40% { opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 1; }
+}
+.finova-logo-float {
+  animation: finova-float 6.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  will-change: transform;
+  transform-origin: center center;
+}
+.finova-logo-glow { filter: drop-shadow(0 18px 36px rgba(7, 100, 157, 0.22)); }
+.finova-pill-float { animation: finova-pill-float 5s ease-in-out infinite; will-change: transform; }
+.finova-pill-float:nth-child(2) { animation-delay: 0.35s; }
+.finova-pill-float:nth-child(3) { animation-delay: 0.7s; }
+.finova-graph-draw { stroke-dasharray: 900; animation: finova-graph-draw 2.8s ease-out forwards; }
+
+.finova-welcome-hero { position: relative; isolation: isolate; min-height: 360px; border-radius: 1.5rem; padding: 2rem 2.25rem 2.5rem; color: #fff; box-shadow: 0 18px 40px rgba(29, 45, 92, 0.2); overflow: hidden; }
+.finova-welcome-copy { position: relative; z-index: 20; max-width: 640px; }
+.finova-welcome-copy h1 { margin-top: 0.75rem; font-size: clamp(1.75rem, 3vw, 2.35rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1.15; color: #fff; text-shadow: 0 2px 16px rgba(0, 0, 0, 0.25); }
+.finova-welcome-copy h1 span { color: #7dd3fc; }
+.finova-welcome-copy > p { margin-top: 0.85rem; max-width: 34rem; font-size: 0.95rem; line-height: 1.6; color: rgba(255, 255, 255, 0.88); }
+.finova-eyebrow { display: inline-flex; align-items: center; gap: 0.45rem; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.25); background: rgba(255, 255, 255, 0.1); padding: 0.35rem 0.75rem; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em; color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); }
+.finova-eyebrow-dot { height: 0.4rem; width: 0.4rem; border-radius: 999px; background: #38bdf8; box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25); }
+.finova-hero-actions { margin-top: 1.35rem; display: flex; flex-wrap: wrap; gap: 0.65rem; }
+.finova-button-primary { display: inline-flex; align-items: center; gap: 0.45rem; border-radius: 0.9rem; background: #fff; padding: 0.7rem 1.15rem; font-size: 0.875rem; font-weight: 700; color: var(--finova-navy); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12); }
+.finova-button-primary:hover { background: var(--finova-soft); }
+.finova-button-quiet { display: inline-flex; align-items: center; gap: 0.4rem; border-radius: 0.9rem; border: 1px solid rgba(255, 255, 255, 0.35); background: rgba(255, 255, 255, 0.08); padding: 0.7rem 1.1rem; font-size: 0.875rem; font-weight: 600; color: #fff; backdrop-filter: blur(6px); }
+.finova-button-quiet:hover { background: rgba(255, 255, 255, 0.18); }
+.finova-hero-trust { margin-top: 1.15rem; display: inline-flex; align-items: center; gap: 0.45rem; font-size: 0.8rem; font-weight: 500; color: rgba(255, 255, 255, 0.82); }
+.finova-hero-date { position: absolute; top: 1.35rem; right: 1.5rem; z-index: 20; display: inline-flex; align-items: center; gap: 0.4rem; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(29, 45, 92, 0.4); padding: 0.4rem 0.75rem; font-size: 0.75rem; font-weight: 600; color: rgba(255, 255, 255, 0.92); backdrop-filter: blur(8px); }
+.finova-demo-note { display: flex; align-items: center; gap: 0.55rem; border-radius: 0.9rem; border: 1px solid #e2e8f0; background: #fff; padding: 0.7rem 1rem; font-size: 0.8rem; color: #64748b; }
+.finova-demo-note > span { height: 0.45rem; width: 0.45rem; border-radius: 999px; background: var(--finova-mint); }
+.finova-section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; }
+.finova-section-heading h2 { font-size: 1.15rem; font-weight: 700; color: var(--finova-navy); }
+.finova-section-heading p { margin-top: 0.2rem; font-size: 0.85rem; color: var(--finova-muted); }
+.finova-kpi-card { display: flex; flex-direction: column; background: #fff; }
+.finova-card-label { font-size: 0.8rem; font-weight: 600; color: #475569; }
+.finova-kpi-value { font-size: 1.65rem; font-weight: 700; letter-spacing: -0.03em; color: var(--finova-navy); line-height: 1.1; }
+.finova-card-detail { font-size: 0.78rem; color: #94a3b8; }
+.finova-icon-tile { display: inline-flex; height: 2.35rem; width: 2.35rem; align-items: center; justify-content: center; border-radius: 0.75rem; }
+.finova-tone-green { background: #ecfdf5; color: #059669; }
+.finova-tone-blue { background: var(--finova-soft); color: var(--finova-blue); }
+.finova-tone-orange { background: #fff7ed; color: #ea580c; }
+.finova-tone-purple { background: #f5f3ff; color: #7c3aed; }
+.finova-tone-red { background: #fef2f2; color: #dc2626; }
+.finova-tone-teal { background: #e6f7f3; color: var(--finova-mint); }
+.finova-tone-slate { background: #f8fafc; color: #64748b; }
+.finova-panel { border-radius: 1.25rem; border: 1px solid #e2e8f0; background: #fff; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04); }
+.finova-panel-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; border-bottom: 1px solid #f1f5f9; padding: 1.15rem 1.25rem; }
+.finova-panel-heading h2 { font-size: 1rem; font-weight: 700; color: var(--finova-navy); }
+.finova-panel-heading p { margin-top: 0.15rem; font-size: 0.8rem; color: var(--finova-muted); }
+.finova-panel-heading a { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.8rem; font-weight: 600; color: var(--finova-blue); }
+.finova-task-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.95rem 1.25rem; }
+.finova-task-row:hover { background: #f8fafc; }
+.finova-task-row strong { display: block; font-size: 0.9rem; font-weight: 600; color: var(--finova-navy); }
+.finova-task-row small { display: block; margin-top: 0.15rem; font-size: 0.75rem; color: #94a3b8; }
+.finova-status { border-radius: 999px; padding: 0.25rem 0.65rem; font-size: 0.7rem; font-weight: 700; }
+.finova-status.finova-tone-blue { background: var(--finova-soft); color: var(--finova-blue); }
+.finova-status.finova-tone-orange { background: #fff7ed; color: #c2410c; }
+.finova-status.finova-tone-slate { background: #f1f5f9; color: #475569; }
+.finova-status.finova-tone-teal { background: #e6f7f3; color: var(--finova-mint); }
+.finova-ai-card { border-radius: 1.25rem; background: linear-gradient(145deg, #1d2d5c 0%, #07649d 55%, #162447 100%); padding: 1.35rem 1.4rem; color: #fff; box-shadow: 0 14px 32px rgba(29, 45, 92, 0.28); }
+.finova-ai-card h2 { margin-top: 0.85rem; font-size: 1.15rem; font-weight: 700; }
+.finova-ai-card p { margin-top: 0.45rem; font-size: 0.85rem; line-height: 1.55; color: rgba(255, 255, 255, 0.85); }
+.finova-ai-mark { display: inline-flex; height: 2.1rem; width: 2.1rem; align-items: center; justify-content: center; border-radius: 0.7rem; background: rgba(255, 255, 255, 0.15); }
+.finova-ai-button { margin-top: 1rem; display: inline-flex; align-items: center; gap: 0.4rem; border-radius: 0.85rem; background: #fff; padding: 0.6rem 1rem; font-size: 0.85rem; font-weight: 700; color: var(--finova-navy); }
+.finova-ai-button:hover { background: var(--finova-soft); }
+.finova-quick-link { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; border-radius: 0.85rem; padding: 0.75rem 0.85rem; font-size: 0.875rem; font-weight: 600; color: #334155; }
+.finova-quick-link span { display: inline-flex; align-items: center; gap: 0.55rem; }
+.finova-quick-link:hover { background: var(--finova-soft); color: var(--finova-navy); }
+.finova-activity-card { display: flex; flex-direction: column; gap: 0.35rem; border-radius: 1rem; border: 1px solid #e2e8f0; background: #f8fafc; padding: 1rem; }
+.finova-activity-card strong { font-size: 0.875rem; color: var(--finova-navy); }
+.finova-activity-card p { font-size: 0.78rem; color: var(--finova-muted); }
+.finova-activity-card small { font-size: 0.7rem; color: #94a3b8; }
+.finova-activity-card a { margin-top: 0.35rem; display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.78rem; font-weight: 700; color: var(--finova-blue); }
+@media (max-width: 768px) {
+  .finova-welcome-hero { min-height: 320px; padding: 1.35rem 1.25rem 2rem; }
+  .finova-hero-date { position: static; margin-top: 1rem; }
+}
