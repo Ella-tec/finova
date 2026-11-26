@@ -8,9 +8,39 @@ import {
   Clock,
   GraduationCap,
   ArrowRight,
+  ClipboardCheck,
+  NotebookPen,
+  Library,
 } from "lucide-react";
 import { COURSES, LEVELS, type LevelFilter } from "@/lib/learning/courses";
 import { VideoLibrary } from "@/components/learning/VideoLibrary";
+
+const practiceLinks = [
+  {
+    href: "/learning/quiz",
+    title: "Quiz workout",
+    blurb: "Questions with answers & explanations",
+    icon: ClipboardCheck,
+  },
+  {
+    href: "/learning/exercises",
+    title: "Hands-on exercises",
+    blurb: "TB, bank rec, PBC labs",
+    icon: NotebookPen,
+  },
+  {
+    href: "/learning/notes",
+    title: "Reading notes",
+    blurb: "Short notes + practice prompts",
+    icon: BookOpen,
+  },
+  {
+    href: "/learning/library",
+    title: "Books & research",
+    blurb: "Textbooks, articles, standards",
+    icon: Library,
+  },
+];
 
 export default function PortalLearningPage() {
   const [activeLevel, setActiveLevel] = useState<LevelFilter>("All");
@@ -32,17 +62,36 @@ export default function PortalLearningPage() {
             Learning Center
           </h1>
           <p className="mt-2 max-w-2xl text-slate-600">
-            The same practical Finova curriculum as staff: accounting foundations,
-            documents, bank activity, month-end awareness, audit readiness, and
-            secure collaboration with your firm.
+            Courses, video, quizzes with explanations, hands-on exercises, reading notes,
+            and a library of accounting books and research.
           </p>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 shadow-sm">
-          <span className="font-semibold text-slate-900">{COURSES.length} courses</span>
-          <span className="mx-2 text-slate-300">•</span>
-          Self-paced learning
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href="/learning/practice"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#1d2d5c] px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#162447]"
+          >
+            Practice hub <ArrowRight className="h-4 w-4" />
+          </Link>
+          <div className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-600 shadow-sm">
+            <span className="font-semibold text-slate-900">{COURSES.length} courses</span>
+          </div>
         </div>
       </div>
+
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {practiceLinks.map((p) => (
+          <Link
+            key={p.href}
+            href={p.href}
+            className="group rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-[#1d2d5c]/30 hover:shadow-md"
+          >
+            <p.icon className="h-5 w-5 text-[#1d2d5c]" />
+            <h2 className="mt-3 font-semibold text-slate-900 group-hover:text-[#1d2d5c]">{p.title}</h2>
+            <p className="mt-1 text-sm text-slate-600">{p.blurb}</p>
+          </Link>
+        ))}
+      </section>
 
       <VideoLibrary />
 
@@ -114,15 +163,23 @@ export default function PortalLearningPage() {
           <h2 className="font-semibold text-slate-900">Quick start path</h2>
         </div>
         <p className="mt-2 text-sm leading-6 text-slate-600">
-          New to Finova? Start with Getting Started, then Documents and secure file
-          habits, then audit readiness so PBC requests move faster with your firm.
+          Read one note, take the basics quiz, then try the trial-balance exercise before
+          opening a full course.
         </p>
-        <Link
-          href="/learning/getting-started"
-          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#1d2d5c] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#162447]"
-        >
-          Begin learning <ArrowRight className="h-4 w-4" />
-        </Link>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link
+            href="/learning/quiz/accounting-basics"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#1d2d5c] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#162447]"
+          >
+            Basics quiz <ArrowRight className="h-4 w-4" />
+          </Link>
+          <Link
+            href="/learning/getting-started"
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+          >
+            Begin course
+          </Link>
+        </div>
       </section>
     </div>
   );
