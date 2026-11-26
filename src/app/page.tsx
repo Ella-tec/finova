@@ -159,57 +159,40 @@ export default function HomePage() {
             ))}
           </div>
 
-          <div className="relative mt-10 max-w-xl overflow-hidden rounded-3xl border border-teal-100/80 bg-gradient-to-br from-white via-[#f0faf7] to-[#e7f5fb] p-5 shadow-[0_20px_50px_rgba(7,100,157,0.08)]">
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-teal-700">
-                  Market pulse
-                </p>
-                <p className="text-sm font-medium text-slate-600">Calm performance view</p>
-              </div>
-              <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-                +2.4%
+          <div className="relative mt-10 max-w-xl overflow-hidden rounded-3xl border border-teal-100/80 bg-gradient-to-br from-white via-[#f0faf7] to-[#e7f5fb] shadow-[0_20px_50px_rgba(7,100,157,0.08)]">
+            <div className="relative aspect-[16/9] w-full overflow-hidden">
+              <video
+                className="h-full w-full object-cover"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
+              >
+                <source
+                  src="https://videos.pexels.com/video-files/18743334/18743334-hd_1920_1080_60fps.mp4"
+                  type="video/mp4"
+                />
+                <source src="/videos/sign-in-hero.mp4" type="video/mp4" />
+              </video>
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-900/25 via-transparent to-white/10" />
+            </div>
+            <div className="flex items-center justify-between gap-3 border-t border-teal-50/80 bg-white/80 px-4 py-2.5 backdrop-blur-sm">
+              <p className="text-xs font-medium text-slate-600">
+                Finance motion · free stock via{" "}
+                <a
+                  href="https://www.pexels.com/video/18743334/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-teal-700 hover:underline"
+                >
+                  Pexels
+                </a>
+              </p>
+              <span className="rounded-full bg-teal-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-teal-800">
+                Live loop
               </span>
             </div>
-            <svg
-              viewBox="0 0 560 180"
-              className="h-36 w-full"
-              role="img"
-              aria-label="Light stock graph illustration"
-            >
-              <defs>
-                <linearGradient id="finovaGraphFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#36ac91" stopOpacity="0.35" />
-                  <stop offset="100%" stopColor="#36ac91" stopOpacity="0.02" />
-                </linearGradient>
-                <linearGradient id="finovaGraphStroke" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stopColor="#07649d" />
-                  <stop offset="55%" stopColor="#36ac91" />
-                  <stop offset="100%" stopColor="#00a4e4" />
-                </linearGradient>
-              </defs>
-              <g stroke="#cbd5e1" strokeWidth="1" strokeDasharray="4 6" opacity="0.7">
-                <line x1="0" y1="40" x2="560" y2="40" />
-                <line x1="0" y1="80" x2="560" y2="80" />
-                <line x1="0" y1="120" x2="560" y2="120" />
-                <line x1="0" y1="160" x2="560" y2="160" />
-              </g>
-              <path
-                d="M0,140 C40,132 70,150 100,118 C130,88 150,96 180,110 C210,124 230,70 270,78 C310,86 330,50 370,58 C410,66 440,36 480,42 C510,46 540,30 560,28 L560,180 L0,180 Z"
-                fill="url(#finovaGraphFill)"
-              />
-              <path
-                d="M0,140 C40,132 70,150 100,118 C130,88 150,96 180,110 C210,124 230,70 270,78 C310,86 330,50 370,58 C410,66 440,36 480,42 C510,46 540,30 560,28"
-                fill="none"
-                stroke="url(#finovaGraphStroke)"
-                strokeWidth="3.5"
-                strokeLinecap="round"
-                className="finova-graph-draw"
-              />
-              <circle cx="270" cy="78" r="5" fill="#fff" stroke="#36ac91" strokeWidth="2.5" />
-              <circle cx="370" cy="58" r="5" fill="#fff" stroke="#07649d" strokeWidth="2.5" />
-              <circle cx="560" cy="28" r="5" fill="#fff" stroke="#00a4e4" strokeWidth="2.5" />
-            </svg>
           </div>
         </div>
 
