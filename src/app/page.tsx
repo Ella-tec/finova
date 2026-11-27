@@ -127,7 +127,7 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-slate-950/35" />
       </div>
 
-      <div className="relative z-10 flex min-h-screen items-center justify-center px-4 py-10">
+      <div className="relative z-10 flex min-h-screen items-center justify-end px-4 py-10 sm:px-8 lg:px-12 xl:px-16">
         <div className="w-full max-w-[400px] rounded-[28px] border border-white/70 bg-white/95 p-6 shadow-[0_28px_80px_rgba(0,0,0,0.35)] backdrop-blur-md sm:p-8">
           <div className="mb-5 flex justify-center">
             <Logo size={72} className="finova-logo-float finova-logo-glow" />
