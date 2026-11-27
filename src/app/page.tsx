@@ -113,30 +113,30 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-[#F4FAF8]">
-      <div className="relative hidden min-h-screen flex-col justify-between overflow-hidden py-10 pl-10 pr-4 lg:flex xl:pl-14 xl:pr-6">
+      <div className="relative hidden min-h-screen flex-col overflow-hidden lg:flex">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_#E8F5F1_0%,_transparent_55%)]" />
         <div
-          className="absolute inset-0 opacity-[0.35]"
+          className="absolute inset-0 opacity-[0.28]"
           style={{
             backgroundImage: "radial-gradient(#94a3b8 1px, transparent 1px)",
             backgroundSize: "22px 22px",
           }}
         />
 
-        <div className="relative z-10 flex min-h-0 flex-1 flex-col">
-          <Logo size={110} className="finova-logo-float finova-logo-glow drop-shadow-sm shrink-0" />
+        <div className="relative z-10 shrink-0 px-10 pt-10 xl:px-14">
+          <Logo size={100} className="finova-logo-float finova-logo-glow drop-shadow-sm" />
 
-          <div className="mt-5 inline-flex shrink-0 items-center gap-2 self-start rounded-full border border-teal-200/80 bg-white/80 px-4 py-1.5 text-xs font-semibold tracking-[0.16em] text-teal-800 shadow-sm">
-            <Sparkles className="h-4 w-4" />
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-teal-200/80 bg-white/85 px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.16em] text-teal-800 shadow-sm">
+            <Sparkles className="h-3.5 w-3.5" />
             ACCOUNTING · AUDIT · AI
           </div>
 
-          <h1 className="mt-5 max-w-lg shrink-0 text-4xl font-semibold leading-[1.08] tracking-tight text-slate-900 xl:text-5xl">
+          <h1 className="mt-4 max-w-lg text-4xl font-semibold leading-[1.08] tracking-tight text-slate-900 xl:text-[2.75rem]">
             Accounting made{" "}
             <span className="text-teal-700">clear, calm, and capable.</span>
           </h1>
 
-          <div className="mt-5 flex shrink-0 flex-wrap gap-3">
+          <div className="mt-4 flex flex-wrap gap-2.5">
             {[
               { icon: BarChart3, label: "Reporting" },
               { icon: Landmark, label: "Banking" },
@@ -144,37 +144,38 @@ export default function HomePage() {
             ].map(({ icon: Icon, label }) => (
               <span
                 key={label}
-                className="finova-pill-float inline-flex items-center gap-2.5 rounded-full border border-white/90 bg-white/95 px-5 py-3 text-base font-semibold text-slate-800 shadow-[0_8px_24px_rgba(15,23,42,0.06)]"
+                className="finova-pill-float inline-flex items-center gap-2 rounded-full border border-white/90 bg-white/95 px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-[0_8px_24px_rgba(15,23,42,0.06)]"
               >
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-teal-50 text-teal-700">
-                  <Icon className="h-5 w-5" />
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-50 text-teal-700">
+                  <Icon className="h-4 w-4" />
                 </span>
                 {label}
               </span>
             ))}
           </div>
+        </div>
 
-          <div className="relative mt-5 min-h-0 w-full flex-1 self-stretch">
-            <div className="absolute inset-0 overflow-hidden rounded-3xl rounded-r-2xl border border-teal-100/80 bg-slate-900 shadow-[0_20px_50px_rgba(7,100,157,0.18)] ring-1 ring-white/40">
-              <video
-                className="h-full w-full scale-[1.02] object-cover object-center"
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="auto"
-              >
-                <source src="/videos/sign-in-hero.mp4" type="video/mp4" />
-                <source
-                  src="https://videos.pexels.com/video-files/18743334/18743334-hd_1920_1080_60fps.mp4"
-                  type="video/mp4"
-                />
-              </video>
-            </div>
+        <div className="relative z-10 mt-5 min-h-0 w-full flex-1 px-0">
+          <div className="absolute inset-0 bg-slate-900">
+            <video
+              className="h-full w-full object-cover"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+            >
+              <source src="/videos/sign-in-hero.mp4" type="video/mp4" />
+              <source
+                src="https://videos.pexels.com/video-files/18743334/18743334-hd_1920_1080_60fps.mp4"
+                type="video/mp4"
+              />
+            </video>
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/25 via-transparent to-transparent" />
           </div>
         </div>
 
-        <p className="relative z-10 mt-4 shrink-0 text-xs text-slate-500">
+        <p className="relative z-10 shrink-0 px-10 py-4 text-xs text-slate-500 xl:px-14">
           © {new Date().getFullYear()} Finova
         </p>
       </div>
