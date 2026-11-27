@@ -113,7 +113,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-[#F4FAF8]">
-      <div className="relative hidden min-h-screen flex-col justify-between overflow-hidden px-10 py-10 lg:flex xl:px-14">
+      <div className="relative hidden min-h-screen flex-col justify-between overflow-hidden py-10 pl-10 pr-4 lg:flex xl:pl-14 xl:pr-6">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_#E8F5F1_0%,_transparent_55%)]" />
         <div
           className="absolute inset-0 opacity-[0.35]"
@@ -154,10 +154,10 @@ export default function HomePage() {
             ))}
           </div>
 
-          <div className="relative mt-5 min-h-0 w-full flex-1">
-            <div className="absolute inset-0 overflow-hidden rounded-3xl border border-teal-100/80 bg-slate-900 shadow-[0_20px_50px_rgba(7,100,157,0.18)] ring-1 ring-white/40">
+          <div className="relative mt-5 min-h-0 w-full flex-1 self-stretch">
+            <div className="absolute inset-0 overflow-hidden rounded-3xl rounded-r-2xl border border-teal-100/80 bg-slate-900 shadow-[0_20px_50px_rgba(7,100,157,0.18)] ring-1 ring-white/40">
               <video
-                className="h-full w-full object-cover"
+                className="h-full w-full scale-[1.02] object-cover object-center"
                 autoPlay
                 muted
                 loop
