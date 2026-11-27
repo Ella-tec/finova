@@ -109,7 +109,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden">
+    <div className="relative min-h-dvh w-full overflow-x-hidden bg-slate-950">
       <div className="fixed inset-0 z-0 bg-slate-950">
         <video
           className="h-full w-full object-cover object-center"
@@ -125,29 +125,36 @@ export default function HomePage() {
             type="video/mp4"
           />
         </video>
-        <div className="absolute inset-0 bg-slate-950/35" />
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-950/75 via-slate-950/55 to-teal-950/65" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_18%_45%,rgba(13,148,136,0.24),transparent_48%)]" />
       </div>
 
-      <div className="relative z-10 flex min-h-screen flex-col lg:flex-row">
-        <div className="flex flex-1 flex-col justify-end px-6 pb-8 pt-6 sm:px-8 lg:px-12 lg:pb-10">
-          <div className="max-w-sm">
-            <Logo size={88} className="finova-logo-drift-wide finova-logo-hero" />
-
-            <div className="mt-4 inline-flex items-center gap-2 self-start rounded-full border border-white/30 bg-white/15 px-3 py-1.5 text-[10px] font-semibold tracking-[0.16em] text-white backdrop-blur-md">
-              <Sparkles className="h-3.5 w-3.5 text-teal-200" />
+      <div className="relative z-10 mx-auto grid min-h-dvh w-full max-w-[1600px] grid-cols-1 items-center gap-8 px-4 py-7 sm:px-7 lg:grid-cols-[minmax(0,1fr)_420px] lg:gap-10 lg:px-12 lg:py-10 xl:px-16">
+        <section className="flex min-w-0 flex-col justify-center text-center lg:text-left">
+          <div className="mx-auto w-full max-w-2xl lg:mx-0">
+            <div className="flex flex-col items-center gap-3 lg:items-start">
+              <Logo size={88} className="finova-logo-hero" />
+              <p className="text-3xl font-bold tracking-tight text-white drop-shadow-lg sm:text-4xl">Finova</p>
+            </div>
+            <div className="mx-auto mt-5 inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/15 px-4 py-2 text-[10px] font-semibold tracking-[0.18em] text-white shadow-lg backdrop-blur-md sm:text-xs lg:mx-0">
+              <Sparkles className="h-4 w-4 text-teal-200" />
               ACCOUNTING · AUDIT · AI
             </div>
-
-            <h1 className="mt-3 max-w-sm text-[1.65rem] font-semibold leading-[1.15] tracking-tight text-white sm:text-[1.85rem] xl:text-[2.1rem]">
-              Accounting made{" "}
-              <span className="text-teal-300">clear,</span>
-              <br />
-              calm, and capable.
+            <h1 className="mt-5 text-3xl font-bold leading-[1.12] tracking-tight text-white drop-shadow-lg sm:text-4xl xl:text-5xl">
+              The Smarter Side of <span className="text-teal-200">Finance.</span>
             </h1>
+            <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-white/90 drop-shadow sm:text-base lg:mx-0">
+              One connected workspace for accounting operations, financial reporting, audit workflows, and secure client collaboration.
+            </p>
+            <div className="mt-7 flex flex-wrap justify-center gap-3 lg:justify-start">
+              {["Accounting", "Financial reporting", "Audit & assurance", "Client collaboration"].map((item) => (
+                <span key={item} className="rounded-full border border-white/25 bg-white/10 px-4 py-2 text-xs font-medium text-white shadow-sm backdrop-blur-md sm:text-sm">{item}</span>
+              ))}
+            </div>
           </div>
-        </div>
+        </section>
 
-        <div className="flex items-center justify-end px-3 py-4 sm:px-4 lg:w-[400px] lg:shrink-0 lg:py-6 lg:pr-5 lg:pl-2 xl:pr-8">
+        <div className="flex w-full items-center justify-center lg:justify-end">
           <div className="w-full max-w-[360px] rounded-2xl border border-white/70 bg-white/95 p-5 shadow-[0_24px_60px_rgba(0,0,0,0.32)] backdrop-blur-md sm:p-6">
             <div className="mb-4 flex justify-center">
               <Logo size={56} className="finova-logo-float finova-logo-glow" />
