@@ -155,10 +155,10 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="relative z-10 mt-5 min-h-0 w-full flex-1 px-0">
-          <div className="absolute inset-0 bg-slate-900">
+        <div className="relative z-10 mt-5 flex min-h-0 w-full flex-1 items-center px-10 pb-2 xl:px-14">
+          <div className="relative aspect-video w-full overflow-hidden rounded-[28px] border border-white/80 bg-slate-950 shadow-[0_24px_60px_rgba(15,23,42,0.20)]">
             <video
-              className="h-full w-full object-cover"
+              className="absolute inset-0 h-full w-full object-cover object-center"
               autoPlay
               muted
               loop
@@ -171,7 +171,7 @@ export default function HomePage() {
                 type="video/mp4"
               />
             </video>
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/25 via-transparent to-transparent" />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/30 via-transparent to-transparent" />
           </div>
         </div>
 
