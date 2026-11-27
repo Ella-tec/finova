@@ -155,10 +155,10 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="relative z-10 mt-5 flex min-h-0 w-full flex-1 items-stretch px-6 pb-2 xl:px-10">
-          <div className="relative min-h-[280px] w-full flex-1 overflow-hidden rounded-[24px] border border-white/70 bg-slate-950 shadow-[0_24px_60px_rgba(15,23,42,0.18)]">
+        <div className="relative z-10 mt-4 min-h-0 w-full flex-1">
+          <div className="absolute inset-0 overflow-hidden bg-slate-950">
             <video
-              className="absolute inset-0 h-full w-full object-contain object-center"
+              className="h-full w-full object-cover object-center"
               autoPlay
               muted
               loop
