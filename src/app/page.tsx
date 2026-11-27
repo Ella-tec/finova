@@ -124,7 +124,7 @@ export default function HomePage() {
         />
 
         <div className="relative z-10 flex flex-1 flex-col">
-          <Logo size={148} className="finova-logo-float finova-logo-glow drop-shadow-sm" />
+          <Logo size={120} className="finova-logo-float finova-logo-glow drop-shadow-sm" />
 
           <div className="mt-8 inline-flex items-center gap-2 self-start rounded-full border border-teal-200/80 bg-white/80 px-4 py-1.5 text-xs font-semibold tracking-[0.16em] text-teal-800 shadow-sm">
             <Sparkles className="h-4 w-4" />
@@ -154,24 +154,22 @@ export default function HomePage() {
             ))}
           </div>
 
-          <div className="relative mt-8 w-full max-w-xl flex-1 min-h-0">
-            <div className="h-full min-h-[220px] max-h-[320px] overflow-hidden rounded-2xl border border-teal-100/90 bg-slate-900 shadow-[0_16px_40px_rgba(7,100,157,0.14)] ring-1 ring-white/40">
-              <div className="relative h-full min-h-[220px] max-h-[320px] w-full">
-                <video
-                  className="absolute inset-0 h-full w-full object-cover"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  preload="auto"
-                >
-                  <source src="/videos/sign-in-hero.mp4" type="video/mp4" />
-                  <source
-                    src="https://videos.pexels.com/video-files/18743334/18743334-hd_1920_1080_60fps.mp4"
-                    type="video/mp4"
-                  />
-                </video>
-              </div>
+          <div className="relative mt-6 w-full max-w-2xl flex-1 min-h-[280px]">
+            <div className="h-[min(42vh,480px)] min-h-[280px] w-full overflow-hidden rounded-2xl border border-teal-100/90 bg-slate-900 shadow-[0_18px_44px_rgba(7,100,157,0.16)] ring-1 ring-white/50">
+              <video
+                className="h-full w-full object-cover"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="auto"
+              >
+                <source src="/videos/sign-in-hero.mp4" type="video/mp4" />
+                <source
+                  src="https://videos.pexels.com/video-files/18743334/18743334-hd_1920_1080_60fps.mp4"
+                  type="video/mp4"
+                />
+              </video>
             </div>
           </div>
         </div>
