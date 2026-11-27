@@ -112,7 +112,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-2 bg-[#F4FAF8]">
+    <div className="min-h-dvh grid grid-cols-1 bg-[#F4FAF8] lg:grid-cols-2">
       <div className="relative hidden min-h-screen flex-col overflow-hidden lg:flex">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_#E8F5F1_0%,_transparent_55%)]" />
         <div
@@ -132,8 +132,8 @@ export default function HomePage() {
           </div>
 
           <h1 className="mt-4 max-w-lg text-4xl font-semibold leading-[1.08] tracking-tight text-slate-900 xl:text-[2.75rem]">
-            Accounting made{" "}
-            <span className="text-teal-700">clear, calm, and capable.</span>
+            The Smarter Side of{" "}
+            <span className="text-teal-700">Finance.</span>
           </h1>
 
           <div className="mt-4 flex flex-wrap gap-2.5">
