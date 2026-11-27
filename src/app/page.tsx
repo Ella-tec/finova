@@ -123,18 +123,20 @@ export default function HomePage() {
           }}
         />
 
-        <div className="relative z-10 shrink-0 px-10 pt-10 xl:px-14">
-          <Logo size={100} className="finova-logo-float finova-logo-glow drop-shadow-sm" />
+        <div className="relative z-10 shrink-0 px-5 pt-8 sm:px-8 sm:pt-10 xl:px-14">
+          <Logo size={76} className="finova-logo-float finova-logo-glow drop-shadow-sm sm:[&]:h-[88px] sm:[&]:w-[88px]" />
 
-          <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-teal-200/80 bg-white/85 px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.16em] text-teal-800 shadow-sm">
-            <Sparkles className="h-3.5 w-3.5" />
-            ACCOUNTING · AUDIT · AI
+          <div className="mt-3 max-w-xl">
+            <p className="text-3xl font-bold leading-none tracking-tight text-slate-950 sm:text-4xl">
+              Finova
+            </p>
+            <h1 className="mt-2 text-2xl font-semibold leading-tight tracking-tight text-slate-900 sm:text-3xl xl:text-4xl">
+              The Smarter Side of <span className="text-teal-700">Finance.</span>
+            </h1>
+            <p className="mt-3 text-[10px] font-semibold tracking-[0.2em] text-teal-800 sm:text-xs sm:tracking-[0.24em]">
+              ACCOUNTING · AUDIT · AI
+            </p>
           </div>
-
-          <h1 className="mt-4 max-w-lg text-4xl font-semibold leading-[1.08] tracking-tight text-slate-900 xl:text-[2.75rem]">
-            The Smarter Side of{" "}
-            <span className="text-teal-700">Finance.</span>
-          </h1>
 
           <div className="mt-4 flex flex-wrap gap-2.5">
             {[
@@ -182,8 +184,15 @@ export default function HomePage() {
 
       <div className="flex items-center justify-center px-5 py-10 sm:px-8">
         <div className="w-full max-w-[420px] rounded-[28px] border border-white/80 bg-white/95 p-6 shadow-[0_20px_60px_rgba(15,118,110,0.08)] sm:p-8">
-          <div className="mb-5 flex justify-center lg:hidden">
-            <Logo size={72} className="finova-logo-float finova-logo-glow" />
+          <div className="mb-5 flex flex-col items-center text-center lg:hidden">
+            <Logo size={64} className="finova-logo-float finova-logo-glow" />
+            <p className="mt-2 text-2xl font-bold tracking-tight text-slate-950">Finova</p>
+            <p className="mt-1 text-lg font-semibold leading-tight tracking-tight text-slate-900">
+              The Smarter Side of <span className="text-teal-700">Finance.</span>
+            </p>
+            <p className="mt-2 text-[9px] font-semibold tracking-[0.18em] text-teal-800">
+              ACCOUNTING · AUDIT · AI
+            </p>
           </div>
           <div className="mb-6 flex justify-center">
             <Logo size={64} className="hidden finova-logo-float finova-logo-glow lg:block" />
