@@ -5,15 +5,11 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight,
-  BarChart3,
-  Landmark,
-  ClipboardCheck,
   Lock,
   Mail,
   Eye,
   EyeOff,
   AlertCircle,
-  Sparkles,
   UserPlus,
   Building2,
   UserRound,
@@ -112,8 +108,8 @@ export default function HomePage() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
-      <div className="absolute inset-0 bg-slate-950">
+    <div className="relative min-h-screen w-full overflow-hidden">
+      <div className="fixed inset-0 z-0 bg-slate-950">
         <video
           className="h-full w-full object-cover object-center"
           autoPlay
@@ -128,271 +124,230 @@ export default function HomePage() {
             type="video/mp4"
           />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/70 via-slate-950/40 to-slate-950/25" />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/50 via-transparent to-slate-950/20" />
+        <div className="absolute inset-0 bg-slate-950/35" />
       </div>
 
-      <div className="relative z-10 flex min-h-screen flex-col lg:flex-row">
-        <div className="flex flex-1 flex-col justify-between px-8 py-10 lg:px-14 lg:py-12">
-          <div>
-            <Logo size={130} className="finova-logo-drift finova-logo-hero" />
-
-            <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.16em] text-white backdrop-blur-md">
-              <Sparkles className="h-3.5 w-3.5" />
-              ACCOUNTING · AUDIT · AI
-            </div>
-
-            <h1 className="mt-5 max-w-xl text-4xl font-semibold leading-[1.08] tracking-tight text-white xl:text-[2.9rem]">
-              Accounting made{" "}
-              <span className="text-teal-300">clear, calm, and capable.</span>
-            </h1>
-
-            <div className="mt-5 flex flex-wrap gap-2.5">
-              {[
-                { icon: BarChart3, label: "Reporting" },
-                { icon: Landmark, label: "Banking" },
-                { icon: ClipboardCheck, label: "Close" },
-              ].map(({ icon: Icon, label }) => (
-                <span
-                  key={label}
-                  className="finova-pill-float inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-md"
-                >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-400/20 text-teal-200">
-                    <Icon className="h-4 w-4" />
-                  </span>
-                  {label}
-                </span>
-              ))}
-            </div>
+      <div className="relative z-10 flex min-h-screen items-center justify-center px-4 py-10">
+        <div className="w-full max-w-[400px] rounded-[28px] border border-white/70 bg-white/95 p-6 shadow-[0_28px_80px_rgba(0,0,0,0.35)] backdrop-blur-md sm:p-8">
+          <div className="mb-5 flex justify-center">
+            <Logo size={72} className="finova-logo-float finova-logo-glow" />
           </div>
 
-          <p className="mt-10 text-xs text-white/55 lg:mt-0">
-            © {new Date().getFullYear()} Finova
-          </p>
-        </div>
-
-        <div className="flex items-center justify-center px-5 py-8 sm:px-8 lg:w-[480px] lg:shrink-0 lg:px-10">
-          <div className="w-full max-w-[400px] rounded-[28px] border border-white/80 bg-white/95 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.28)] backdrop-blur-sm sm:p-8">
-            <div className="mb-5 flex justify-center">
-              <Logo size={64} className="finova-logo-float finova-logo-glow" />
-            </div>
-
-            <div className="grid grid-cols-2 rounded-full bg-slate-100 p-1">
-              <button
-                type="button"
-                onClick={() => {
-                  setTab("signin");
-                  setError(null);
-                  setNotice(null);
-                }}
-                className={
-                  "rounded-full py-2.5 text-sm font-semibold transition " +
-                  (tab === "signin" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700")
-                }
-              >
-                Sign in
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setTab("create");
-                  setError(null);
-                  setNotice(null);
-                }}
-                className={
-                  "rounded-full py-2.5 text-sm font-semibold transition " +
-                  (tab === "create" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700")
-                }
-              >
-                Create account
-              </button>
-            </div>
-
-            <h2 className="mt-6 text-center text-2xl font-semibold tracking-tight text-slate-900">
-              {tab === "signin" ? "Sign in to Finova" : "Create your workspace"}
-            </h2>
-            <p className="mt-1 text-center text-sm text-slate-500">
-              {tab === "signin" ? "Secure firm workspace" : "Staff firm or client portal access"}
-            </p>
-
-            <div className="mt-5 grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setWorkspace("staff")}
-                className={
-                  "flex flex-col items-start gap-1 rounded-2xl border px-3 py-3 text-left transition " +
-                  (workspace === "staff"
-                    ? "border-teal-600 bg-teal-50 ring-2 ring-teal-600/20"
-                    : "border-slate-200 bg-white hover:border-slate-300")
-                }
-              >
-                <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-900">
-                  <Building2 className="h-4 w-4 text-teal-700" /> Staff
-                </span>
-                <span className="text-[11px] leading-snug text-slate-500">Accounting, close, audit</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setWorkspace("client")}
-                className={
-                  "flex flex-col items-start gap-1 rounded-2xl border px-3 py-3 text-left transition " +
-                  (workspace === "client"
-                    ? "border-teal-600 bg-teal-50 ring-2 ring-teal-600/20"
-                    : "border-slate-200 bg-white hover:border-slate-300")
-                }
-              >
-                <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-900">
-                  <UserRound className="h-4 w-4 text-teal-700" /> Client
-                </span>
-                <span className="text-[11px] leading-snug text-slate-500">Documents & requests</span>
-              </button>
-            </div>
-
-            {error && (
-              <div className="mt-4 flex items-start gap-2 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
-                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-                {error}
-              </div>
-            )}
-            {notice && (
-              <div className="mt-4 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-                {notice}
-              </div>
-            )}
-
-            {tab === "signin" ? (
-              <form onSubmit={handleLogin} className="mt-5 space-y-4">
-                <div>
-                  <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-slate-700">
-                    Work email
-                  </label>
-                  <div className="relative">
-                    <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                    <input
-                      id="email"
-                      type="email"
-                      autoComplete="email"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder={workspace === "client" ? "client@acme.com" : "demo@finova.ai"}
-                      className="w-full rounded-2xl border border-slate-200 bg-[#F7FBFA] py-3.5 pl-11 pr-4 text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-slate-700">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                    <input
-                      id="password"
-                      type={showPw ? "text" : "password"}
-                      autoComplete="current-password"
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••••••"
-                      className="w-full rounded-2xl border border-slate-200 bg-[#F7FBFA] py-3.5 pl-11 pr-11 text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPw(!showPw)}
-                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                      aria-label={showPw ? "Hide password" : "Show password"}
-                    >
-                      {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                </div>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-teal-700 py-3.5 text-sm font-semibold text-white shadow-lg shadow-teal-900/15 hover:bg-teal-800 disabled:opacity-60"
-                >
-                  {loading ? "Signing in…" : "Enter workspace"}
-                  {!loading && <ArrowRight className="h-4 w-4" />}
-                </button>
-                <p className="text-center text-[11px] text-slate-500">
-                  Demo staff: demo@finova.ai · Demo client: client@acme.com
-                </p>
-              </form>
-            ) : (
-              <form onSubmit={handleRegister} className="mt-5 space-y-3">
-                {(
-                  [
-                    ["name", "Full name", "text", "Jane Smith"],
-                    [
-                      "email",
-                      "Work email",
-                      "email",
-                      workspace === "client" ? "you@company.com" : "jane@firm.com",
-                    ],
-                    ["password", "Password (12+ chars)", "password", "••••••••••••"],
-                    [
-                      "firmName",
-                      workspace === "client" ? "Your company name" : "Firm name",
-                      "text",
-                      workspace === "client" ? "Acme Manufacturing" : "Smith & Co CPA",
-                    ],
-                  ] as const
-                ).map(([key, label, type, ph]) => (
-                  <div key={key}>
-                    <label className="mb-1 block text-sm font-medium text-slate-700">{label}</label>
-                    <input
-                      type={type}
-                      required
-                      minLength={key === "password" ? 12 : 2}
-                      value={reg[key]}
-                      onChange={(e) => setReg({ ...reg, [key]: e.target.value })}
-                      placeholder={ph}
-                      className="w-full rounded-2xl border border-slate-200 bg-[#F7FBFA] px-4 py-3 text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20"
-                    />
-                  </div>
-                ))}
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-teal-700 py-3.5 text-sm font-semibold text-white shadow-lg hover:bg-teal-800 disabled:opacity-60"
-                >
-                  <UserPlus className="h-4 w-4" />
-                  {loading
-                    ? "Creating…"
-                    : workspace === "client"
-                      ? "Create client account"
-                      : "Create firm account"}
-                </button>
-              </form>
-            )}
-
-            <div className="relative my-5">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase tracking-wide">
-                <span className="bg-white px-3 text-slate-400">or</span>
-              </div>
-            </div>
-
+          <div className="grid grid-cols-2 rounded-full bg-slate-100 p-1">
             <button
               type="button"
-              onClick={handleMicrosoft}
-              disabled={loading}
-              className="flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white py-3.5 text-sm font-semibold text-slate-800 shadow-sm hover:bg-slate-50 disabled:opacity-60"
+              onClick={() => {
+                setTab("signin");
+                setError(null);
+                setNotice(null);
+              }}
+              className={
+                "rounded-full py-2.5 text-sm font-semibold transition " +
+                (tab === "signin" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700")
+              }
             >
-              <svg className="h-5 w-5" viewBox="0 0 23 23" aria-hidden>
-                <path fill="#f35325" d="M1 1h10v10H1z" />
-                <path fill="#81bc06" d="M12 1h10v10H12z" />
-                <path fill="#05a6f0" d="M1 12h10v10H1z" />
-                <path fill="#ffba08" d="M12 12h10v10H12z" />
-              </svg>
-              Continue with Microsoft
+              Sign in
             </button>
-            <p className="mt-2 text-center text-[11px] text-slate-400">
-              Microsoft works when Azure AD is configured on the server.
-            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setTab("create");
+                setError(null);
+                setNotice(null);
+              }}
+              className={
+                "rounded-full py-2.5 text-sm font-semibold transition " +
+                (tab === "create" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700")
+              }
+            >
+              Create account
+            </button>
           </div>
+
+          <h2 className="mt-6 text-center text-2xl font-semibold tracking-tight text-slate-900">
+            {tab === "signin" ? "Sign in to Finova" : "Create your workspace"}
+          </h2>
+          <p className="mt-1 text-center text-sm text-slate-500">
+            {tab === "signin" ? "Secure firm workspace" : "Staff firm or client portal access"}
+          </p>
+
+          <div className="mt-5 grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setWorkspace("staff")}
+              className={
+                "flex flex-col items-start gap-1 rounded-2xl border px-3 py-3 text-left transition " +
+                (workspace === "staff"
+                  ? "border-teal-600 bg-teal-50 ring-2 ring-teal-600/20"
+                  : "border-slate-200 bg-white hover:border-slate-300")
+              }
+            >
+              <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-900">
+                <Building2 className="h-4 w-4 text-teal-700" /> Staff
+              </span>
+              <span className="text-[11px] leading-snug text-slate-500">Accounting, close, audit</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setWorkspace("client")}
+              className={
+                "flex flex-col items-start gap-1 rounded-2xl border px-3 py-3 text-left transition " +
+                (workspace === "client"
+                  ? "border-teal-600 bg-teal-50 ring-2 ring-teal-600/20"
+                  : "border-slate-200 bg-white hover:border-slate-300")
+              }
+            >
+              <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-900">
+                <UserRound className="h-4 w-4 text-teal-700" /> Client
+              </span>
+              <span className="text-[11px] leading-snug text-slate-500">Documents & requests</span>
+            </button>
+          </div>
+
+          {error && (
+            <div className="mt-4 flex items-start gap-2 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+              {error}
+            </div>
+          )}
+          {notice && (
+            <div className="mt-4 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+              {notice}
+            </div>
+          )}
+
+          {tab === "signin" ? (
+            <form onSubmit={handleLogin} className="mt-5 space-y-4">
+              <div>
+                <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-slate-700">
+                  Work email
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    id="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder={workspace === "client" ? "client@acme.com" : "demo@finova.ai"}
+                    className="w-full rounded-2xl border border-slate-200 bg-[#F7FBFA] py-3.5 pl-11 pr-4 text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20"
+                  />
+                </div>
+              </div>
+              <div>
+                <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-slate-700">
+                  Password
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    id="password"
+                    type={showPw ? "text" : "password"}
+                    autoComplete="current-password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••••••"
+                    className="w-full rounded-2xl border border-slate-200 bg-[#F7FBFA] py-3.5 pl-11 pr-11 text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPw(!showPw)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    aria-label={showPw ? "Hide password" : "Show password"}
+                  >
+                    {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-teal-700 py-3.5 text-sm font-semibold text-white shadow-lg shadow-teal-900/15 hover:bg-teal-800 disabled:opacity-60"
+              >
+                {loading ? "Signing in…" : "Enter workspace"}
+                {!loading && <ArrowRight className="h-4 w-4" />}
+              </button>
+              <p className="text-center text-[11px] text-slate-500">
+                Demo staff: demo@finova.ai · Demo client: client@acme.com
+              </p>
+            </form>
+          ) : (
+            <form onSubmit={handleRegister} className="mt-5 space-y-3">
+              {(
+                [
+                  ["name", "Full name", "text", "Jane Smith"],
+                  [
+                    "email",
+                    "Work email",
+                    "email",
+                    workspace === "client" ? "you@company.com" : "jane@firm.com",
+                  ],
+                  ["password", "Password (12+ chars)", "password", "••••••••••••"],
+                  [
+                    "firmName",
+                    workspace === "client" ? "Your company name" : "Firm name",
+                    "text",
+                    workspace === "client" ? "Acme Manufacturing" : "Smith & Co CPA",
+                  ],
+                ] as const
+              ).map(([key, label, type, ph]) => (
+                <div key={key}>
+                  <label className="mb-1 block text-sm font-medium text-slate-700">{label}</label>
+                  <input
+                    type={type}
+                    required
+                    minLength={key === "password" ? 12 : 2}
+                    value={reg[key]}
+                    onChange={(e) => setReg({ ...reg, [key]: e.target.value })}
+                    placeholder={ph}
+                    className="w-full rounded-2xl border border-slate-200 bg-[#F7FBFA] px-4 py-3 text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20"
+                  />
+                </div>
+              ))}
+              <button
+                type="submit"
+                disabled={loading}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-teal-700 py-3.5 text-sm font-semibold text-white shadow-lg hover:bg-teal-800 disabled:opacity-60"
+              >
+                <UserPlus className="h-4 w-4" />
+                {loading
+                  ? "Creating…"
+                  : workspace === "client"
+                    ? "Create client account"
+                    : "Create firm account"}
+              </button>
+            </form>
+          )}
+
+          <div className="relative my-5">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-slate-200" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase tracking-wide">
+              <span className="bg-white px-3 text-slate-400">or</span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleMicrosoft}
+            disabled={loading}
+            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white py-3.5 text-sm font-semibold text-slate-800 shadow-sm hover:bg-slate-50 disabled:opacity-60"
+          >
+            <svg className="h-5 w-5" viewBox="0 0 23 23" aria-hidden>
+              <path fill="#f35325" d="M1 1h10v10H1z" />
+              <path fill="#81bc06" d="M12 1h10v10H12z" />
+              <path fill="#05a6f0" d="M1 12h10v10H1z" />
+              <path fill="#ffba08" d="M12 12h10v10H12z" />
+            </svg>
+            Continue with Microsoft
+          </button>
+          <p className="mt-2 text-center text-[11px] text-slate-400">
+            Microsoft works when Azure AD is configured on the server.
+          </p>
         </div>
       </div>
     </div>
