@@ -129,11 +129,11 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_18%_45%,rgba(13,148,136,0.24),transparent_48%)]" />
       </div>
 
-      <div className="relative z-10 mx-auto grid min-h-dvh w-full max-w-[1600px] grid-cols-1 items-center gap-8 px-4 py-7 sm:px-7 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-10 lg:px-12 lg:py-10 xl:px-16">
+      <div className="relative z-10 mx-auto grid min-h-dvh w-full max-w-[1600px] grid-cols-1 items-center gap-5 px-3 py-4 sm:px-6 sm:py-5 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-8 lg:px-10 lg:py-5 xl:px-14">
         <section className="flex min-w-0 flex-col justify-center text-center lg:text-left">
           <div className="mx-auto w-full max-w-2xl lg:mx-0">
             <div className="flex flex-col items-center gap-3 lg:items-start">
-              <Logo size={88} className="finova-logo-hero" />
+              <Logo size={88} className="finova-logo-hero finova-logo-float" />
               <p className="text-3xl font-bold tracking-tight text-white drop-shadow-lg sm:text-4xl">Finova</p>
             </div>
             <div className="mx-auto mt-5 inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/15 px-4 py-2 text-[10px] font-semibold tracking-[0.18em] text-white shadow-lg backdrop-blur-md sm:text-xs lg:mx-0">
@@ -155,7 +155,7 @@ export default function HomePage() {
         </section>
 
         <div className="flex w-full items-center justify-center lg:justify-end">
-          <div className="w-full max-w-[340px] rounded-2xl border border-white/75 bg-white/95 p-4 shadow-[0_18px_45px_rgba(0,0,0,0.28)] backdrop-blur-md sm:p-5">
+          <div className="finova-auth-card w-full max-w-[340px] rounded-2xl border border-white/75 bg-white/95 p-4 shadow-[0_18px_45px_rgba(0,0,0,0.28)] backdrop-blur-md sm:p-5">
             <div className="mb-3 flex justify-center">
               <Logo size={44} className="finova-logo-float finova-logo-glow" />
             </div>
