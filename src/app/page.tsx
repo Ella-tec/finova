@@ -129,23 +129,25 @@ export default function HomePage() {
       </div>
 
       <div className="relative z-10 flex min-h-screen flex-col lg:flex-row">
-        <div className="flex flex-1 flex-col justify-center px-8 py-10 lg:px-14 lg:py-12">
-          <Logo size={120} className="finova-logo-drift-wide finova-logo-hero" />
+        <div className="flex flex-1 flex-col justify-end px-8 pb-10 pt-8 lg:px-12 lg:pb-14 lg:pt-12">
+          <div className="max-w-md">
+            <Logo size={100} className="finova-logo-drift-wide finova-logo-hero" />
 
-          <div className="mt-6 inline-flex items-center gap-2 self-start rounded-full border border-white/30 bg-white/15 px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.16em] text-white backdrop-blur-md">
-            <Sparkles className="h-3.5 w-3.5 text-teal-200" />
-            ACCOUNTING · AUDIT · AI
+            <div className="mt-5 inline-flex items-center gap-2 self-start rounded-full border border-white/30 bg-white/15 px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.16em] text-white backdrop-blur-md">
+              <Sparkles className="h-3.5 w-3.5 text-teal-200" />
+              ACCOUNTING · AUDIT · AI
+            </div>
+
+            <h1 className="mt-4 max-w-md text-3xl font-semibold leading-[1.1] tracking-tight text-white xl:text-[2.4rem]">
+              Accounting made{" "}
+              <span className="text-teal-300">clear,</span>
+              <br />
+              calm, and capable.
+            </h1>
           </div>
-
-          <h1 className="mt-5 max-w-lg text-4xl font-semibold leading-[1.08] tracking-tight text-white xl:text-[2.85rem]">
-            Accounting made{" "}
-            <span className="text-teal-300">clear,</span>
-            <br />
-            calm, and capable.
-          </h1>
         </div>
 
-        <div className="flex items-center justify-center px-4 py-8 sm:px-8 lg:w-[460px] lg:shrink-0 lg:justify-end lg:px-10 xl:px-14">
+        <div className="flex items-center justify-end px-3 py-6 sm:px-4 lg:w-[420px] lg:shrink-0 lg:items-center lg:justify-end lg:pr-4 lg:pl-0 xl:w-[440px] xl:pr-6">
           <div className="w-full max-w-[400px] rounded-[28px] border border-white/70 bg-white/95 p-6 shadow-[0_28px_80px_rgba(0,0,0,0.35)] backdrop-blur-md sm:p-8">
             <div className="mb-5 flex justify-center">
               <Logo size={72} className="finova-logo-float finova-logo-glow" />
