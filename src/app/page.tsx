@@ -129,7 +129,7 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_18%_45%,rgba(13,148,136,0.24),transparent_48%)]" />
       </div>
 
-      <div className="relative z-10 mx-auto grid min-h-dvh w-full max-w-[1600px] grid-cols-1 items-center gap-8 px-4 py-7 sm:px-7 lg:grid-cols-[minmax(0,1fr)_420px] lg:gap-10 lg:px-12 lg:py-10 xl:px-16">
+      <div className="relative z-10 mx-auto grid min-h-dvh w-full max-w-[1600px] grid-cols-1 items-center gap-8 px-4 py-7 sm:px-7 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-10 lg:px-12 lg:py-10 xl:px-16">
         <section className="flex min-w-0 flex-col justify-center text-center lg:text-left">
           <div className="mx-auto w-full max-w-2xl lg:mx-0">
             <div className="flex flex-col items-center gap-3 lg:items-start">
@@ -155,9 +155,9 @@ export default function HomePage() {
         </section>
 
         <div className="flex w-full items-center justify-center lg:justify-end">
-          <div className="w-full max-w-[360px] rounded-2xl border border-white/70 bg-white/95 p-5 shadow-[0_24px_60px_rgba(0,0,0,0.32)] backdrop-blur-md sm:p-6">
-            <div className="mb-4 flex justify-center">
-              <Logo size={56} className="finova-logo-float finova-logo-glow" />
+          <div className="w-full max-w-[340px] rounded-2xl border border-white/75 bg-white/95 p-4 shadow-[0_18px_45px_rgba(0,0,0,0.28)] backdrop-blur-md sm:p-5">
+            <div className="mb-3 flex justify-center">
+              <Logo size={44} className="finova-logo-float finova-logo-glow" />
             </div>
 
             <div className="grid grid-cols-2 rounded-full bg-slate-100 p-1">
@@ -191,19 +191,19 @@ export default function HomePage() {
               </button>
             </div>
 
-            <h2 className="mt-5 text-center text-xl font-semibold tracking-tight text-slate-900">
+            <h2 className="mt-4 text-center text-lg font-semibold tracking-tight text-slate-900">
               {tab === "signin" ? "Sign in to Finova" : "Create your workspace"}
             </h2>
             <p className="mt-1 text-center text-sm text-slate-500">
               {tab === "signin" ? "Secure firm workspace" : "Staff firm or client portal access"}
             </p>
 
-            <div className="mt-5 grid grid-cols-2 gap-2">
+            <div className="mt-4 grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => setWorkspace("staff")}
                 className={
-                  "flex flex-col items-start gap-1 rounded-2xl border px-3 py-3 text-left transition " +
+                  "flex flex-col items-start gap-1 rounded-xl border px-2.5 py-2.5 text-left transition " +
                   (workspace === "staff"
                     ? "border-teal-600 bg-teal-50 ring-2 ring-teal-600/20"
                     : "border-slate-200 bg-white hover:border-slate-300")
@@ -218,7 +218,7 @@ export default function HomePage() {
                 type="button"
                 onClick={() => setWorkspace("client")}
                 className={
-                  "flex flex-col items-start gap-1 rounded-2xl border px-3 py-3 text-left transition " +
+                  "flex flex-col items-start gap-1 rounded-xl border px-2.5 py-2.5 text-left transition " +
                   (workspace === "client"
                     ? "border-teal-600 bg-teal-50 ring-2 ring-teal-600/20"
                     : "border-slate-200 bg-white hover:border-slate-300")
@@ -244,7 +244,7 @@ export default function HomePage() {
             )}
 
             {tab === "signin" ? (
-              <form onSubmit={handleLogin} className="mt-5 space-y-4">
+              <form onSubmit={handleLogin} className="mt-4 space-y-3">
                 <div>
                   <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-slate-700">
                     Work email
@@ -259,7 +259,7 @@ export default function HomePage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder={workspace === "client" ? "client@acme.com" : "demo@finova.ai"}
-                      className="w-full rounded-2xl border border-slate-200 bg-[#F7FBFA] py-3.5 pl-11 pr-4 text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20"
+                      className="w-full rounded-2xl border border-slate-200 bg-[#F7FBFA] py-3 pl-11 pr-4 text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20"
                     />
                   </div>
                 </div>
@@ -277,7 +277,7 @@ export default function HomePage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••••••"
-                      className="w-full rounded-2xl border border-slate-200 bg-[#F7FBFA] py-3.5 pl-11 pr-11 text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20"
+                      className="w-full rounded-2xl border border-slate-200 bg-[#F7FBFA] py-3 pl-11 pr-11 text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20"
                     />
                     <button
                       type="button"
@@ -292,7 +292,7 @@ export default function HomePage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-teal-700 py-3.5 text-sm font-semibold text-white shadow-lg shadow-teal-900/15 hover:bg-teal-800 disabled:opacity-60"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-teal-700 py-3 text-sm font-semibold text-white shadow-lg shadow-teal-900/15 hover:bg-teal-800 disabled:opacity-60"
                 >
                   {loading ? "Signing in…" : "Enter workspace"}
                   {!loading && <ArrowRight className="h-4 w-4" />}
@@ -302,7 +302,7 @@ export default function HomePage() {
                 </p>
               </form>
             ) : (
-              <form onSubmit={handleRegister} className="mt-5 space-y-3">
+              <form onSubmit={handleRegister} className="mt-4 space-y-2.5">
                 {(
                   [
                     ["name", "Full name", "text", "Jane Smith"],
@@ -330,14 +330,14 @@ export default function HomePage() {
                       value={reg[key]}
                       onChange={(e) => setReg({ ...reg, [key]: e.target.value })}
                       placeholder={ph}
-                      className="w-full rounded-2xl border border-slate-200 bg-[#F7FBFA] px-4 py-3 text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20"
+                      className="w-full rounded-xl border border-slate-200 bg-[#F7FBFA] px-3.5 py-2.5 text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20"
                     />
                   </div>
                 ))}
                 <button
                   type="submit"
                   disabled={loading}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-teal-700 py-3.5 text-sm font-semibold text-white shadow-lg hover:bg-teal-800 disabled:opacity-60"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-teal-700 py-3 text-sm font-semibold text-white shadow-lg hover:bg-teal-800 disabled:opacity-60"
                 >
                   <UserPlus className="h-4 w-4" />
                   {loading
@@ -349,7 +349,7 @@ export default function HomePage() {
               </form>
             )}
 
-            <div className="relative my-5">
+            <div className="relative my-4">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-slate-200" />
               </div>
@@ -362,7 +362,7 @@ export default function HomePage() {
               type="button"
               onClick={handleMicrosoft}
               disabled={loading}
-              className="flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white py-3.5 text-sm font-semibold text-slate-800 shadow-sm hover:bg-slate-50 disabled:opacity-60"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-3 text-sm font-semibold text-slate-800 shadow-sm hover:bg-slate-50 disabled:opacity-60"
             >
               <svg className="h-5 w-5" viewBox="0 0 23 23" aria-hidden>
                 <path fill="#f35325" d="M1 1h10v10H1z" />
