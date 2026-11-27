@@ -113,7 +113,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-[#F4FAF8]">
-      <div className="relative hidden min-h-screen flex-col justify-between overflow-hidden px-12 py-14 lg:flex xl:px-16">
+      <div className="relative hidden min-h-screen flex-col justify-between overflow-hidden px-10 py-10 lg:flex xl:px-14">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_#E8F5F1_0%,_transparent_55%)]" />
         <div
           className="absolute inset-0 opacity-[0.35]"
@@ -123,20 +123,20 @@ export default function HomePage() {
           }}
         />
 
-        <div className="relative z-10 flex flex-1 flex-col">
-          <Logo size={120} className="finova-logo-float finova-logo-glow drop-shadow-sm" />
+        <div className="relative z-10 flex min-h-0 flex-1 flex-col">
+          <Logo size={110} className="finova-logo-float finova-logo-glow drop-shadow-sm shrink-0" />
 
-          <div className="mt-8 inline-flex items-center gap-2 self-start rounded-full border border-teal-200/80 bg-white/80 px-4 py-1.5 text-xs font-semibold tracking-[0.16em] text-teal-800 shadow-sm">
+          <div className="mt-5 inline-flex shrink-0 items-center gap-2 self-start rounded-full border border-teal-200/80 bg-white/80 px-4 py-1.5 text-xs font-semibold tracking-[0.16em] text-teal-800 shadow-sm">
             <Sparkles className="h-4 w-4" />
             ACCOUNTING · AUDIT · AI
           </div>
 
-          <h1 className="mt-7 max-w-lg text-5xl font-semibold leading-[1.06] tracking-tight text-slate-900 xl:text-[3.35rem]">
+          <h1 className="mt-5 max-w-lg shrink-0 text-4xl font-semibold leading-[1.08] tracking-tight text-slate-900 xl:text-5xl">
             Accounting made{" "}
             <span className="text-teal-700">clear, calm, and capable.</span>
           </h1>
 
-          <div className="mt-7 flex flex-wrap gap-3">
+          <div className="mt-5 flex shrink-0 flex-wrap gap-3">
             {[
               { icon: BarChart3, label: "Reporting" },
               { icon: Landmark, label: "Banking" },
@@ -154,8 +154,8 @@ export default function HomePage() {
             ))}
           </div>
 
-          <div className="relative mt-6 w-full max-w-2xl flex-1 min-h-[280px]">
-            <div className="h-[min(42vh,480px)] min-h-[280px] w-full overflow-hidden rounded-2xl border border-teal-100/90 bg-slate-900 shadow-[0_18px_44px_rgba(7,100,157,0.16)] ring-1 ring-white/50">
+          <div className="relative mt-5 min-h-0 w-full flex-1">
+            <div className="absolute inset-0 overflow-hidden rounded-3xl border border-teal-100/80 bg-slate-900 shadow-[0_20px_50px_rgba(7,100,157,0.18)] ring-1 ring-white/40">
               <video
                 className="h-full w-full object-cover"
                 autoPlay
@@ -174,7 +174,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        <p className="relative z-10 mt-6 text-xs text-slate-500">
+        <p className="relative z-10 mt-4 shrink-0 text-xs text-slate-500">
           © {new Date().getFullYear()} Finova
         </p>
       </div>
