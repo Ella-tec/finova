@@ -125,7 +125,8 @@ export default function HomePage() {
             type="video/mp4"
           />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-950/75 via-slate-950/55 to-teal-950/65" />\n        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_18%_45%,rgba(13,148,136,0.24),transparent_48%)]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-950/75 via-slate-950/55 to-teal-950/65" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_18%_45%,rgba(13,148,136,0.24),transparent_48%)]" />
       </div>
 
       <div className="relative z-10 mx-auto grid min-h-screen w-full max-w-[1600px] grid-cols-1 items-center gap-8 px-4 py-7 sm:px-7 lg:grid-cols-[minmax(0,1fr)_420px] lg:gap-10 lg:px-12 lg:py-10 xl:px-16">
