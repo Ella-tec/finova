@@ -129,16 +129,16 @@ export default function HomePage() {
       </div>
 
       <div className="relative z-10 flex min-h-screen flex-col lg:flex-row">
-        <div className="flex flex-1 flex-col justify-end px-8 pb-10 pt-8 lg:px-12 lg:pb-14 lg:pt-12">
-          <div className="max-w-md">
-            <Logo size={100} className="finova-logo-drift-wide finova-logo-hero" />
+        <div className="flex flex-1 flex-col justify-end px-6 pb-8 pt-6 sm:px-8 lg:px-12 lg:pb-10">
+          <div className="max-w-sm">
+            <Logo size={88} className="finova-logo-drift-wide finova-logo-hero" />
 
-            <div className="mt-5 inline-flex items-center gap-2 self-start rounded-full border border-white/30 bg-white/15 px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.16em] text-white backdrop-blur-md">
+            <div className="mt-4 inline-flex items-center gap-2 self-start rounded-full border border-white/30 bg-white/15 px-3 py-1.5 text-[10px] font-semibold tracking-[0.16em] text-white backdrop-blur-md">
               <Sparkles className="h-3.5 w-3.5 text-teal-200" />
               ACCOUNTING · AUDIT · AI
             </div>
 
-            <h1 className="mt-4 max-w-md text-3xl font-semibold leading-[1.1] tracking-tight text-white xl:text-[2.4rem]">
+            <h1 className="mt-3 max-w-sm text-[1.65rem] font-semibold leading-[1.15] tracking-tight text-white sm:text-[1.85rem] xl:text-[2.1rem]">
               Accounting made{" "}
               <span className="text-teal-300">clear,</span>
               <br />
@@ -147,10 +147,10 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="flex items-center justify-end px-3 py-6 sm:px-4 lg:w-[420px] lg:shrink-0 lg:items-center lg:justify-end lg:pr-4 lg:pl-0 xl:w-[440px] xl:pr-6">
-          <div className="w-full max-w-[400px] rounded-[28px] border border-white/70 bg-white/95 p-6 shadow-[0_28px_80px_rgba(0,0,0,0.35)] backdrop-blur-md sm:p-8">
-            <div className="mb-5 flex justify-center">
-              <Logo size={72} className="finova-logo-float finova-logo-glow" />
+        <div className="flex items-center justify-end px-3 py-4 sm:px-4 lg:w-[400px] lg:shrink-0 lg:py-6 lg:pr-5 lg:pl-2 xl:pr-8">
+          <div className="w-full max-w-[360px] rounded-2xl border border-white/70 bg-white/95 p-5 shadow-[0_24px_60px_rgba(0,0,0,0.32)] backdrop-blur-md sm:p-6">
+            <div className="mb-4 flex justify-center">
+              <Logo size={56} className="finova-logo-float finova-logo-glow" />
             </div>
 
             <div className="grid grid-cols-2 rounded-full bg-slate-100 p-1">
@@ -184,7 +184,7 @@ export default function HomePage() {
               </button>
             </div>
 
-            <h2 className="mt-6 text-center text-2xl font-semibold tracking-tight text-slate-900">
+            <h2 className="mt-5 text-center text-xl font-semibold tracking-tight text-slate-900">
               {tab === "signin" ? "Sign in to Finova" : "Create your workspace"}
             </h2>
             <p className="mt-1 text-center text-sm text-slate-500">
