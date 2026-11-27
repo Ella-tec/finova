@@ -113,30 +113,43 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-[#F4FAF8]">
-      <div className="relative hidden min-h-screen flex-col overflow-hidden lg:flex">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_#E8F5F1_0%,_transparent_55%)]" />
-        <div
-          className="absolute inset-0 opacity-[0.28]"
-          style={{
-            backgroundImage: "radial-gradient(#94a3b8 1px, transparent 1px)",
-            backgroundSize: "22px 22px",
-          }}
-        />
+      <div className="relative hidden min-h-screen overflow-hidden lg:flex lg:flex-col">
+        <div className="absolute inset-0 bg-slate-950">
+          <video
+            className="h-full w-full object-cover object-center"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+          >
+            <source src="/videos/sign-in-hero.mp4" type="video/mp4" />
+            <source
+              src="https://videos.pexels.com/video-files/18743334/18743334-hd_1920_1080_60fps.mp4"
+              type="video/mp4"
+            />
+          </video>
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/55 via-slate-950/25 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/50 via-transparent to-slate-950/30" />
+        </div>
 
-        <div className="relative z-10 shrink-0 px-10 pt-10 xl:px-14">
-          <Logo size={100} className="finova-logo-float finova-logo-glow drop-shadow-sm" />
+        <div className="relative z-10 flex min-h-screen flex-col px-10 py-10 xl:px-14">
+          <Logo
+            size={140}
+            className="finova-logo-drift finova-logo-hero shrink-0 self-start"
+          />
 
-          <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-teal-200/80 bg-white/85 px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.16em] text-teal-800 shadow-sm">
+          <div className="mt-6 inline-flex items-center gap-2 self-start rounded-full border border-white/25 bg-white/15 px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.16em] text-white backdrop-blur-md">
             <Sparkles className="h-3.5 w-3.5" />
             ACCOUNTING · AUDIT · AI
           </div>
 
-          <h1 className="mt-4 max-w-lg text-4xl font-semibold leading-[1.08] tracking-tight text-slate-900 xl:text-[2.75rem]">
+          <h1 className="mt-5 max-w-xl text-4xl font-semibold leading-[1.08] tracking-tight text-white xl:text-[2.85rem]">
             Accounting made{" "}
-            <span className="text-teal-700">clear, calm, and capable.</span>
+            <span className="text-teal-300">clear, calm, and capable.</span>
           </h1>
 
-          <div className="mt-4 flex flex-wrap gap-2.5">
+          <div className="mt-5 flex flex-wrap gap-2.5">
             {[
               { icon: BarChart3, label: "Reporting" },
               { icon: Landmark, label: "Banking" },
@@ -144,39 +157,22 @@ export default function HomePage() {
             ].map(({ icon: Icon, label }) => (
               <span
                 key={label}
-                className="finova-pill-float inline-flex items-center gap-2 rounded-full border border-white/90 bg-white/95 px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-[0_8px_24px_rgba(15,23,42,0.06)]"
+                className="finova-pill-float inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/15 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-md"
               >
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-50 text-teal-700">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-400/20 text-teal-200">
                   <Icon className="h-4 w-4" />
                 </span>
                 {label}
               </span>
             ))}
           </div>
-        </div>
 
-        <div className="relative z-10 mt-4 min-h-0 w-full flex-1">
-          <div className="absolute inset-0 overflow-hidden bg-slate-950">
-            <video
-              className="h-full w-full object-cover object-center"
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="auto"
-            >
-              <source src="/videos/sign-in-hero.mp4" type="video/mp4" />
-              <source
-                src="https://videos.pexels.com/video-files/18743334/18743334-hd_1920_1080_60fps.mp4"
-                type="video/mp4"
-              />
-            </video>
-          </div>
-        </div>
+          <div className="flex-1" />
 
-        <p className="relative z-10 shrink-0 px-10 py-4 text-xs text-slate-500 xl:px-14">
-          © {new Date().getFullYear()} Finova
-        </p>
+          <p className="text-xs text-white/60">
+            © {new Date().getFullYear()} Finova
+          </p>
+        </div>
       </div>
 
       <div className="flex items-center justify-center px-5 py-10 sm:px-8">
