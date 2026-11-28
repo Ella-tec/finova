@@ -128,11 +128,11 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-slate-950/40" />
       </div>
 
-      <div className="relative z-10 mx-auto grid min-h-dvh w-full max-w-[1600px] grid-cols-1 items-center gap-5 px-3 py-4 sm:px-6 sm:py-5 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-8 lg:px-10 lg:py-5 xl:px-14">
-        <section className="flex min-w-0 flex-col justify-end pb-2 text-center lg:justify-end lg:pb-6 lg:text-left">
+      <div className="relative z-10 mx-auto grid min-h-dvh w-full max-w-[1600px] grid-cols-1 items-stretch gap-5 px-3 pb-6 pt-4 sm:px-6 sm:pb-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-8 lg:px-10 lg:pb-10 xl:px-14">
+        <section className="flex min-h-0 min-w-0 flex-col justify-end text-center lg:h-full lg:justify-end lg:text-left">
           <div className="mx-auto w-full max-w-2xl lg:mx-0">
             <div className="flex flex-col items-center gap-3 lg:items-start">
-              <Logo size={88} className="finova-logo-hero finova-logo-sway" />
+              <Logo size={120} className="finova-logo-hero finova-logo-sway" />
               <p className="text-3xl font-bold tracking-tight text-white drop-shadow-lg sm:text-4xl">Finova</p>
             </div>
             <div className="mx-auto mt-5 inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/15 px-4 py-2 text-[10px] font-semibold tracking-[0.18em] text-white shadow-lg backdrop-blur-md sm:text-xs lg:mx-0">
@@ -158,7 +158,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <div className="flex items-center justify-center lg:justify-end">
+        <div className="flex h-full items-center justify-center lg:justify-end">
           <div className="w-full max-w-[360px] rounded-2xl border border-white/70 bg-white/95 p-5 shadow-[0_24px_60px_rgba(0,0,0,0.32)] backdrop-blur-md sm:p-6">
             <div className="mb-4 flex justify-center">
               <Logo size={56} className="finova-logo-float finova-logo-glow" />
